@@ -1,386 +1,3 @@
-# from fastapi import FastAPI, File, UploadFile
-# from fastapi.middleware.cors import CORSMiddleware
-# import cv2
-# import numpy as np
-# import shutil
-# import os
-
-# app = FastAPI()
-
-# # Allow frontend running on port 3000 to access backend
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# UPLOAD_DIR = "uploads"
-# CROPPED_DIR = "cropped"
-
-# os.makedirs(UPLOAD_DIR, exist_ok=True)
-# os.makedirs(CROPPED_DIR, exist_ok=True)
-
-# def crop_board(image_path):
-#     image = cv2.imread(image_path)
-#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-#     # Increase contrast using adaptive thresholding
-#     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    
-#     # Use Canny Edge Detection with adjusted thresholds
-#     edges = cv2.Canny(thresh, 30, 100)
-    
-#     # Find contours
-#     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-#     # Select the largest quadrilateral contour
-#     board_contour = None
-#     max_area = 0
-    
-#     for contour in contours:
-#         approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-#         if len(approx) == 4:  # Looking for quadrilateral shapes
-#             x, y, w, h = cv2.boundingRect(approx)
-#             area = w * h
-#             if area > max_area:
-#                 max_area = area
-#                 board_contour = (x, y, w, h)
-    
-#     if board_contour:
-#         x, y, w, h = board_contour
-#         cropped_image = image[y:y+h, x:x+w]
-#         cropped_path = os.path.join(CROPPED_DIR, os.path.basename(image_path))
-#         cv2.imwrite(cropped_path, cropped_image)
-#         return cropped_path
-    
-#     return None
-
-# @app.post("/upload/")
-# async def upload_image(file: UploadFile = File(...)):
-#     file_path = os.path.join(UPLOAD_DIR, file.filename)
-#     with open(file_path, "wb") as buffer:
-#         shutil.copyfileobj(file.file, buffer)
-    
-#     cropped_path = crop_board(file_path)
-#     if cropped_path:
-#         return {"message": "Board cropped successfully", "cropped_image": cropped_path}
-#     else:
-#         return {"error": "Board detection failed"}
-
-
-# --------------------------------------------------------------
-
-# import os
-# import cv2
-# import numpy as np
-# from fastapi import FastAPI, UploadFile, File
-# from starlette.responses import JSONResponse
-# from fastapi.middleware.cors import CORSMiddleware
-# import matplotlib.pyplot as plt
-
-# UPLOAD_DIR = "uploads"
-# os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# app = FastAPI()
-
-# # Allow frontend running on port 3000 to access backend
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# def visualize_thresholding(image, binary_image):
-#     """
-#     Saves and displays the thresholded image for debugging purposes.
-#     """
-#     debug_path = os.path.join(UPLOAD_DIR, "debug_threshold.jpg")
-#     cv2.imwrite(debug_path, binary_image)
-#     plt.imshow(binary_image, cmap="gray")
-#     plt.title("Thresholded Image")
-#     plt.show()
-
-# def process_image(image_path):
-#     """
-#     Processes the uploaded Block Blast board image and extracts the board matrix.
-#     """
-#     image = cv2.imread(image_path)
-#     if image is None:
-#         return None
-    
-#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-#     _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-    
-#     # Debug visualization
-#     visualize_thresholding(gray, thresh)
-    
-#     # Find grid size
-#     height, width = image.shape[:2]
-#     cell_size = width // 8  # Assuming an 8x8 grid
-    
-#     board_matrix = []
-#     for row in range(8):
-#         row_data = []
-#         for col in range(8):
-#             x_start, y_start = col * cell_size, row * cell_size
-#             x_end, y_end = x_start + cell_size, y_start + cell_size
-#             cell = thresh[y_start:y_end, x_start:x_end]
-#             filled = np.count_nonzero(cell) > (cell_size * cell_size * 0.2)  # Adjust threshold as needed
-#             row_data.append(1 if filled else 0)
-#         board_matrix.append(row_data)
-    
-#     return board_matrix
-
-# @app.post("/upload/")
-# async def upload_file(file: UploadFile = File(...)):
-#     """
-#     API endpoint to upload an image and process it.
-#     """
-#     file_location = os.path.join(UPLOAD_DIR, file.filename)
-#     with open(file_location, "wb") as buffer:
-#         buffer.write(await file.read())
-    
-#     board_matrix = process_image(file_location)
-#     if board_matrix is None:
-#         return JSONResponse(content={"error": "Invalid image"}, status_code=400)
-    
-#     return {"board_matrix": board_matrix}
-
-
-# ----------------------some how working code-------------------------------------------
-
-# import os
-# import cv2
-# import numpy as np
-# import shutil
-# from fastapi import FastAPI, UploadFile, File
-# from starlette.responses import JSONResponse
-# from fastapi.middleware.cors import CORSMiddleware
-
-# UPLOAD_DIR = "uploads"
-# CROPPED_DIR = "cropped"
-# os.makedirs(UPLOAD_DIR, exist_ok=True)
-# os.makedirs(CROPPED_DIR, exist_ok=True)
-
-# app = FastAPI()
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# def crop_board(image_path):
-#     image = cv2.imread(image_path)
-#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-#     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-#     edges = cv2.Canny(thresh, 30, 100)
-    
-#     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#     board_contour = None
-#     max_area = 0
-    
-#     for contour in contours:
-#         approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-#         if len(approx) == 4:
-#             x, y, w, h = cv2.boundingRect(approx)
-#             area = w * h
-#             if area > max_area:
-#                 max_area = area
-#                 board_contour = (x, y, w, h)
-    
-#     if board_contour:
-#         x, y, w, h = board_contour
-#         cropped_image = image[y:y+h, x:x+w]
-#         cropped_path = os.path.join(CROPPED_DIR, os.path.basename(image_path))
-#         cv2.imwrite(cropped_path, cropped_image)
-#         return cropped_path
-    
-#     return None
-
-# def process_image(image_path):
-#     image = cv2.imread(image_path)
-#     if image is None:
-#         return None
-    
-#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-#     _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-    
-#     height, width = image.shape[:2]
-#     cell_size = width // 8
-    
-#     board_matrix = []
-#     for row in range(8):
-#         row_data = []
-#         for col in range(8):
-#             x_start, y_start = col * cell_size, row * cell_size
-#             x_end, y_end = x_start + cell_size, y_start + cell_size
-#             cell = thresh[y_start:y_end, x_start:x_end]
-#             filled = np.count_nonzero(cell) > (cell_size * cell_size * 0.2)
-#             row_data.append(1 if filled else 0)
-#         board_matrix.append(row_data)
-    
-#     return board_matrix
-
-# @app.post("/upload/")
-# async def upload_file(file: UploadFile = File(...)):
-#     file_path = os.path.join(UPLOAD_DIR, file.filename)
-#     with open(file_path, "wb") as buffer:
-#         shutil.copyfileobj(file.file, buffer)
-    
-#     cropped_path = crop_board(file_path)
-#     if not cropped_path:
-#         return JSONResponse(content={"error": "Board detection failed"}, status_code=400)
-    
-#     board_matrix = process_image(cropped_path)
-#     if board_matrix is None:
-#         return JSONResponse(content={"error": "Image processing failed"}, status_code=400)
-    
-#     return {"board_matrix": board_matrix}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# -------------------------debugging code working fine struggling with blue blocks--------------------------
-
-# import os
-# import cv2
-# import numpy as np
-# import shutil
-# from fastapi import FastAPI, UploadFile, File
-# from starlette.responses import JSONResponse
-# from fastapi.middleware.cors import CORSMiddleware
-
-# UPLOAD_DIR = "uploads"
-# CROPPED_DIR = "cropped"
-# DEBUG_DIR = "debug_cells"
-
-# os.makedirs(UPLOAD_DIR, exist_ok=True)
-# os.makedirs(CROPPED_DIR, exist_ok=True)
-# os.makedirs(DEBUG_DIR, exist_ok=True)
-
-# app = FastAPI()
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# def crop_board(image_path):
-#     image = cv2.imread(image_path)
-#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-#     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-#     edges = cv2.Canny(thresh, 30, 100)
-    
-#     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#     board_contour = None
-#     max_area = 0
-    
-#     for contour in contours:
-#         approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-#         if len(approx) == 4:
-#             x, y, w, h = cv2.boundingRect(approx)
-#             area = w * h
-#             if area > max_area:
-#                 max_area = area
-#                 board_contour = (x, y, w, h)
-    
-#     if board_contour:
-#         x, y, w, h = board_contour
-#         cropped_image = image[y:y+h, x:x+w]
-#         cropped_path = os.path.join(CROPPED_DIR, os.path.basename(image_path))
-#         cv2.imwrite(cropped_path, cropped_image)
-#         return cropped_path
-    
-#     return None
-
-# def process_image(image_path):
-#     image = cv2.imread(image_path)
-#     if image is None:
-#         return None
-    
-#     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    
-#     # Define color range for the blue background
-#     lower_blue = np.array([90, 50, 50])  # Lower bound of blue
-#     upper_blue = np.array([130, 255, 255])  # Upper bound of blue
-    
-#     mask = cv2.inRange(hsv, lower_blue, upper_blue)
-    
-#     height, width = image.shape[:2]
-#     cell_size = width // 8
-    
-#     board_matrix = []
-#     for row in range(8):
-#         row_data = []
-#         for col in range(8):
-#             x_start, y_start = col * cell_size, row * cell_size
-#             x_end, y_end = x_start + cell_size, y_start + cell_size
-#             cell = mask[y_start:y_end, x_start:x_end]
-            
-#             # Save debug images
-#             debug_path = os.path.join(DEBUG_DIR, f"cell_{row}_{col}.png")
-#             cv2.imwrite(debug_path, cell)
-            
-#             filled = np.count_nonzero(cell) < (cell_size * cell_size * 0.5)  # Less blue means filled
-#             row_data.append(1 if filled else 0)
-#         board_matrix.append(row_data)
-    
-#     return board_matrix
-
-# @app.post("/upload/")
-# async def upload_file(file: UploadFile = File(...)):
-#     file_path = os.path.join(UPLOAD_DIR, file.filename)
-#     with open(file_path, "wb") as buffer:
-#         shutil.copyfileobj(file.file, buffer)
-    
-#     cropped_path = crop_board(file_path)
-#     if not cropped_path:
-#         return JSONResponse(content={"error": "Board detection failed"}, status_code=400)
-    
-#     board_matrix = process_image(cropped_path)
-#     if board_matrix is None:
-#         return JSONResponse(content={"error": "Image processing failed"}, status_code=400)
-    
-#     return {"board_matrix": board_matrix}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # -------------------------- working fine with light blue color----------------------
 
 # import os
@@ -514,7 +131,276 @@
 
 
 
-# -------------------------------------debugging------------------
+# -------------------------------------detects blocks of all colors from board------------------
+
+
+# import os
+# import cv2
+# import numpy as np
+# import shutil
+# from fastapi import FastAPI, UploadFile, File
+# from starlette.responses import JSONResponse
+# from fastapi.middleware.cors import CORSMiddleware
+
+# UPLOAD_DIR = "uploads"
+# CROPPED_DIR = "cropped"
+# DEBUG_DIR = "debug_cells"
+
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
+# os.makedirs(CROPPED_DIR, exist_ok=True)
+# os.makedirs(DEBUG_DIR, exist_ok=True)
+
+# app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:3000"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# def crop_board(image_path):
+#     image = cv2.imread(image_path)
+#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+#     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+#     edges = cv2.Canny(thresh, 30, 100)
+    
+#     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#     board_contour = None
+#     max_area = 0
+    
+#     for contour in contours:
+#         approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
+#         if len(approx) == 4:
+#             x, y, w, h = cv2.boundingRect(approx)
+#             area = w * h
+#             if area > max_area:
+#                 max_area = area
+#                 board_contour = (x, y, w, h)
+    
+#     if board_contour:
+#         x, y, w, h = board_contour
+#         cropped_image = image[y:y+h, x:x+w]
+#         cropped_path = os.path.join(CROPPED_DIR, os.path.basename(image_path))
+#         cv2.imwrite(cropped_path, cropped_image)
+#         return cropped_path
+    
+#     return None
+
+# def process_image(image_path):
+#     image = cv2.imread(image_path)
+#     if image is None:
+#         return None
+    
+#     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+#     # Adjusted HSV ranges
+#     lower_filled_blue = np.array([110, 130, 60])
+#     upper_filled_blue = np.array([120, 160, 80])
+
+#     lower_empty_blue = np.array([110, 100, 30])
+#     upper_empty_blue = np.array([120, 130, 60])
+
+#     # Masks for filled and empty blue blocks
+#     mask_filled_blue = cv2.inRange(hsv, lower_filled_blue, upper_filled_blue)
+#     mask_empty_blue = cv2.inRange(hsv, lower_empty_blue, upper_empty_blue)
+
+#     # Ensure non-overlapping detection
+#     mask_blue = mask_filled_blue - mask_empty_blue  # Remove empty blocks from filled blocks
+
+#     height, width = image.shape[:2]
+#     cell_size = width // 8  # Assuming an 8x8 grid
+
+#     board_matrix = []
+#     for row in range(8):
+#         row_data = []
+#         for col in range(8):
+#             x_start, y_start = col * cell_size, row * cell_size
+#             x_end, y_end = x_start + cell_size, y_start + cell_size
+#             cell_mask = mask_blue[y_start:y_end, x_start:x_end]
+
+#             # Count nonzero pixels (filled block detection)
+#             filled = np.count_nonzero(cell_mask) > (cell_size * cell_size * 0.2)
+#             row_data.append(0 if filled else 1)
+#         board_matrix.append(row_data)
+
+#     return board_matrix
+
+
+# @app.post("/upload/")
+# async def upload_file(file: UploadFile = File(...)):
+#     file_path = os.path.join(UPLOAD_DIR, file.filename)
+#     with open(file_path, "wb") as buffer:
+#         shutil.copyfileobj(file.file, buffer)
+    
+#     cropped_path = crop_board(file_path)
+#     if not cropped_path:
+#         return JSONResponse(content={"error": "Board detection failed"}, status_code=400)
+    
+#     board_matrix = process_image(cropped_path)
+#     if board_matrix is None:
+#         return JSONResponse(content={"error": "Image processing failed"}, status_code=400)
+    
+#     return {"board_matrix": board_matrix}
+
+
+# -------------------------------------------- croping shapes image----------------------------------------------------
+
+
+# import os
+# import cv2
+# import numpy as np
+# import shutil
+# from fastapi import FastAPI, UploadFile, File
+# from starlette.responses import JSONResponse
+# from fastapi.middleware.cors import CORSMiddleware
+
+# UPLOAD_DIR = "uploads"
+# CROPPED_DIR = "cropped"
+# DEBUG_DIR = "debug_cells"
+
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
+# os.makedirs(CROPPED_DIR, exist_ok=True)
+# os.makedirs(DEBUG_DIR, exist_ok=True)
+
+# app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:3000"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# def crop_board(image_path):
+#     image = cv2.imread(image_path)
+#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+#     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+#     edges = cv2.Canny(thresh, 30, 100)
+    
+#     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#     board_contour = None
+#     max_area = 0
+    
+#     for contour in contours:
+#         approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
+#         if len(approx) == 4:
+#             x, y, w, h = cv2.boundingRect(approx)
+#             area = w * h
+#             if area > max_area:
+#                 max_area = area
+#                 board_contour = (x, y, w, h)
+    
+#     if board_contour:
+#         x, y, w, h = board_contour
+#         cropped_image = image[y:y+h, x:x+w]
+#         cropped_path = os.path.join(CROPPED_DIR, os.path.basename(image_path))
+#         cv2.imwrite(cropped_path, cropped_image)
+#         return cropped_path, (x, y, w, h)
+
+#     return None, None  # Return both cropped path and board coordinates
+
+
+# def process_image(image_path):
+#     if not image_path or not os.path.exists(image_path):
+#         raise ValueError(f"Invalid image path: {image_path}")
+
+#     image = cv2.imread(image_path)
+#     if image is None:
+#         raise ValueError(f"Failed to load image: {image_path}")
+
+#     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+#     # Adjusted HSV ranges
+#     lower_filled_blue = np.array([110, 130, 60])
+#     upper_filled_blue = np.array([120, 160, 80])
+
+#     lower_empty_blue = np.array([110, 100, 30])
+#     upper_empty_blue = np.array([120, 130, 60])
+
+#     # Masks for filled and empty blue blocks
+#     mask_filled_blue = cv2.inRange(hsv, lower_filled_blue, upper_filled_blue)
+#     mask_empty_blue = cv2.inRange(hsv, lower_empty_blue, upper_empty_blue)
+
+#     # Ensure non-overlapping detection
+#     mask_blue = mask_filled_blue - mask_empty_blue  # Remove empty blocks from filled blocks
+
+#     height, width = image.shape[:2]
+#     cell_size = width // 8  # Assuming an 8x8 grid
+
+#     board_matrix = []
+#     for row in range(8):
+#         row_data = []
+#         for col in range(8):
+#             x_start, y_start = col * cell_size, row * cell_size
+#             x_end, y_end = x_start + cell_size, y_start + cell_size
+#             cell_mask = mask_blue[y_start:y_end, x_start:x_end]
+
+#             # Count nonzero pixels (filled block detection)
+#             filled = np.count_nonzero(cell_mask) > (cell_size * cell_size * 0.2)
+#             row_data.append(0 if filled else 1)
+#         board_matrix.append(row_data)
+
+#     return board_matrix
+
+# def crop_shapes(image_path, board_coords):
+#     image = cv2.imread(image_path)
+    
+#     if board_coords is None or len(board_coords) != 4:
+#         raise ValueError(f"Expected 4 values in board_coords, got {board_coords}")
+
+#     x, y, w, h = board_coords  # Now safe to unpack
+    
+#     # Extending height dynamically
+#     shape_area_start = y + h  # Start right after the board
+#     shape_area_height = h // 2  # Adjust this if needed
+    
+#     cropped_shapes = image[shape_area_start:shape_area_start+shape_area_height, x:x+w]
+    
+#     shapes_path = os.path.join(CROPPED_DIR, "cropped_shapes.jpg")
+#     cv2.imwrite(shapes_path, cropped_shapes)
+#     return shapes_path
+
+# @app.post("/upload/")
+# async def upload_file(file: UploadFile = File(...)):
+#     file_path = os.path.join(UPLOAD_DIR, file.filename)
+#     with open(file_path, "wb") as buffer:
+#         shutil.copyfileobj(file.file, buffer)
+
+#     # Unpack tuple properly
+#     cropped_board_path, board_coords = crop_board(file_path)
+    
+#     # Ensure board detection succeeded
+#     if not cropped_board_path or board_coords is None:
+#         return JSONResponse(content={"error": "Board detection failed"}, status_code=400)
+
+#     board_matrix = process_image(cropped_board_path)
+#     cropped_shapes_path = crop_shapes(file_path, board_coords)
+
+#     return {
+#         "cropped_board": cropped_board_path,
+#         "cropped_shapes": cropped_shapes_path,
+#         "board_matrix": board_matrix
+#     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------debug-----------------------
+
 
 
 import os
@@ -528,10 +414,12 @@ from fastapi.middleware.cors import CORSMiddleware
 UPLOAD_DIR = "uploads"
 CROPPED_DIR = "cropped"
 DEBUG_DIR = "debug_cells"
+SHAPES_DIR = "cropped_shapes"
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(CROPPED_DIR, exist_ok=True)
 os.makedirs(DEBUG_DIR, exist_ok=True)
+os.makedirs(SHAPES_DIR, exist_ok=True)
 
 app = FastAPI()
 
@@ -543,30 +431,146 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def process_cropped_image(image_path):
+def crop_board(image_path):
     image = cv2.imread(image_path)
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    lower_filled = np.array([100, 50, 50])
-    upper_filled = np.array([130, 255, 200])
-    mask_filled = cv2.inRange(hsv, lower_filled, upper_filled)
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    edges = cv2.Canny(thresh, 30, 100)
     
-    lower_empty = np.array([100, 50, 20])
-    upper_empty = np.array([130, 255, 50])
-    mask_empty = cv2.inRange(hsv, lower_empty, upper_empty)
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    board_contour = None
+    max_area = 0
     
-    edges = cv2.Canny(image, 50, 150)
+    for contour in contours:
+        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
+        if len(approx) == 4:
+            x, y, w, h = cv2.boundingRect(approx)
+            area = w * h
+            if area > max_area:
+                max_area = area
+                board_contour = (x, y, w, h)
     
-    laplacian = cv2.Laplacian(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.CV_64F)
-    laplacian_abs = np.absolute(laplacian)
-    laplacian_norm = np.uint8(255 * (laplacian_abs / (np.max(laplacian_abs) + 1e-6)))
-    
-    combined_edges = cv2.bitwise_or(edges, mask_filled)
-    refined_mask = cv2.bitwise_and(combined_edges, laplacian_norm)
-    
-    return refined_mask
+    if board_contour:
+        x, y, w, h = board_contour
+        cropped_image = image[y:y+h, x:x+w]
+        cropped_path = os.path.join(CROPPED_DIR, os.path.basename(image_path))
+        cv2.imwrite(cropped_path, cropped_image)
+        return cropped_path, (x, y, w, h)
 
-if __name__ == "__main__":
-    image_path = "input.jpg"  # Update with actual path
-    refined_mask = process_cropped_image(image_path)
-    cv2.imwrite("refined_mask_output.png", refined_mask)
+    return None, None  # Return both cropped path and board coordinates
+
+def process_image(image_path):
+    if not image_path or not os.path.exists(image_path):
+        raise ValueError(f"Invalid image path: {image_path}")
+
+    image = cv2.imread(image_path)
+    if image is None:
+        raise ValueError(f"Failed to load image: {image_path}")
+
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    # Adjusted HSV ranges
+    lower_filled_blue = np.array([110, 130, 60])
+    upper_filled_blue = np.array([120, 160, 80])
+
+    lower_empty_blue = np.array([110, 100, 30])
+    upper_empty_blue = np.array([120, 130, 60])
+
+    # Masks for filled and empty blue blocks
+    mask_filled_blue = cv2.inRange(hsv, lower_filled_blue, upper_filled_blue)
+    mask_empty_blue = cv2.inRange(hsv, lower_empty_blue, upper_empty_blue)
+
+    # Ensure non-overlapping detection
+    mask_blue = mask_filled_blue - mask_empty_blue  # Remove empty blocks from filled blocks
+
+    height, width = image.shape[:2]
+    cell_size = width // 8  # Assuming an 8x8 grid
+
+    board_matrix = []
+    for row in range(8):
+        row_data = []
+        for col in range(8):
+            x_start, y_start = col * cell_size, row * cell_size
+            x_end, y_end = x_start + cell_size, y_start + cell_size
+            cell_mask = mask_blue[y_start:y_end, x_start:x_end]
+
+            # Count nonzero pixels (filled block detection)
+            filled = np.count_nonzero(cell_mask) > (cell_size * cell_size * 0.2)
+            row_data.append(0 if filled else 1)
+        board_matrix.append(row_data)
+
+    return board_matrix
+
+def crop_shapes(image_path, board_coords):
+    image = cv2.imread(image_path)
+    
+    if board_coords is None or len(board_coords) != 4:
+        raise ValueError(f"Expected 4 values in board_coords, got {board_coords}")
+
+    x, y, w, h = board_coords  # Now safe to unpack
+    
+    # Extending height dynamically
+    shape_area_start = y + h + 30 # Start right after the board
+    shape_area_height = h // 2  # Adjust this if needed
+    
+    cropped_shapes = image[shape_area_start:shape_area_start+shape_area_height, x:x+w]
+    
+    shapes_path = os.path.join(CROPPED_DIR, "cropped_shapes.jpg")
+    cv2.imwrite(shapes_path, cropped_shapes)
+    return shapes_path
+
+
+
+
+def detect_shapes(image_path):
+    image = cv2.imread(image_path)
+    if image is None:
+        raise ValueError(f"Failed to load image: {image_path}")
+
+    # Convert to grayscale and apply threshold
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
+
+    height, width = binary.shape
+    cell_size = width // 8  # Assuming the shapes area is also 8x8
+
+    shape_matrix = []
+    for row in range(8):
+        row_data = []
+        for col in range(8):
+            x_start, y_start = col * cell_size, row * cell_size
+            x_end, y_end = x_start + cell_size, y_start + cell_size
+            cell_region = binary[y_start:y_end, x_start:x_end]
+
+            # Count nonzero pixels (detect filled blocks)
+            filled = np.count_nonzero(cell_region) > (cell_size * cell_size * 0.2)
+            row_data.append(1 if filled else 0)  # 1 = filled, 0 = empty
+        shape_matrix.append(row_data)
+
+    return [shape_matrix]  # Returning as a list of matrices to match API response format
+
+
+
+
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    cropped_board_path, board_coords = crop_board(file_path)
+    
+    if not cropped_board_path or board_coords is None:
+        return JSONResponse(content={"error": "Board detection failed"}, status_code=400)
+
+    board_matrix = process_image(cropped_board_path)
+    cropped_shapes_path = crop_shapes(file_path, board_coords)
+    shapes_matrices = detect_shapes(cropped_shapes_path)
+
+    return {
+        "cropped_board": cropped_board_path,
+        "cropped_shapes": cropped_shapes_path,
+        "board_matrix": board_matrix,
+       "shapes": [list(map(list, shape)) for shape in shapes_matrices]
+    }
