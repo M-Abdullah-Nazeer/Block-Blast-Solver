@@ -523,32 +523,89 @@ def crop_shapes(image_path, board_coords):
 
 
 
-def detect_shapes(image_path):
+
+
+def detect_shapes(image_path, debug=True):
+    # Load image and convert to grayscale
     image = cv2.imread(image_path)
-    if image is None:
-        raise ValueError(f"Failed to load image: {image_path}")
-
-    # Convert to grayscale and apply threshold
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
+    
+    # Apply threshold to segment shapes
+    _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
 
-    height, width = binary.shape
-    cell_size = width // 8  # Assuming the shapes area is also 8x8
+    # Use morphological closing to merge broken shapes
+    kernel = np.ones((5, 5), np.uint8)  # Adjust kernel size if needed
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
 
-    shape_matrix = []
-    for row in range(8):
-        row_data = []
-        for col in range(8):
-            x_start, y_start = col * cell_size, row * cell_size
-            x_end, y_end = x_start + cell_size, y_start + cell_size
-            cell_region = binary[y_start:y_end, x_start:x_end]
+    # Apply dilation for separation (reintroduced 'dilated' to avoid errors)
+    dilated = cv2.dilate(thresh, kernel, iterations=2)
 
-            # Count nonzero pixels (detect filled blocks)
-            filled = np.count_nonzero(cell_region) > (cell_size * cell_size * 0.2)
-            row_data.append(1 if filled else 0)  # 1 = filled, 0 = empty
-        shape_matrix.append(row_data)
+    if debug:
+        debug_dir = "debug_images"
+        os.makedirs(debug_dir, exist_ok=True)
+        cv2.imwrite(f"{debug_dir}/debug_threshold.jpg", thresh)
+        cv2.imwrite(f"{debug_dir}/debug_dilated.jpg", dilated)
 
-    return [shape_matrix]  # Returning as a list of matrices to match API response format
+    # Find external contours to avoid inner artifacts
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Sort contours from left to right
+    contours = sorted(contours, key=lambda c: cv2.boundingRect(c)[0])
+
+    min_area = 1000  # Adjust based on shape size
+    filtered_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
+
+    shape_arrays = []
+    for i, contour in enumerate(filtered_contours):  # Use filtered contours
+        x, y, w, h = cv2.boundingRect(contour)
+
+        # Ignore small noise
+        if w < 3 or h < 3:
+            continue
+
+        # Crop shape
+        cropped_shape = thresh[y:y+h, x:x+w]
+
+        # Save cropped shape for debugging
+        if debug:
+            cv2.imwrite(f"{debug_dir}/shape_{i}_cropped.jpg", cropped_shape)
+
+        # Resize while keeping aspect ratio
+        max_dim = max(w, h)
+        scale = 8 / max_dim
+        new_w, new_h = int(w * scale), int(h * scale)
+
+        if new_w > 0 and new_h > 0:
+            resized_shape = cv2.resize(cropped_shape, (new_w, new_h), interpolation=cv2.INTER_NEAREST)
+        else:
+            print(f"Skipping resize: Invalid dimensions (w={new_w}, h={new_h})")
+            continue  # Skip this shape
+
+        # Save resized shape for debugging
+        if debug:
+            cv2.imwrite(f"{debug_dir}/shape_{i}_resized.jpg", resized_shape)
+
+        # Create 8x8 array and center the shape
+        shape_grid = np.zeros((8, 8), dtype=int)
+        offset_x = (8 - new_w) // 2
+        offset_y = (8 - new_h) // 2
+        shape_grid[offset_y:offset_y+new_h, offset_x:offset_x+new_w] = (resized_shape > 0).astype(int)
+
+        shape_arrays.append(shape_grid)
+
+    return [shape.tolist() for shape in shape_arrays]
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -568,9 +625,15 @@ async def upload_file(file: UploadFile = File(...)):
     cropped_shapes_path = crop_shapes(file_path, board_coords)
     shapes_matrices = detect_shapes(cropped_shapes_path)
 
+    for i, shape in enumerate(shapes_matrices):
+        print(f"Shape {i+1}:")
+        for row in shape:
+            print(" ".join(map(str, row)))
+        print("\n")
+
     return {
         "cropped_board": cropped_board_path,
         "cropped_shapes": cropped_shapes_path,
         "board_matrix": board_matrix,
-       "shapes": [list(map(list, shape)) for shape in shapes_matrices]
+        "shapes": shapes_matrices
     }
