@@ -894,19 +894,16 @@ def detect_shapes(image_path, debug=True):
 
 
 
-
-
 def process_cropped_shapes(directory):
     """
-    Processes each .jpg image in 'directory' and returns a dict of:
-      {
-         "filename.jpg": <2D list (grid) of 0s/1s>
-      }
+    Processes each .jpg image in 'directory' and returns a dictionary where:
+      - keys are image filenames (e.g., "shape_0.jpg")
+      - values are 2D arrays (lists of lists) representing the shape,
+        using a "block size" strategy for wide images.
     """
-
     results = {}
     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
-
+    
     for filename in filenames:
         img_path = os.path.join(directory, filename)
         img = cv2.imread(img_path)
@@ -917,80 +914,64 @@ def process_cropped_shapes(directory):
         # Convert to HSV for background masking
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-        # 1) Threshold out the background (tweak range if needed)
+        # 1) Threshold out the background (tweak these values as needed)
         lower_bg = np.array([200, 50, 40], dtype=np.uint8)
         upper_bg = np.array([240, 100, 100], dtype=np.uint8)
         bg_mask = cv2.inRange(hsv, lower_bg, upper_bg)
         mask = cv2.bitwise_not(bg_mask)  # Foreground (blocks) are white
 
-        # 2) Find bounding box of the shape
+        # 2) Find bounding box of the shape (all non-zero pixels)
         coords = cv2.findNonZero(mask)
         if coords is None:
             print(f"No blocks detected in {filename}.")
             continue
 
         x, y, w, h = cv2.boundingRect(coords)
-
-        # We'll extract just the ROI for simpler analysis
-        roi = mask[y : y + h, x : x + w]
-
-        # 3) Decide if we should apply the "5 blocks wide" strategy
-        #    We'll check if the shape is significantly wider than it is tall.
-        #    (You can tweak the ratio or do more sophisticated checks.)
         aspect_ratio = w / float(h) if h > 0 else 0
+        print(f"{filename}: BoundingRect => x={x}, y={y}, w={w}, h={h}, Aspect Ratio = {aspect_ratio:.2f}")
 
-        # Threshold for deciding "it's likely 5 blocks in a row"
-        # e.g. if the bounding box is at least 4 times wider than tall
-        # (You can adjust this ratio or handle other block counts.)
-        if aspect_ratio >= 4.0:
-            # --- BLOCK SIZE STRATEGY (5 blocks in a row) ---
+        # Crop the ROI for further analysis
+        roi = mask[y:y+h, x:x+w]
+
+        # 3) Use block size strategy if the ROI is wide (i.e. likely 5 blocks in a row)
+        # Lowered threshold from 4.0 to 3.0 based on your image characteristics.
+        if aspect_ratio >= 3.0:
+            print(f"{filename}: Using detect_5_blocks_in_a_row strategy.")
             shape_array = detect_5_blocks_in_a_row(roi, w, h)
             results[filename] = shape_array.tolist()
-
         else:
-            # --- FALLBACK STRATEGY ---
-            # For shapes that are not obviously a single row of 5 blocks,
-            # we can do your original approach or a simpler contour-based grid.
+            print(f"{filename}: Using fallback_detect_blocks strategy.")
             shape_array = fallback_detect_blocks(roi)
             results[filename] = shape_array.tolist()
 
     return results
 
-
 def detect_5_blocks_in_a_row(roi, w, h):
     """
     Given an ROI (mask) that we suspect is 5 blocks wide in a single row,
-    slice horizontally into 5 segments. Mark each segment '1' if it has enough
-    foreground pixels, else '0'.
+    slice the ROI horizontally into 5 segments. For each segment, if more than 20%
+    of its pixels are foreground, mark it as 1.
     """
-    # We'll store a 1x5 grid
+    # Create a 1x5 grid
     shape_array = np.zeros((1, 5), dtype=int)
-
-    # The ROI is already cropped, but we only know 'w' and 'h' from boundingRect
-    # The top-left of this ROI is (0, 0) in 'roi' coordinates
-    block_width = w // 5  # integer division
+    block_width = w // 5  # integer division for block width
+    
     for i in range(5):
         x_start = i * block_width
-        # The last block might need to go to the end if w isn't a perfect multiple of 5
-        if i < 4:
-            x_end = (i + 1) * block_width
-        else:
-            x_end = w
-
-        cell = roi[0:h, x_start:x_end]
+        # For the last block, go to the full width to catch any remainder.
+        x_end = (i + 1) * block_width if i < 4 else w
+        cell = roi[:, x_start:x_end]
         # Mark as 1 if >20% of the cell's pixels are foreground
         if cv2.countNonZero(cell) > 0.2 * cell.size:
             shape_array[0, i] = 1
 
     return shape_array
 
-
 def fallback_detect_blocks(roi):
     """
-    A simple fallback approach for shapes that aren't obviously a single row of 5 blocks.
-    This can be your existing contour logic, a grid-fitting approach, etc.
-    For brevity, let's just do a single '1' if there's any foreground.
-    Replace this with your preferred fallback.
+    A simple fallback for shapes that aren't wide enough to be recognized
+    as a row of 5 blocks. This example simply returns a 1x1 grid with a 1 if
+    any foreground is detected.
     """
     if cv2.countNonZero(roi) > 0:
         return np.array([[1]])
