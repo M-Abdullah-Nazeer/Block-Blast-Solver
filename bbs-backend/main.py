@@ -895,350 +895,279 @@ def detect_shapes(image_path, debug=True):
 
 # ----------- works with simple row shaped images --------
 
-# def process_cropped_shapes(directory):
-    """
-    Processes each .jpg image in 'directory' and returns a dictionary of:
-      {
-        "filename.jpg": <2D list (grid) of 0/1 for each detected block>
-      }
-    Uses:
-      1) HSV background removal
-      2) Canny edges to highlight boundaries
-      3) Distance transform + Watershed
-      4) Centroid detection + row clustering
-    """
-    results = {}
-    filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#   def process_cropped_shapes(directory):
+#     """
+#     Processes each .jpg image in 'directory' and returns a dictionary of:
+#       {
+#         "filename.jpg": <2D list (grid) of 0/1 for each detected block>
+#       }
+#     Uses:
+#       1) HSV background removal
+#       2) Canny edges to highlight boundaries
+#       3) Distance transform + Watershed
+#       4) Centroid detection + row clustering
+#     """
+#     results = {}
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
     
-    for filename in filenames:
-        img_path = os.path.join(directory, filename)
-        img = cv2.imread(img_path)
-        if img is None:
-            print(f"Failed to load {filename}. Skipping.")
-            continue
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
 
-        # -- STEP 1: Remove background (HSV threshold) --
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_bg = np.array([200, 50, 40], dtype=np.uint8)
-        upper_bg = np.array([240, 100, 100], dtype=np.uint8)
-        bg_mask = cv2.inRange(hsv, lower_bg, upper_bg)  # background in white
-        mask = cv2.bitwise_not(bg_mask)                 # blocks in white
+#         # -- STEP 1: Remove background (HSV threshold) --
+#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#         lower_bg = np.array([200, 50, 40], dtype=np.uint8)
+#         upper_bg = np.array([240, 100, 100], dtype=np.uint8)
+#         bg_mask = cv2.inRange(hsv, lower_bg, upper_bg)  # background in white
+#         mask = cv2.bitwise_not(bg_mask)                 # blocks in white
 
-        # If the mask is empty, skip
-        if cv2.countNonZero(mask) == 0:
-            print(f"No foreground found in {filename}.")
-            continue
+#         # If the mask is empty, skip
+#         if cv2.countNonZero(mask) == 0:
+#             print(f"No foreground found in {filename}.")
+#             continue
 
-        # Morphological opening to remove small noise
-        kernel = np.ones((3, 3), np.uint8)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
+#         # Morphological opening to remove small noise
+#         kernel = np.ones((3, 3), np.uint8)
+#         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
 
-        # -- STEP 2: Canny edge detection to highlight internal boundaries --
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        # Adjust these thresholds as needed:
-        edges = cv2.Canny(gray, threshold1=50, threshold2=150)
-        # Keep edges only within the shape (mask)
-        edges_in_shape = cv2.bitwise_and(edges, mask)
+#         # -- STEP 2: Canny edge detection to highlight internal boundaries --
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         # Adjust these thresholds as needed:
+#         edges = cv2.Canny(gray, threshold1=50, threshold2=150)
+#         # Keep edges only within the shape (mask)
+#         edges_in_shape = cv2.bitwise_and(edges, mask)
 
-        # Optionally dilate the edges to make them thicker
-        edges_in_shape = cv2.dilate(edges_in_shape, kernel, iterations=1)
+#         # Optionally dilate the edges to make them thicker
+#         edges_in_shape = cv2.dilate(edges_in_shape, kernel, iterations=1)
 
-        # Combine edges with mask so edges become "holes" or boundaries in the shape
-        # We invert edges_in_shape so edges become black (0) within the shape
-        edges_inv = cv2.bitwise_not(edges_in_shape)
-        # Now the shape interior is white except for black lines where edges are
-        combined = cv2.bitwise_and(mask, edges_inv)
+#         # Combine edges with mask so edges become "holes" or boundaries in the shape
+#         # We invert edges_in_shape so edges become black (0) within the shape
+#         edges_inv = cv2.bitwise_not(edges_in_shape)
+#         # Now the shape interior is white except for black lines where edges are
+#         combined = cv2.bitwise_and(mask, edges_inv)
 
-        # -- STEP 3: Distance transform + Watershed on combined result --
-        dist = cv2.distanceTransform(combined, cv2.DIST_L2, 5)
-        # Tweak the factor (0.5, 0.6, 0.7) to separate blocks more or less
-        dist_thresh = 0.6 * dist.max()
-        _, sure_fg = cv2.threshold(dist, dist_thresh, 255, 0)
-        sure_fg = np.uint8(sure_fg)
+#         # -- STEP 3: Distance transform + Watershed on combined result --
+#         dist = cv2.distanceTransform(combined, cv2.DIST_L2, 5)
+#         # Tweak the factor (0.5, 0.6, 0.7) to separate blocks more or less
+#         dist_thresh = 0.6 * dist.max()
+#         _, sure_fg = cv2.threshold(dist, dist_thresh, 255, 0)
+#         sure_fg = np.uint8(sure_fg)
 
-        # sure_bg by dilating the original mask
-        sure_bg = cv2.dilate(mask, kernel, iterations=3)
-        unknown = cv2.subtract(sure_bg, sure_fg)
+#         # sure_bg by dilating the original mask
+#         sure_bg = cv2.dilate(mask, kernel, iterations=3)
+#         unknown = cv2.subtract(sure_bg, sure_fg)
 
-        # Markers for watershed
-        _, markers = cv2.connectedComponents(sure_fg)
-        markers = markers + 1
-        markers[unknown == 255] = 0
+#         # Markers for watershed
+#         _, markers = cv2.connectedComponents(sure_fg)
+#         markers = markers + 1
+#         markers[unknown == 255] = 0
 
-        # Run watershed
-        markers = cv2.watershed(img, markers)
+#         # Run watershed
+#         markers = cv2.watershed(img, markers)
 
-        # -- STEP 4: Find centroids of each labeled block --
-        block_centroids = []
-        unique_labels = np.unique(markers)
-        for label in unique_labels:
-            # Skip background (label <= 1) and boundary (-1)
-            if label <= 1:
-                continue
+#         # -- STEP 4: Find centroids of each labeled block --
+#         block_centroids = []
+#         unique_labels = np.unique(markers)
+#         for label in unique_labels:
+#             # Skip background (label <= 1) and boundary (-1)
+#             if label <= 1:
+#                 continue
 
-            label_mask = np.uint8(markers == label)
-            contours, _ = cv2.findContours(label_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            if not contours:
-                continue
-            cnt = max(contours, key=cv2.contourArea)
-            M = cv2.moments(cnt)
-            if M["m00"] != 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                block_centroids.append((cx, cy))
+#             label_mask = np.uint8(markers == label)
+#             contours, _ = cv2.findContours(label_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#             if not contours:
+#                 continue
+#             cnt = max(contours, key=cv2.contourArea)
+#             M = cv2.moments(cnt)
+#             if M["m00"] != 0:
+#                 cx = int(M["m10"] / M["m00"])
+#                 cy = int(M["m01"] / M["m00"])
+#                 block_centroids.append((cx, cy))
 
-        if not block_centroids:
-            print(f"No blocks detected after watershed in {filename}.")
-            continue
+#         if not block_centroids:
+#             print(f"No blocks detected after watershed in {filename}.")
+#             continue
 
-        # -- STEP 5: Cluster centroids by row to build a grid --
-        block_centroids.sort(key=lambda p: p[1])  # sort by y
-        row_thresh = 20  # vertical tolerance for grouping into rows
-        row_clusters = []
-        for pt in block_centroids:
-            placed = False
-            for cluster in row_clusters:
-                avg_y = np.mean([p[1] for p in cluster])
-                if abs(pt[1] - avg_y) < row_thresh:
-                    cluster.append(pt)
-                    placed = True
-                    break
-            if not placed:
-                row_clusters.append([pt])
+#         # -- STEP 5: Cluster centroids by row to build a grid --
+#         block_centroids.sort(key=lambda p: p[1])  # sort by y
+#         row_thresh = 20  # vertical tolerance for grouping into rows
+#         row_clusters = []
+#         for pt in block_centroids:
+#             placed = False
+#             for cluster in row_clusters:
+#                 avg_y = np.mean([p[1] for p in cluster])
+#                 if abs(pt[1] - avg_y) < row_thresh:
+#                     cluster.append(pt)
+#                     placed = True
+#                     break
+#             if not placed:
+#                 row_clusters.append([pt])
 
-        # Sort each row cluster by x
-        for cluster in row_clusters:
-            cluster.sort(key=lambda p: p[0])
+#         # Sort each row cluster by x
+#         for cluster in row_clusters:
+#             cluster.sort(key=lambda p: p[0])
 
-        n_rows = len(row_clusters)
-        n_cols = max(len(c) for c in row_clusters)
-        grid = [[0]*n_cols for _ in range(n_rows)]
-        for i, cluster in enumerate(row_clusters):
-            for j, pt in enumerate(cluster):
-                grid[i][j] = 1
+#         n_rows = len(row_clusters)
+#         n_cols = max(len(c) for c in row_clusters)
+#         grid = [[0]*n_cols for _ in range(n_rows)]
+#         for i, cluster in enumerate(row_clusters):
+#             for j, pt in enumerate(cluster):
+#                 grid[i][j] = 1
 
-        results[filename] = grid
+#         results[filename] = grid
 
-    return results
-
-
+#     return results
 
 
 
-def process_cropped_shapes(directory):
-    """
-    Processes each .jpg image in 'directory' and returns a dictionary:
-      {
-        "filename.jpg": <2D list (grid) of 0/1>
-      }
+# l shapes and T shapes getting detected perfectly
 
-    Steps:
-      1) Remove background (HSV).
-      2) Canny + Watershed to separate blocks if possible (for L/T shapes, etc.).
-      3) If watershed => multiple blocks, cluster them into a grid.
-      4) If watershed => only 1 block, fallback to best-fit line (2..5 blocks)
-         either horizontally or vertically, with a penalty for unused segments.
-    """
-    results = {}
+
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+
+#     # Debug folder for visualization
+#     debug_dir = os.path.join(directory, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Convert to grayscale and threshold
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+
+#         # Find contours
+#         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+#         # Determine block size based on contours
+#         block_size = 40  # Set default, adjust dynamically if needed
+#         min_x, min_y, max_x, max_y = np.inf, np.inf, -np.inf, -np.inf
+
+#         for contour in contours:
+#             x, y, w, h = cv2.boundingRect(contour)
+#             min_x, min_y = min(min_x, x), min(min_y, y)
+#             max_x, max_y = max(max_x, x + w), max(max_y, y + h)
+
+#         # Define grid size
+#         rows = (max_y - min_y) // block_size + 1
+#         cols = (max_x - min_x) // block_size + 1
+
+#         # Create the 2D array
+#         shape_array = np.zeros((rows, cols), dtype=int)
+
+#         # Debugging: Draw detected blocks on the image
+#         debug_img = img.copy()
+
+#         for contour in contours:
+#             x, y, w, h = cv2.boundingRect(contour)
+#             row_idx = (y - min_y) // block_size
+#             col_idx = (x - min_x) // block_size
+#             shape_array[row_idx: row_idx + (h // block_size), col_idx: col_idx + (w // block_size)] = 1
+
+#             # Draw detected blocks (debugging)
+#             cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+#         # Save the debugging image
+#         debug_img_path = os.path.join(debug_dir, f"debug_{filename}")
+#         cv2.imwrite(debug_img_path, debug_img)
+
+#         # Convert numpy array to list for JSON serialization
+#         detected_shapes[filename] = shape_array.tolist()
+
+#     return detected_shapes
+
+
+
+
+
+
+def detect_blocks_final_v2(directory):
+    detected_shapes = {}
+
+    # Debug folder for visualization
+    debug_dir = os.path.join(directory, "debug")
+    os.makedirs(debug_dir, exist_ok=True)
+
     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
-
     for filename in filenames:
         img_path = os.path.join(directory, filename)
         img = cv2.imread(img_path)
+
         if img is None:
             print(f"Failed to load {filename}. Skipping.")
             continue
 
-        # --- STEP 1: Background Removal (HSV) ---
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_bg = np.array([200, 50, 40], dtype=np.uint8)
-        upper_bg = np.array([240, 100, 100], dtype=np.uint8)
-        bg_mask = cv2.inRange(hsv, lower_bg, upper_bg)
-        mask = cv2.bitwise_not(bg_mask)  # blocks = white, background = black
-
-        if cv2.countNonZero(mask) == 0:
-            print(f"No foreground found in {filename}.")
-            continue
-
-        # Morphological open to reduce noise
-        kernel = np.ones((3, 3), np.uint8)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
-
-        # Find bounding box for fallback usage
-        coords = cv2.findNonZero(mask)
-        x, y, w, h = cv2.boundingRect(coords)
-        aspect_ratio = (w / float(h)) if h else 0
-
-        # --- STEP 2: Canny edges to highlight internal boundaries ---
+        # Convert to grayscale and threshold
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 50, 150)
-        edges_in_shape = cv2.bitwise_and(edges, mask)
-        edges_in_shape = cv2.dilate(edges_in_shape, kernel, iterations=1)
-        edges_inv = cv2.bitwise_not(edges_in_shape)
-        combined = cv2.bitwise_and(mask, edges_inv)
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        # --- STEP 3: Watershed ---
-        dist = cv2.distanceTransform(combined, cv2.DIST_L2, 5)
-        dist_thresh = 0.6 * dist.max()
-        _, sure_fg = cv2.threshold(dist, dist_thresh, 255, 0)
-        sure_fg = np.uint8(sure_fg)
+        # Save threshold image for debugging
+        cv2.imwrite(os.path.join(debug_dir, f"thresh_{filename}"), thresh)
 
-        sure_bg = cv2.dilate(mask, kernel, iterations=3)
-        unknown = cv2.subtract(sure_bg, sure_fg)
+        # Find contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        _, markers = cv2.connectedComponents(sure_fg)
-        markers = markers + 1
-        markers[unknown == 255] = 0
-        markers = cv2.watershed(img, markers)
+        # Determine bounding box for all contours
+        min_x, min_y, max_x, max_y = np.inf, np.inf, -np.inf, -np.inf
+        for contour in contours:
+            for point in contour:
+                x, y = point[0]
+                min_x = min(min_x, x)
+                min_y = min(min_y, y)
+                max_x = max(max_x, x)
+                max_y = max(max_y, y)
 
-        # Gather block info from watershed
-        blocks_info = []
-        unique_labels = np.unique(markers)
-        for label in unique_labels:
-            # Skip background (<=1) and boundary (-1)
-            if label <= 1:
-                continue
-            label_mask = (markers == label).astype(np.uint8)
-            contours, _ = cv2.findContours(label_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            if not contours:
-                continue
-            cnt = max(contours, key=cv2.contourArea)
-            area = cv2.contourArea(cnt)
-            if area > 0:
-                M = cv2.moments(cnt)
-                if M["m00"] != 0:
-                    cx = int(M["m10"] / M["m00"])
-                    cy = int(M["m01"] / M["m00"])
-                    blocks_info.append((label, area, (cx, cy)))
+        if max_x == -np.inf or min_x == np.inf:
+            raise ValueError(f"Bounding box values were not updated correctly for {filename}.")
 
-        num_blocks = len(blocks_info)
-
-        if num_blocks > 1:
-            # Multiple blocks => cluster them into a grid
-            shape_grid = cluster_blocks_into_grid(blocks_info)
-            results[filename] = shape_grid
+        # Ensure block size is valid
+        if len(contours) > 0:
+            block_size = max(1, (max_x - min_x) // len(contours))
         else:
-            # Only 0 or 1 block => fallback best-fit line
-            shape_grid = fallback_best_fit_line(mask, x, y, w, h, aspect_ratio)
-            results[filename] = shape_grid.tolist()
+            block_size = 1
 
-    return results
+        # Define grid size
+        rows = (max_y - min_y) // block_size + 1
+        cols = (max_x - min_x) // block_size + 1
 
+        # Create the 2D array
+        shape_array = np.zeros((rows, cols), dtype=int)
 
-def cluster_blocks_into_grid(blocks_info, row_thresh=20):
-    """
-    Given a list of (label, area, (cx, cy)), cluster them into rows
-    and build a 2D grid with 1's for blocks.
-    """
-    # Sort by y
-    blocks_info.sort(key=lambda b: b[2][1])
-    row_clusters = []
-    for lbl, area, (cx, cy) in blocks_info:
-        placed = False
-        for cluster in row_clusters:
-            avg_y = np.mean([p[2][1] for p in cluster])
-            if abs(cy - avg_y) < row_thresh:
-                cluster.append((lbl, area, (cx, cy)))
-                placed = True
-                break
-        if not placed:
-            row_clusters.append([(lbl, area, (cx, cy))])
+        # Debugging: Draw detected blocks on the image
+        debug_img = img.copy()
 
-    # Sort each row by x
-    for cluster in row_clusters:
-        cluster.sort(key=lambda b: b[2][0])
-
-    n_rows = len(row_clusters)
-    n_cols = max(len(c) for c in row_clusters)
-    grid = [[0]*n_cols for _ in range(n_rows)]
-    for i, cluster in enumerate(row_clusters):
-        for j, (lbl, area, (cx, cy)) in enumerate(cluster):
-            grid[i][j] = 1
-    return grid
-
-
-def fallback_best_fit_line(full_mask, x, y, w, h, aspect_ratio):
-    """
-    If watershed merges everything into 1 block, we guess a single row or column.
-    - If aspect_ratio >= 1.5 => horizontal line
-    - else => vertical line
-    We try n from 2..5 blocks, compute a "score" = coverage_ratio - penalty_for_unused_segments.
-    The penalty avoids over-segmentation for shapes that only have 3 or 4 blocks.
-    """
-    roi = full_mask[y:y+h, x:x+w]
-    total_fg = cv2.countNonZero(roi)
-    if total_fg == 0:
-        # No foreground => just return a single block
-        return np.array([[0]])
-    
-    best_score = -9999
-    best_grid = np.array([[1]])  # fallback if nothing better
-    # We won't do n=1 in the loop because we already know we have at least 1 block.
-    # We'll do 2..5. If you might have 6 or 7 blocks, expand the range.
-    
-    if aspect_ratio >= 1.5:
-        # Horizontal line
-        for n in range(2, 6):
-            grid_1xn = np.zeros((1, n), dtype=int)
-            seg_w = w // n
-            coverage_count = 0
-            filled_count = 0
-            for i in range(n):
-                x_start = i * seg_w
-                x_end = (i+1)*seg_w if i < (n-1) else w
-                cell = roi[:, x_start:x_end]
-                c_nonzero = cv2.countNonZero(cell)
-                # Mark cell as 1 if >20% filled
-                if c_nonzero > 0.2 * cell.size:
-                    grid_1xn[0, i] = 1
-                    coverage_count += c_nonzero
-                    filled_count += 1
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
             
-            coverage_ratio = coverage_count / float(total_fg)
-            # Penalty: subtract 0.1 for each unused segment
-            # so if we fill 3 segments out of 5, penalty = 0.2
-            penalty = 0.1 * (n - filled_count)
-            score = coverage_ratio - penalty
-            
-            if score > best_score:
-                best_score = score
-                best_grid = grid_1xn
-    else:
-        # Vertical line
-        for n in range(2, 6):
-            grid_nx1 = np.zeros((n, 1), dtype=int)
-            seg_h = h // n
-            coverage_count = 0
-            filled_count = 0
-            for i in range(n):
-                y_start = i*seg_h
-                y_end = (i+1)*seg_h if i < (n-1) else h
-                cell = roi[y_start:y_end, :]
-                c_nonzero = cv2.countNonZero(cell)
-                if c_nonzero > 0.2 * cell.size:
-                    grid_nx1[i, 0] = 1
-                    coverage_count += c_nonzero
-                    filled_count += 1
-            
-            coverage_ratio = coverage_count / float(total_fg)
-            penalty = 0.1 * (n - filled_count)
-            score = coverage_ratio - penalty
-            
-            if score > best_score:
-                best_score = score
-                best_grid = grid_nx1
+            # Map contour position to grid
+            row_start = (y - min_y) // block_size
+            row_end = (y + h - min_y) // block_size
+            col_start = (x - min_x) // block_size
+            col_end = (x + w - min_x) // block_size
 
-    # If we never improved over the default, best_grid remains.
-    return best_grid
+            shape_array[row_start: row_end + 1, col_start: col_end + 1] = 1
 
+            # Draw detected blocks (debugging)
+            cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+        # Save the debugging image
+        debug_img_path = os.path.join(debug_dir, f"debug_{filename}")
+        cv2.imwrite(debug_img_path, debug_img)
 
+        # Convert numpy array to list for JSON serialization
+        detected_shapes[filename] = shape_array.tolist()
 
-
-
-
-
-
+    return detected_shapes
 
 
 
@@ -1259,8 +1188,11 @@ async def upload_file(file: UploadFile = File(...)):
     cropped_shapes_path = crop_shapes(file_path, board_coords)
     shapes_matrices = detect_shapes(cropped_shapes_path)
     # processed_shapes = process_shapes(shapes_matrices["shapes"])
-    processed_cropped_shapes = process_cropped_shapes(SHAPES_DIR)
+    # processed_cropped_shapes = process_cropped_shapes(SHAPES_DIR)
+    processed_cropped_shapes = detect_blocks_final_v2(SHAPES_DIR)
    
+
+
     for name, arr in processed_cropped_shapes.items():
         print(f"{name} =>")
         for row in arr:
