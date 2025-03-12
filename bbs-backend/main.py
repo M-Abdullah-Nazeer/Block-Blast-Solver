@@ -637,6 +637,7 @@ import shutil
 from fastapi import FastAPI, UploadFile, File
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from scipy.stats import mode
 
 UPLOAD_DIR = "uploads"
 CROPPED_DIR = "cropped"
@@ -1091,10 +1092,14 @@ def detect_shapes(image_path, debug=True):
 
 
 
+
+
+
+# All shapes stored perfectly excpet some shapes having light blue and purple color
+
+
 def detect_blocks_final_v2(directory):
     detected_shapes = {}
-
-    # Debug folder for visualization
     debug_dir = os.path.join(directory, "debug")
     os.makedirs(debug_dir, exist_ok=True)
 
@@ -1102,72 +1107,81 @@ def detect_blocks_final_v2(directory):
     for filename in filenames:
         img_path = os.path.join(directory, filename)
         img = cv2.imread(img_path)
-
         if img is None:
             print(f"Failed to load {filename}. Skipping.")
             continue
 
-        # Convert to grayscale and threshold
+        # Preprocess image
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+        # Apply erosion to separate potentially merged blocks
+        kernel = np.ones((3, 3), np.uint8)
+        eroded = cv2.erode(thresh, kernel, iterations=1)
+        contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Save threshold image for debugging
-        cv2.imwrite(os.path.join(debug_dir, f"thresh_{filename}"), thresh)
+        if not contours:
+            detected_shapes[filename] = []
+            continue
 
-        # Find contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Calculate block_size dynamically
+        widths, heights = [], []
+        for c in contours:
+            x, y, w, h = cv2.boundingRect(c)
+            widths.append(w)
+            heights.append(h)
 
-        # Determine bounding box for all contours
-        min_x, min_y, max_x, max_y = np.inf, np.inf, -np.inf, -np.inf
-        for contour in contours:
-            for point in contour:
-                x, y = point[0]
-                min_x = min(min_x, x)
-                min_y = min(min_y, y)
-                max_x = max(max_x, x)
-                max_y = max(max_y, y)
+        block_width = int(mode(widths).mode) if widths else 40  # Removed [0] index
+        block_height = int(mode(heights).mode) if heights else 40  # Removed [0] index
+        block_size = max(block_width, block_height)
 
-        if max_x == -np.inf or min_x == np.inf:
-            raise ValueError(f"Bounding box values were not updated correctly for {filename}.")
+        # Determine grid bounds
+        min_x = min(cv2.boundingRect(c)[0] for c in contours)
+        min_y = min(cv2.boundingRect(c)[1] for c in contours)
 
-        # Ensure block size is valid
-        if len(contours) > 0:
-            block_size = max(1, (max_x - min_x) // len(contours))
-        else:
-            block_size = 1
+        # Calculate grid dimensions based on max indices
+        max_col, max_row = 0, 0
+        for c in contours:
+            x, y, w, h = cv2.boundingRect(c)
+            col = (x - min_x) // block_size
+            row = (y - min_y) // block_size
+            num_cols = max(1, w // block_size)
+            num_rows = max(1, h // block_size)
+            max_col = max(max_col, col + num_cols)
+            max_row = max(max_row, row + num_rows)
 
-        # Define grid size
-        rows = (max_y - min_y) // block_size + 1
-        cols = (max_x - min_x) // block_size + 1
-
-        # Create the 2D array
+        # Initialize grid
+        rows = max_row
+        cols = max_col
         shape_array = np.zeros((rows, cols), dtype=int)
 
-        # Debugging: Draw detected blocks on the image
+        # Populate the grid
+        for c in contours:
+            x, y, w, h = cv2.boundingRect(c)
+            col = (x - min_x) // block_size
+            row = (y - min_y) // block_size
+            num_cols = max(1, w // block_size)
+            num_rows = max(1, h // block_size)
+
+            # Split into individual cells
+            for dr in range(num_rows):
+                for dc in range(num_cols):
+                    current_row = row + dr
+                    current_col = col + dc
+                    if current_row < rows and current_col < cols:
+                        shape_array[current_row, current_col] = 1
+
+        # Debug visualization
         debug_img = img.copy()
-
-        for contour in contours:
-            x, y, w, h = cv2.boundingRect(contour)
-            
-            # Map contour position to grid
-            row_start = (y - min_y) // block_size
-            row_end = (y + h - min_y) // block_size
-            col_start = (x - min_x) // block_size
-            col_end = (x + w - min_x) // block_size
-
-            shape_array[row_start: row_end + 1, col_start: col_end + 1] = 1
-
-            # Draw detected blocks (debugging)
+        for c in contours:
+            x, y, w, h = cv2.boundingRect(c)
             cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.imwrite(os.path.join(debug_dir, f"debug_{filename}"), debug_img)
 
-        # Save the debugging image
-        debug_img_path = os.path.join(debug_dir, f"debug_{filename}")
-        cv2.imwrite(debug_img_path, debug_img)
-
-        # Convert numpy array to list for JSON serialization
         detected_shapes[filename] = shape_array.tolist()
 
     return detected_shapes
+
+
 
 
 
@@ -1207,3 +1221,9 @@ async def upload_file(file: UploadFile = File(...)):
         # "processed_shapes": processed_shapes,
         "process_cropped_shapes": processed_cropped_shapes
     }
+
+
+
+
+    # resolve linear shapes
+    # resolve color detection issue
