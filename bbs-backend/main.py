@@ -638,6 +638,7 @@ from fastapi import FastAPI, UploadFile, File
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from scipy.stats import mode
+from math import ceil
 
 UPLOAD_DIR = "uploads"
 CROPPED_DIR = "cropped"
@@ -1098,6 +1099,422 @@ def detect_shapes(image_path, debug=True):
 # All shapes stored perfectly excpet some shapes having light blue and purple color
 
 
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+#     debug_dir = os.path.join(directory, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Preprocess image
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+#         # Apply erosion to separate potentially merged blocks
+#         kernel = np.ones((3, 3), np.uint8)
+#         eroded = cv2.erode(thresh, kernel, iterations=1)
+#         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # Calculate block_size dynamically
+#         widths, heights = [], []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             widths.append(w)
+#             heights.append(h)
+
+#         block_width = int(mode(widths).mode) if widths else 40  # Removed [0] index
+#         block_height = int(mode(heights).mode) if heights else 40  # Removed [0] index
+#         block_size = max(block_width, block_height)
+
+#         # Determine grid bounds
+#         min_x = min(cv2.boundingRect(c)[0] for c in contours)
+#         min_y = min(cv2.boundingRect(c)[1] for c in contours)
+
+#         # Calculate grid dimensions based on max indices
+#         max_col, max_row = 0, 0
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             col = (x - min_x) // block_size
+#             row = (y - min_y) // block_size
+#             num_cols = max(1, w // block_size)
+#             num_rows = max(1, h // block_size)
+#             max_col = max(max_col, col + num_cols)
+#             max_row = max(max_row, row + num_rows)
+
+#         # Initialize grid
+#         rows = max_row
+#         cols = max_col
+#         shape_array = np.zeros((rows, cols), dtype=int)
+
+#         # Populate the grid
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             col = (x - min_x) // block_size
+#             row = (y - min_y) // block_size
+#             num_cols = max(1, w // block_size)
+#             num_rows = max(1, h // block_size)
+
+#             # Split into individual cells
+#             for dr in range(num_rows):
+#                 for dc in range(num_cols):
+#                     current_row = row + dr
+#                     current_col = col + dc
+#                     if current_row < rows and current_col < cols:
+#                         shape_array[current_row, current_col] = 1
+
+#         # Debug visualization
+#         debug_img = img.copy()
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#         cv2.imwrite(os.path.join(debug_dir, f"debug_{filename}"), debug_img)
+
+#         detected_shapes[filename] = shape_array.tolist()
+
+#     return detected_shapes
+
+
+
+
+
+
+# debugging 1 shape resolved out of 9
+
+# def detect_blocks_final_v1(directory):
+#     detected_shapes = {}
+#     debug_dir = os.path.join(directory, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Convert to grayscale and threshold
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+
+#         # Apply erosion to separate merged blocks
+#         kernel = np.ones((3, 3), np.uint8)
+#         eroded = cv2.erode(thresh, kernel, iterations=1)
+
+#         # Find contours
+#         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # Compute block size dynamically based on detected contours
+#         widths, heights = [], []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             widths.append(w)
+#             heights.append(h)
+
+#         block_width = int(mode(widths).mode) if widths else 40  
+#         block_height = int(mode(heights).mode) if heights else 40  
+#         block_size = max(block_width, block_height)
+
+#         # Determine grid bounds
+#         min_x = min(cv2.boundingRect(c)[0] for c in contours)
+#         min_y = min(cv2.boundingRect(c)[1] for c in contours)
+
+#         # Compute max rows and columns needed
+#         max_col, max_row = 0, 0
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             col = (x - min_x) // block_size
+#             row = (y - min_y) // block_size
+#             num_cols = max(1, w // block_size)
+#             num_rows = max(1, h // block_size)
+#             max_col = max(max_col, col + num_cols)
+#             max_row = max(max_row, row + num_rows)
+
+#         # Initialize grid
+#         shape_array = np.zeros((max_row, max_col), dtype=int)
+
+#         # Populate the grid based on contours
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             col = (x - min_x) // block_size
+#             row = (y - min_y) // block_size
+#             num_cols = max(1, w // block_size)
+#             num_rows = max(1, h // block_size)
+
+#             for dr in range(num_rows):
+#                 for dc in range(num_cols):
+#                     current_row = row + dr
+#                     current_col = col + dc
+#                     if current_row < max_row and current_col < max_col:
+#                         shape_array[current_row, current_col] = 1
+
+#         detected_shapes[filename] = shape_array.tolist()
+
+#     return detected_shapes
+
+# # Define the directory where images are stored
+# image_directory = "/mnt/data/"
+
+# # Run the detection function on uploaded images
+# detected_shapes_output = detect_blocks_final_v2(image_directory)
+
+# # Return detected shapes
+# detected_shapes_output
+
+
+
+
+
+
+# 7 shapes resolved 9 new arised
+
+
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+#     debug_dir = os.path.join(directory, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Preprocess image: grayscale and threshold
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+        
+#         # Apply erosion to separate potentially merged blocks
+#         kernel = np.ones((3, 3), np.uint8)
+#         eroded = cv2.erode(thresh, kernel, iterations=1)
+        
+#         # Find contours of the blocks
+#         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # Calculate global bounding box for all contours
+#         all_x, all_y, all_xw, all_yh = [], [], [], []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             all_x.append(x)
+#             all_y.append(y)
+#             all_xw.append(x + w)
+#             all_yh.append(y + h)
+#         global_min_x = min(all_x)
+#         global_min_y = min(all_y)
+#         global_max_x = max(all_xw)
+#         global_max_y = max(all_yh)
+
+#         # Compute block size using median to be robust against slight differences
+#         widths = [cv2.boundingRect(c)[2] for c in contours]
+#         heights = [cv2.boundingRect(c)[3] for c in contours]
+#         block_width = int(np.median(widths))
+#         block_height = int(np.median(heights))
+#         block_size = max(block_width, block_height)
+
+#         # Compute grid dimensions using the overall bounding box
+#         grid_cols = int(round((global_max_x - global_min_x) / block_size))
+#         grid_rows = int(round((global_max_y - global_min_y) / block_size))
+#         grid_cols = max(1, grid_cols)
+#         grid_rows = max(1, grid_rows)
+
+#         # Initialize the grid
+#         shape_array = np.zeros((grid_rows, grid_cols), dtype=int)
+
+#         # Populate the grid for each contour using rounded positions
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             # Determine starting grid cell (using rounding)
+#             col = int(round((x - global_min_x) / block_size))
+#             row = int(round((y - global_min_y) / block_size))
+#             # Determine number of cells occupied by the contour
+#             num_cols = max(1, int(round(w / block_size)))
+#             num_rows = max(1, int(round(h / block_size)))
+#             for dr in range(num_rows):
+#                 for dc in range(num_cols):
+#                     current_row = row + dr
+#                     current_col = col + dc
+#                     if current_row < grid_rows and current_col < grid_cols:
+#                         shape_array[current_row, current_col] = 1
+
+#         # Debug visualization: draw bounding boxes on the original image
+#         debug_img = img.copy()
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#         cv2.imwrite(os.path.join(debug_dir, f"debug_{filename}"), debug_img)
+
+#         detected_shapes[filename] = shape_array.tolist()
+
+#     return detected_shapes
+
+
+
+
+
+
+
+
+
+# all shapes get detected except purple which can be detected if kernel has 3
+
+
+
+# def cluster_coords(coords, threshold):
+#     """
+#     Group sorted coordinate values into clusters where successive values
+#     differ by no more than the threshold. Returns the cluster centers.
+#     """
+#     coords_sorted = np.sort(coords)
+#     clusters = []
+#     current_cluster = [coords_sorted[0]]
+#     for coord in coords_sorted[1:]:
+#         if abs(coord - current_cluster[-1]) <= threshold:
+#             current_cluster.append(coord)
+#         else:
+#             clusters.append(np.mean(current_cluster))
+#             current_cluster = [coord]
+#     clusters.append(np.mean(current_cluster))
+#     return clusters
+
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+#     debug_dir = os.path.join(directory, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Preprocess image: grayscale and threshold
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+
+    
+
+
+#         # Apply erosion to separate merged blocks
+#         kernel = np.ones((2, 2), np.uint8)
+#         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+#         eroded = cv2.erode(closed, kernel, iterations=1)
+
+       
+
+#         # Find contours of the blocks
+#         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # Compute centroids for each detected contour
+#         centroids = []
+#         widths = []
+#         heights = []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             centroids.append((x + w/2, y + h/2))
+#             widths.append(w)
+#             heights.append(h)
+#         centroids = np.array(centroids)
+
+#         # Use centroids' x and y coordinates for clustering
+#         xs = centroids[:, 0]
+#         ys = centroids[:, 1]
+        
+#         # Use the median of the block sizes as a dynamic threshold
+#         median_size = np.median(np.concatenate((np.array(widths), np.array(heights))))
+#         thresh_val = median_size / 2.0
+
+#         # Cluster x and y coordinates separately
+#         x_clusters = cluster_coords(xs, thresh_val)
+#         y_clusters = cluster_coords(ys, thresh_val)
+        
+#         num_cols = len(x_clusters)
+#         num_rows = len(y_clusters)
+        
+#         # Initialize the grid
+#         grid = np.zeros((num_rows, num_cols), dtype=int)
+        
+#         # Assign each contour (via its centroid) to the nearest cluster center
+#         for cx, cy in centroids:
+#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
+#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
+#             grid[row, col] = 1
+        
+#         # Optionally, save a debug visualization showing detected bounding boxes and centroids
+#         debug_img = img.copy()
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             cv2.rectangle(debug_img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+#             # Draw the centroid
+#             cx, cy = int(x+w/2), int(y+h/2)
+#             cv2.circle(debug_img, (cx, cy), 3, (0, 0, 255), -1)
+#         cv2.imwrite(os.path.join(debug_dir, f"debug_{filename}"), debug_img)
+
+#         detected_shapes[filename] = grid.tolist()
+
+#     return detected_shapes
+
+# Example usage:
+# image_directory = "/mnt/data/"
+# detected_shapes_output = detect_blocks_final_v3(image_directory)
+# print(detected_shapes_output)
+
+
+
+
+# debugging
+
+
+
+
+
+
+
+
+
+
+
+def cluster_coords(coords, threshold):
+    """
+    Group sorted coordinate values into clusters where successive values
+    differ by no more than the threshold. Returns the cluster centers.
+    """
+    coords_sorted = np.sort(coords)
+    clusters = []
+    current_cluster = [coords_sorted[0]]
+    for coord in coords_sorted[1:]:
+        if abs(coord - current_cluster[-1]) <= threshold:
+            current_cluster.append(coord)
+        else:
+            clusters.append(np.mean(current_cluster))
+            current_cluster = [coord]
+    clusters.append(np.mean(current_cluster))
+    return clusters
+
+
+
+
 def detect_blocks_final_v2(directory):
     detected_shapes = {}
     debug_dir = os.path.join(directory, "debug")
@@ -1111,79 +1528,108 @@ def detect_blocks_final_v2(directory):
             print(f"Failed to load {filename}. Skipping.")
             continue
 
-        # Preprocess image
+        # Check for purple color using HSV color space
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        # Convert your original values to OpenCV's HSV ranges:
+        h = 263.8 / 2  # → ~131.9
+        s = 58 * 2.55  # → ~148
+        v = 82 * 2.55  # → ~209
+
+        # With tolerance ranges:
+        lower_purple = np.array([h-5, s-20, v-30])  # [127, 128, 179]
+        upper_purple = np.array([h+5, s+20, v+30])  # [137, 168, 239]
+
+        # Round to integers:
+        lower_purple = np.array([125, 140, 190], dtype=np.uint8)
+        upper_purple = np.array([140, 200, 220], dtype=np.uint8)
+        mask = cv2.inRange(hsv, lower_purple, upper_purple)
+        has_purple = cv2.countNonZero(mask) > 0
+
+                # After creating the mask:
+        # purple_debug = cv2.bitwise_and(img, img, mask=mask)
+        # cv2.imwrite(os.path.join(debug_dir, f"purple_{filename}"), purple_debug)
+
+        # Set kernel size based on purple presence
+        kernel_size = (3, 3) if has_purple else (2, 2)
+        kernel = np.ones(kernel_size, np.uint8)
+
+        # Preprocess image: grayscale and threshold
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
-        # Apply erosion to separate potentially merged blocks
-        kernel = np.ones((3, 3), np.uint8)
-        eroded = cv2.erode(thresh, kernel, iterations=1)
-        contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+        # Apply morphological operations
+        closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        eroded = cv2.erode(closed, kernel, iterations=1)
+
+        # Find contours of the blocks
+        contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if not contours:
             detected_shapes[filename] = []
             continue
 
-        # Calculate block_size dynamically
-        widths, heights = [], []
+        # Compute centroids for each detected contour
+        centroids = []
+        widths = []
+        heights = []
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
+            centroids.append((x + w/2, y + h/2))
             widths.append(w)
             heights.append(h)
+        centroids = np.array(centroids)
 
-        block_width = int(mode(widths).mode) if widths else 40  # Removed [0] index
-        block_height = int(mode(heights).mode) if heights else 40  # Removed [0] index
-        block_size = max(block_width, block_height)
+        # Use centroids' coordinates for clustering
+        xs = centroids[:, 0]
+        ys = centroids[:, 1]
+        
+        # Dynamic threshold based on median block size
+        median_size = np.median(np.concatenate((widths, heights)))
+        thresh_val = median_size / 2.0
 
-        # Determine grid bounds
-        min_x = min(cv2.boundingRect(c)[0] for c in contours)
-        min_y = min(cv2.boundingRect(c)[1] for c in contours)
-
-        # Calculate grid dimensions based on max indices
-        max_col, max_row = 0, 0
-        for c in contours:
-            x, y, w, h = cv2.boundingRect(c)
-            col = (x - min_x) // block_size
-            row = (y - min_y) // block_size
-            num_cols = max(1, w // block_size)
-            num_rows = max(1, h // block_size)
-            max_col = max(max_col, col + num_cols)
-            max_row = max(max_row, row + num_rows)
-
+        # Cluster coordinates
+        x_clusters = cluster_coords(xs, thresh_val)
+        y_clusters = cluster_coords(ys, thresh_val)
+        
         # Initialize grid
-        rows = max_row
-        cols = max_col
-        shape_array = np.zeros((rows, cols), dtype=int)
+        num_cols = len(x_clusters)
+        num_rows = len(y_clusters)
+        grid = np.zeros((num_rows, num_cols), dtype=int)
+        
+        # Populate grid
+        for cx, cy in centroids:
+            col = np.argmin(np.abs(np.array(x_clusters) - cx))
+            row = np.argmin(np.abs(np.array(y_clusters) - cy))
+            grid[row, col] = 1
 
-        # Populate the grid
-        for c in contours:
-            x, y, w, h = cv2.boundingRect(c)
-            col = (x - min_x) // block_size
-            row = (y - min_y) // block_size
-            num_cols = max(1, w // block_size)
-            num_rows = max(1, h // block_size)
-
-            # Split into individual cells
-            for dr in range(num_rows):
-                for dc in range(num_cols):
-                    current_row = row + dr
-                    current_col = col + dc
-                    if current_row < rows and current_col < cols:
-                        shape_array[current_row, current_col] = 1
-
-        # Debug visualization
+        # Save debug visualization
         debug_img = img.copy()
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(debug_img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cx, cy = int(x+w/2), int(y+h/2)
+            cv2.circle(debug_img, (cx, cy), 3, (0, 0, 255), -1)
         cv2.imwrite(os.path.join(debug_dir, f"debug_{filename}"), debug_img)
 
-        detected_shapes[filename] = shape_array.tolist()
+        detected_shapes[filename] = grid.tolist()
 
     return detected_shapes
 
+# Example usage:
+# image_directory = "/mnt/data/"
+# detected_shapes_output = detect_blocks_final_v2(image_directory)
+# print(detected_shapes_output)
 
 
 
+
+
+
+
+
+
+
+
+# -----------------------------------------------------
 
 
 
@@ -1225,5 +1671,5 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 
-    # resolve linear shapes
+
     # resolve color detection issue
