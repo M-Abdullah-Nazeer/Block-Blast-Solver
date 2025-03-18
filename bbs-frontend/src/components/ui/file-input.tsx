@@ -12,16 +12,25 @@ import { cn, validateFileType } from '@/lib/utils'
 import { Icons } from '../icons'
 import Image from 'next/image'
 
+// export interface InputProps
+//   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+
+//   uploadedFile: File | null
+//   setUploadedFile: (file: File | null) => void
+//   onUploadSuccess: (steps: number[][][], shapeColors: Record<string, string>) => void;
+// }
+
+
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
-
   uploadedFile: File | null
   setUploadedFile: (file: File | null) => void
-
+  onUploadSuccess: (steps: { board: number[][]; completedLines: number }[], shapeColors: Record<string, string>) => void;
 }
 
+
 const FileInput = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, uploadedFile, setUploadedFile, ...props }, ref) => {
+  ({ className, uploadedFile, setUploadedFile, onUploadSuccess, ...props }, ref) => {
     const { toast } = useToast()
     const [dragActive, setDragActive] = useState<boolean>(false)
     const [uploading, setUploading] = useState<boolean>(false)
@@ -92,11 +101,23 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         const response = await axios.post('http://127.0.0.1:8000/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
-        console.log('Response:', response.data);
+        console.log('Response2:', response.data.final_output);
         toast({
           title: 'Upload successful',
           description: 'Your image has been uploaded.',
         })
+
+        if (response.data.final_output && response.data.shape_colors) {
+          // Ensure that final_output is an array of objects with `board` and `completedLines`
+          const processedSteps = response.data.final_output.map((step: any) => ({
+            board: step.board,
+            completedLines: step.completedLines,
+          }));
+    
+          // Pass the processed data to the parent component
+          onUploadSuccess(processedSteps, response.data.shape_colors);
+        }
+
       } catch (error) {
         toast({
           title: 'Upload failed',

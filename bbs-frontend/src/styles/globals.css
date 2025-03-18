@@ -1,3 +1,140 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+
+.board {
+    /* border: 2px solid #ff00c8; */
+    display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    padding: auto;
+    margin-top: 20px; 
+  }
+  
+  .board .row {
+    display: flex;
+  }
+  
+  .board .cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #171d3d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    
+  }
+  
+  .board .empty {
+    background-color: #1e2444;
+    border-radius: 0px;
+   
+  }
+  
+  .board .block {
+    
+    background: linear-gradient(to bottom right, #d33b3e, #9f2226);
+    opacity: 1;
+    /* border-radius: 6px; */
+    box-shadow: 
+      inset 4px 4px 6px rgba(255, 100, 100, 0.8), 
+      inset -4px -4px 6px rgba(90, 10, 10, 1), 
+      inset 2px 2px 4px rgba(255, 180, 180, 0.5), 
+      2px 2px 4px rgba(0, 0, 0, 0.5); 
+    border: 1px solid rgba(90, 10, 10, 1); 
+  }
+  
+  
+  .board .placed {
+
+    background: linear-gradient(to bottom right, #2ea043, #176b2f);
+    opacity: 1;
+    box-shadow: 
+      inset 4px 4px 6px rgba(100, 255, 100, 0.8), /* Top-left highlight */
+      inset -4px -4px 6px rgba(10, 90, 30, 1), /* Bottom-right shadow */
+      inset 2px 2px 4px rgba(180, 255, 180, 0.5), /* Soft light reflection */
+      2px 2px 4px rgba(0, 0, 0, 0.5); /* Outer shadow for depth */
+    border: 1px solid rgba(10, 90, 30, 1); 
+    
+  }
+  
+  .step-container {
+    margin: 30px 0;
+    padding: 15px;
+    border: 1px solid #0F172D;
+    background-color: #0F172D;
+    border-radius: 8px;
+    text-align: center;
+    color: white;
+  }
+
+  .steps-container-wrapper{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 40px;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #274AA6;
+    border-radius: 8px;
+    padding: 40px;
+    
+  }
+
+  @media only screen and (max-width:1024px) {
+    .steps-container-wrapper{
+        grid-template-columns: 1fr 1fr;
+      }
+  }
+  @media only screen and (max-width:768px) {
+    .steps-container-wrapper{
+        grid-template-columns: 1fr;
+        grid-gap: 20px;
+        padding: 20px;
+        
+      }
+      .step-container {
+        margin: 20px 0;
+        padding: 30px 0;
+
+
+        
+      }
+      .board .cell {
+        width: 50px;
+        height: 50px;
+     
+        
+      }
+  }
+  @media only screen and (max-width:536px) {
+    .steps-container-wrapper{
+        grid-template-columns: 1fr;
+        grid-gap: 15px;
+        padding: 20px;
+        
+      }
+    .steps-container-wrapper{
+        grid-template-columns: 1fr;
+
+        
+      }
+      .step-container {
+        margin: 5px 0;
+        padding: 15px 0;
+
+
+        
+      }
+      .board .cell {
+        width: 30px;
+        height: 30px;
+     
+        
+      }
+  }
