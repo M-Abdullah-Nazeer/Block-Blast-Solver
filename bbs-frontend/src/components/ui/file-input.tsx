@@ -113,7 +113,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
             board: step.board,
             completedLines: step.completedLines,
           }));
-    
+
           // Pass the processed data to the parent component
           onUploadSuccess(processedSteps, response.data.shape_colors);
         }
@@ -137,7 +137,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         <label
           htmlFor="dropzone-file"
           className={cn(
-            'group relative h-full flex flex-col items-center justify-center w-full aspect-square lg:aspect-video md:aspect-video border-4 border-[#9ac8f6] border-dashed rounded-lg dark:border-[#9ac8f6] transition',
+            'group relative h-full flex flex-col items-center justify-center w-full aspect-square lg:aspect-video md:aspect-video border-4 border-[#9ac8f6] border-solid rounded-lg dark:border-[#9ac8f6] transition',
             { 'dark:hover:border-[#fff] dark:hover:bg-[#254083]': dragActive }
           )}
         >
