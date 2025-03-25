@@ -19,6 +19,13 @@
     display: flex;
   }
   
+p, h3,h2,h4,li{
+    color: #0F172D;
+}
+body{
+    color: #0F172D;
+}
+
   .board .cell {
     width: 40px;
     height: 40px;
@@ -86,6 +93,16 @@
     
   }
 
+
+
+  .cust-li li{
+    background: linear-gradient(to right, #1a73e899, #0d8abccc);
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    margin: 15px 0;
+  }
+
   @media only screen and (max-width:1024px) {
     .steps-container-wrapper{
         grid-template-columns: 1fr 1fr;
@@ -136,5 +153,11 @@
         height: 30px;
      
         
+      }
+      .cust-li li{
+      
+        padding: 8px;
+  
+        margin: 15px 0;
       }
   }

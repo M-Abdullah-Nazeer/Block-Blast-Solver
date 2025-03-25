@@ -8,6 +8,19 @@ import manualIcon from "public/manual-icon.png"
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import Image from 'next/image'
 import tinycolor from 'tinycolor2'
+import { motion, useMotionValue } from "framer-motion";
+import { useMotionTemplate } from "framer-motion";
+
+
+import { MouseEvent as ReactMouseEvent } from "react";
+
+
+
+
+// const innerShadow1 = '#0d8abccc';  // Darker blue shadow
+// const innerShadow2 = '#e6f4ff99';  // Frosted white highlight
+// const innerShadow3 = '#1a73e899';  // Mid-tone blue accent
+// const borderColor = '#88c9f966';    // Light blue border
 
 
 export const metadata = {
@@ -70,16 +83,30 @@ const Page: FC = () => {
 
 
 
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  function handleMouseMove({
+    currentTarget,
+    clientX,
+    clientY,
+  }: React.MouseEvent<HTMLDivElement>) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+  
+  const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
 
   return (
 
 
 
-    <main className='relative bg-white'>
+    <main className='relative bg-[#111827] container'>
 
       <section className="w-full grid items-center lg:gap-20 gap-6 pt-6 pb-0 md:pt-10 bg-[#0F172D]">
         <div className="container flex w-full  flex-col items-start gap-2  bg-red-600">
-          <h1 className="text-3xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
+          <h1 className="text-5xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
             Block Blast Solver
           </h1>
 
@@ -240,9 +267,9 @@ const Page: FC = () => {
 
 
 
-        <div className="absolute top-[700px] left-0 w-full z-0">
+        {/* <div className="absolute top-[700px] left-0 w-full z-0">
           <svg className='w-full h-[600]px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#fff" fill-opacity="1" d="M0,256L1440,64L1440,0L0,0Z"></path></svg>
-        </div>
+        </div> */}
 
 
 
@@ -252,13 +279,13 @@ const Page: FC = () => {
 
 
 
-            <p className="text-lg text-slate-700 dark:text-slate-400 sm:text-xl">
+            <p className="text-lg text-[#0F172D] dark:text-[#0F172D] sm:text-xl">
               <strong>It&apos;s an AI-based problem solver</strong> that finds the best possible moves for a Block Blast game using just a screenshot of your gameplay. You can achieve a high score in the game with a single click using our free online tool.
             </p>
-            <p className="text-lg text-slate-700 dark:text-slate-400 sm:text-xl">
+            <p className="text-lg text-[#0F172D] dark:text-[#0F172D] sm:text-xl">
               What makes it better than other helpers is its advanced solver algorithms. Block Blast Solver finds the best possible steps to take to maximize your score in a given situation.
             </p>
-            <p className="text-lg text-slate-700 dark:text-slate-400 sm:text-xl">
+            <p className="text-lg text-[#0F172D] dark:text-[#0F172D] sm:text-xl">
               Also, its solution helps you understand the right place for the right shape with the help of 3D design and colors. Unlike others, this online solver represents each shape with its original color for a better understanding of the player, which makes it the best.
             </p>
           </div>
@@ -267,21 +294,68 @@ const Page: FC = () => {
       </section>
 
       <section>
-        <h2>How to Use Block Blast Solver?</h2>
+        <h2 >How to Use Block Blast Solver?</h2>
         <p>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
       </section>
 
-      <section>
-        <h3>Step 1: Set up the game</h3>
-        <p>If your mobile screen frame is according to the following list, you are good to go for the next step, which is taking a screenshot.</p>
+      <section className='container'>
 
-        <ol>
+
+      <h2 className='text-4xl text-sky-500 font-bold tracking-tight'>How to Use Block Blast Solver?</h2>
+        <p>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
+
+
+      <div className="min-h-screen bg-gray-900 p-8 grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8">
+
+
+
+
+      <div
+      className="group relative max-w-md rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 px-4 py-4 md:py-8 lg:py-16 shadow-2xl"
+      onMouseMove={handleMouseMove}
+    >
+      <motion.div
+        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
+        style={{ background }}
+      />
+      <div>
+        <h3 className="text-base font-semibold leading-7 text-sky-500">
+        Step 1:
+        </h3>
+        <div className="mt-2 flex items-center gap-x-2">
+          <span className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Set up the game
+          </span>
+        </div>
+        <p className="mt-6 text-base leading-7 text-gray-300">
+        If your mobile screen frame is according to the following list, you are good to go for the next step, which is taking a screenshot.
+        </p>
+      </div>
+    </div>
+
+
+
+<div className="flex flex-col">
+
+
+<ol className='cust-li'>
+  
           <li>The game board should be clearly visible.</li>
           <li>There should be a complete screenshot in raw form, any cropped or edited picture will result in false outputs.</li>
           <li>All the given shapes should be visible.</li>
           <li>At least one out of the three given shapes must be visible for the Block Blast Solver to work properly.</li>
           <li>There should be no ad popup, loading screen, or game animation.</li>
+
         </ol>
+
+</div>
+
+
+
+
+
+</div>
+
       </section>
 
       <section>
