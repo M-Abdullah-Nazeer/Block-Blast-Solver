@@ -32,6 +32,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <TooltipProvider>
             <main>{children}</main>
           </TooltipProvider>
+
+
+
         </body>
       </html>
     </>

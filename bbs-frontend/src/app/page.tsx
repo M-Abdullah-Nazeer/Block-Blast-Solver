@@ -20,7 +20,7 @@ import { MouseEvent as ReactMouseEvent } from "react";
 // const innerShadow1 = '#0d8abccc';  // Darker blue shadow
 // const innerShadow2 = '#e6f4ff99';  // Frosted white highlight
 // const innerShadow3 = '#1a73e899';  // Mid-tone blue accent
-// const borderColor = '#88c9f966';    // Light blue border
+// const borderColor = '#e6f4ff9';    // Light blue border
 
 
 export const metadata = {
@@ -85,7 +85,7 @@ const Page: FC = () => {
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
+
   function handleMouseMove({
     currentTarget,
     clientX,
@@ -95,7 +95,7 @@ const Page: FC = () => {
     mouseX.set(clientX - left);
     mouseY.set(clientY - top);
   }
-  
+
   const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
 
   return (
@@ -293,154 +293,273 @@ const Page: FC = () => {
 
       </section>
 
-      <section>
-        <h2 >How to Use Block Blast Solver?</h2>
-        <p>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
-      </section>
-
-      <section className='container'>
 
 
-      <h2 className='text-4xl text-sky-500 font-bold tracking-tight'>How to Use Block Blast Solver?</h2>
-        <p>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
+      <section className='my-8'>
 
 
-      <div className="min-h-screen bg-gray-900 p-8 grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8">
+        <h2 className='text-4xl text-sky-500 font-bold tracking-tight text-center'>How to Use <strong className='mark'>Block Blast Solver?</strong></h2>
+        <p className='mt-6 text-base leading-7 text-gray-300 text-center'>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
+
+
+        <div className=" bg-gray-900 p-0 my-8 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
 
 
 
 
-      <div
-      className="group relative max-w-md rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 px-4 py-4 md:py-8 lg:py-16 shadow-2xl"
-      onMouseMove={handleMouseMove}
-    >
-      <motion.div
-        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{ background }}
-      />
-      <div>
-        <h3 className="text-base font-semibold leading-7 text-sky-500">
-        Step 1:
-        </h3>
-        <div className="mt-2 flex items-center gap-x-2">
-          <span className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-          Set up the game
-          </span>
+          <div className="group relative max-w-md rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl"
+            onMouseMove={handleMouseMove}
+          >
+            <motion.div
+              className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
+              style={{ background }}
+            />
+            <div>
+
+              <div className="mt-2 flex items-center gap-x-2">
+
+
+                <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
+
+                  <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
+                    Step 1:
+                  </span>
+                  Set up the game
+                </h3>
+              </div>
+              <p className="mt-6 text-base leading-7 text-gray-300">
+                If your mobile screen frame is according to the following list, you are good to go for the next step, which is taking a screenshot.
+              </p>
+            </div>
+          </div>
+
+
+
+          <div className="flex flex-col">
+
+
+            <ul className='cust-li'>
+
+              <li>The game board should be clearly visible.</li>
+              <li>There should be a complete screenshot in raw form, any cropped or edited picture will result in false outputs.</li>
+              <li>All the given shapes should be visible.</li>
+              <li>At least one out of the three given shapes must be visible for the Block Blast Solver to work properly.</li>
+              <li>There should be no ad popup, loading screen, or game animation.</li>
+
+            </ul>
+
+          </div>
+
+
+
+
+
         </div>
-        <p className="mt-6 text-base leading-7 text-gray-300">
-        If your mobile screen frame is according to the following list, you are good to go for the next step, which is taking a screenshot.
-        </p>
-      </div>
-    </div>
+
+      </section>
+
+      <section className='step2'>
 
 
 
-<div className="flex flex-col">
+        <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
+          <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
+            Step 2:
+          </span>
+          Take the Screenshot</h3>
 
 
-<ol className='cust-li'>
-  
-          <li>The game board should be clearly visible.</li>
-          <li>There should be a complete screenshot in raw form, any cropped or edited picture will result in false outputs.</li>
-          <li>All the given shapes should be visible.</li>
-          <li>At least one out of the three given shapes must be visible for the Block Blast Solver to work properly.</li>
-          <li>There should be no ad popup, loading screen, or game animation.</li>
+        <div className="bg-gray-900 p-0 md:p-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8">
 
-        </ol>
-
-</div>
+          <details className="group relative rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
+          >
 
 
 
+            <summary><h4>For Android</h4>
+
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0,0,256,256"
+                fill="#FFFFFF;">
+                <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none"><g transform="scale(4,4)"><path d="M19.92578,4.45898c-0.12891,0.01597 -0.2555,0.05795 -0.375,0.12695c-0.478,0.276 -0.64319,0.88723 -0.36719,1.36523l2.68945,4.6582c-3.45074,2.73959 -5.89874,6.80214 -6.62695,11.39063h33.57422c-0.63375,-4.69499 -3.0921,-8.7927 -6.62109,-11.51367l2.61719,-4.53516c0.276,-0.478 0.11081,-1.08923 -0.36719,-1.36523c-0.478,-0.276 -1.08924,-0.11277 -1.36523,0.36523l-2.55078,4.41797c-2.42063,-1.44629 -5.21465,-2.30781 -8.20898,-2.36523c-3.21465,-0.06145 -6.23025,0.84124 -8.81445,2.43945l-2.59375,-4.49219c-0.207,-0.3585 -0.60352,-0.54009 -0.99023,-0.49219zM24.5,14c0.828,0 1.5,0.672 1.5,1.5c0,0.828 -0.672,1.5 -1.5,1.5c-0.828,0 -1.5,-0.672 -1.5,-1.5c0,-0.828 0.672,-1.5 1.5,-1.5zM39.5,14c0.828,0 1.5,0.672 1.5,1.5c0,0.828 -0.672,1.5 -1.5,1.5c-0.828,0 -1.5,-0.672 -1.5,-1.5c0,-0.828 0.672,-1.5 1.5,-1.5zM15.03906,24.05469c-0.012,0.266 -0.03906,0.52887 -0.03906,0.79687v21.05469c0,2.26 1.791,4.09375 4,4.09375h3v6.5c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-6.5h10v6.5c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-6.5h3c2.209,0 4,-1.83375 4,-4.09375v-20.95898zM9.5,25c-1.381,0 -2.5,1.119 -2.5,2.5v8c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-8c0,-1.381 -1.119,-2.5 -2.5,-2.5zM54.5,25c-1.381,0 -2.5,1.119 -2.5,2.5v8c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-8c0,-1.381 -1.119,-2.5 -2.5,-2.5z"></path></g></g>
+              </svg>
+
+            </summary>
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Using Buttons</strong></td>
+                  <td>Press and hold the Power button + Volume Down button. You&apos;ll see a flash on the screen, and a screenshot will appear for preview. It will be saved in the Gallery or Photos app under the &quot;Screenshots&quot; folder.</td>
+                </tr>
+                <tr>
+                  <td><strong>Using Gestures (Some Android Phones)</strong></td>
+                  <td>On Samsung, OnePlus, Xiaomi, and other brands, you can swipe three fingers down or palm swipe to take a screenshot. You can enable it by going to Settings &gt; Advanced Features &gt; Motions and Gestures and enabling the option.</td>
+                </tr>
+                <tr>
+                  <td><strong>Using Google Assistant or Bixby:</strong></td>
+                  <td>Say &quot;Hey Google, take a screenshot&quot; or &quot;Hey Bixby, take a screenshot&quot;.</td>
+                </tr>
+                <tr>
+                  <td><strong>Using Quick Settings</strong></td>
+                  <td>Swipe down the Quick Settings menu. Look for the Screenshot option and tap it.</td>
+                </tr>
+              </tbody>
+            </table>
+          </details>
+
+          <details className="group relative rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl">
+            <summary><h4>For iPhone</h4>
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">
+                <path fill="white" d="M 44.527344 34.75 C 43.449219 37.144531 42.929688 38.214844 41.542969 40.328125 C 39.601563 43.28125 36.863281 46.96875 33.480469 46.992188 C 30.46875 47.019531 29.691406 45.027344 25.601563 45.0625 C 21.515625 45.082031 20.664063 47.03125 17.648438 47 C 14.261719 46.96875 11.671875 43.648438 9.730469 40.699219 C 4.300781 32.429688 3.726563 22.734375 7.082031 17.578125 C 9.457031 13.921875 13.210938 11.773438 16.738281 11.773438 C 20.332031 11.773438 22.589844 13.746094 25.558594 13.746094 C 28.441406 13.746094 30.195313 11.769531 34.351563 11.769531 C 37.492188 11.769531 40.8125 13.480469 43.1875 16.433594 C 35.421875 20.691406 36.683594 31.78125 44.527344 34.75 Z M 31.195313 8.46875 C 32.707031 6.527344 33.855469 3.789063 33.4375 1 C 30.972656 1.167969 28.089844 2.742188 26.40625 4.78125 C 24.878906 6.640625 23.613281 9.398438 24.105469 12.066406 C 26.796875 12.152344 29.582031 10.546875 31.195313 8.46875 Z"></path>
+              </svg>
+            </summary>
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Using Buttons</strong></td>
+                  <td>For iPhones with Face ID (No Home Button - iPhone X and later): Press and hold the Side Button + Volume Up button together.
+                    For iPhones with a Home Button (iPhone 8, SE, and earlier): Press and hold the Home Button + Power Button together.
+                    The screen will flash, and a preview will appear in the bottom-left corner.
+                    Saved screenshots will appear in the Photos app &gt; Screenshots folder.</td>
+                </tr>
+                <tr>
+                  <td><strong>Using AssistiveTouch (No Buttons Needed)</strong></td>
+                  <td> Go to Settings &gt; Accessibility &gt; Touch &gt; AssistiveTouch and turn it on.
+                    Tap the AssistiveTouch button &gt; Device &gt; More &gt; Screenshot.
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Using Back Tap (iOS 14 and later)</strong></td>
+                  <td> Go to Settings &gt; Accessibility &gt; Touch &gt; Back Tap.
+                    Set Double Tap or Triple Tap to Screenshot.
+                    Now, double-tap or triple-tap the back of your iPhone to take a screenshot.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </details>
+
+        </div>
 
 
-</div>
 
       </section>
 
       <section>
 
-        <h3>Step 2: Take the Screenshot</h3>
-        <details>
-          <summary><h4>For Android:</h4></summary>
-          <table>
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Using Buttons</strong></td>
-                <td>Press and hold the Power button + Volume Down button. You&apos;ll see a flash on the screen, and a screenshot will appear for preview. It will be saved in the Gallery or Photos app under the &quot;Screenshots&quot; folder.</td>
-              </tr>
-              <tr>
-                <td><strong>Using Gestures (Some Android Phones)</strong></td>
-                <td>On Samsung, OnePlus, Xiaomi, and other brands, you can swipe three fingers down or palm swipe to take a screenshot. You can enable it by going to Settings &gt; Advanced Features &gt; Motions and Gestures and enabling the option.</td>
-              </tr>
-              <tr>
-                <td><strong>Using Google Assistant or Bixby:</strong></td>
-                <td>Say &quot;Hey Google, take a screenshot&quot; or &quot;Hey Bixby, take a screenshot&quot;.</td>
-              </tr>
-              <tr>
-                <td><strong>Using Quick Settings</strong></td>
-                <td>Swipe down the Quick Settings menu. Look for the Screenshot option and tap it.</td>
-              </tr>
-            </tbody>
-          </table>
-        </details>
+        <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
+          <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
+            Step 3:
+          </span>
+          Common Mistakes to Avoid</h3>
 
-        <details>
-          <summary><h4>For iPhone:</h4></summary>
-          <table>
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Using Buttons</strong></td>
-                <td>For iPhones with Face ID (No Home Button - iPhone X and later): Press and hold the Side Button + Volume Up button together.
-                  For iPhones with a Home Button (iPhone 8, SE, and earlier): Press and hold the Home Button + Power Button together.
-                  The screen will flash, and a preview will appear in the bottom-left corner.
-                  Saved screenshots will appear in the Photos app &gt; Screenshots folder.</td>
-              </tr>
-              <tr>
-                <td><strong>Using AssistiveTouch (No Buttons Needed)</strong></td>
-                <td> Go to Settings &gt; Accessibility &gt; Touch &gt; AssistiveTouch and turn it on.
-                  Tap the AssistiveTouch button &gt; Device &gt; More &gt; Screenshot.
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Using Back Tap (iOS 14 and later)</strong></td>
-                <td> Go to Settings &gt; Accessibility &gt; Touch &gt; Back Tap.
-                  Set Double Tap or Triple Tap to Screenshot.
-                  Now, double-tap or triple-tap the back of your iPhone to take a screenshot.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </details>
-      </section>
+        <div className="flex flex-col lg:flex-row justify-center items-stretch my-8 md:my-8 lg:my-16">
 
-      <section>
-        <h3>Common Mistakes to Avoid</h3>
-        <h4>What to Do</h4>
-        <ul>
-          <li>Upload raw screenshots.</li>
-          <li>Set phone brightness to the maximum level.</li>
-          <li>Take a clean full-screen screenshot by waiting for the game and text animations to complete.</li>
-        </ul>
+          <div className='cmtd  mb-8 mx-0 lg:mb-0 lg:mr-8 flex items-center justify-center'>
+            <h4 className=' text-[#0F172A] text-2xl md:text-3xl font-bold tracking-tight'>What to Do</h4>
+          </div>
 
-        <h4>What to Avoid</h4>
-        <ul>
-          <li>Crop or edit the screenshot.</li>
-          <li>Keep phone brightness too low.</li>
-          <li>The screenshot includes any overlays or effects of ad pop-ups, and game/loading animations visible.</li>
-        </ul>
+          <ul className="bg-gray-900 p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
+
+            <li>
+
+              <span className='flex flex-col px-4 g-style bg-[#274481]'>
+                <span className="cmtd-icon text-center text-white">1</span>
+                Take a clean full-screen screenshot by waiting for the game and text animations to complete.
+              </span>
+            </li>
+
+            <li>
+              <span className='flex flex-col px-4 g-style bg-[#2a4fa3]'>
+                <span className="cmtd-icon text-center text-white">2</span>
+                Set phone brightness to the maximum level.
+              </span>
+
+
+            </li>
+
+            <li>
+
+              <span className='flex flex-col px-4 g-style bg-[#2d60c8]'>
+                <span className="cmtd-icon text-center text-white">3</span>
+                Upload raw screenshots.
+              </span>
+
+            </li>
+
+          </ul>
+
+        </div>
+
+
+        <div className="flex flex-col lg:flex-row justify-center items-stretch mb-8 md:mb-8 lg:mb-16 ">
+
+
+          <div className='cmtd  mb-8 mx-0 lg:mb-0 lg:mr-8 flex items-center justify-center'>
+            <h4 className=' text-[#0F172A] text-2xl md:text-3xl font-bold tracking-tight'>What to Avoid</h4>
+          </div>
+
+
+          <ul className="bg-gray-900 p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
+
+
+
+            <li>
+
+              <span className='flex flex-col px-4 g-style bg-[#274481]'>
+                <span className="cmtd-icon2 text-center text-white">1</span>
+                The screenshot includes any overlays or effects of ad pop-ups, and game/loading animations visible.
+              </span>
+            </li>
+
+
+
+            <li>
+
+              <span className='flex flex-col px-4 g-style bg-[#274481]'>
+                <span className="cmtd-icon2 text-center text-white">2</span>
+                Keep phone brightness to the minimum level.
+              </span>
+            </li>
+
+
+            <li>
+
+              <span className='flex flex-col px-4 g-style bg-[#274481]'>
+                <span className="cmtd-icon2 text-center text-white">3</span>
+                Crop or edit the screenshot.
+              </span>
+            </li>
+
+
+
+
+
+
+
+
+
+          </ul>
+
+
+
+
+
+
+        </div>
+
+
       </section>
 
 
