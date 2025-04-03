@@ -37,6 +37,30 @@ body {
   margin-bottom: 0rem;
 }
 
+.accordion{
+  background-color: #0088cc;
+
+  h3{
+    color: #0F172A;
+    font-weight: bolder;
+  }
+  
+
+  p{
+    color: white;
+  }
+}
+.accordion:hover{
+  background-color: #00bfff;
+
+  h3{
+    color: #171d3d;
+   
+  }
+  
+
+}
+
 .board .cell {
   width: 40px;
   height: 40px;
@@ -85,6 +109,31 @@ body {
 
 }
 
+figcaption{
+  color: #d1d5db;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 15px;
+}
+.fixed-style {
+  background: radial-gradient(650px circle at 90% 100%, rgba(14, 165, 233, 0.12), transparent 90%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.3s ease-in-out;
+  background-color: rgba(13, 138, 188, 0.023);
+}
+.fixed-style:hover, .fixed-style2:hover  {
+  background-color: rgba(13, 138, 188, 0.109);
+
+}
+.fixed-style2 {
+  background: radial-gradient(650px circle at 0% 10%, rgba(14, 165, 233, 0.12), transparent 90%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.3s ease-in-out;
+  background-color: rgba(13, 138, 188, 0.023);
+}
+
+
+
 .step-container {
   margin: 30px 0;
   padding: 15px;
@@ -125,12 +174,14 @@ body {
   color: rgb(209 213 219);
   font-size: 0.9rem;
   margin: 15px 0;
-  transition: background 2s ease-in-out 2s;
+  transition: background-color 0.3s ease-in-out;
   list-style: none;
+  background-color: rgba(13, 138, 188, 0.023);
+ 
 }
 
 .cust-li li:hover {
-  background: linear-gradient(to right, #0d8abc67, #0d8abc16);
+  background-color: rgba(13, 138, 188, 0.109);
 
 
 
@@ -266,13 +317,21 @@ body {
 
 .cmtd {
 
-  background-color: #0ea5e9;
+  background-color: #0088cc;
   width: auto;
   padding: 0px 50px;
   text-wrap: nowrap;
   /* width: 100%; */
   border-radius: 12px;
   border: 1px solid white;
+  transition: background-color 0.3s ease-in-out;
+
+
+}
+.cmtd:hover {
+
+  background-color: #00bfff;
+
 
 }
 
@@ -287,10 +346,13 @@ body {
   color: rgb(209 213 219);
   /* font-size: 0.9rem; */
   /* margin: 15px 0; */
-  transition: background 2s ease-in-out 2s;
+  transition: background-color 0.3s ease-in-out;
   list-style: none;
+  background-color: rgba(13, 138, 188, 0.023);
+}
 
-
+.g-style:hover {
+  background-color: rgba(13, 138, 188, 0.109);
 }
 
 .cmtd-icon {

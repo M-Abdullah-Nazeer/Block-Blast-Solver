@@ -3,7 +3,13 @@
 import { FC, useState } from 'react'
 import { Button, buttonVariants } from '@/ui/button'
 import { FileInput } from '@/ui/file-input'
-import example from "public/example.png"
+import incompleteAnimation from "public/incomplete-animation.webp"
+import croppedScreenshot from "public/cropped-screenshot.webp"
+import accurateScreenshot from "public/accurate-screenshot.webp"
+import animationOnShapes from "public/animation-on-shapes.webp"
+import gameScreenshot from "public/game-screenshot.webp"
+import solvePlay from "public/solve-play.webp"
+import uploadDraw from "public/upload-draw.webp"
 import manualIcon from "public/manual-icon.png"
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import Image from 'next/image'
@@ -59,6 +65,32 @@ const Page: FC = () => {
 
 
 
+    const [activeIndex, setActiveIndex] = useState(-1);
+  
+    const faqs = [
+      {
+        question: 'How does the Block Blast game work?',
+        answer: "It's a puzzle game that challenges the player's ability to find suitable positions on the grid for given shapes. A grid has an 8x8 structure consisting of 8 rows and 8 columns, while shapes can be simple or complex, e.g., L, T, square, rectangle shapes. As the game continues, the difficulty increases with more difficult puzzle levels and complex shapes. If by placing the shape on a grid any row or column gets completed, the user earns a score for that."
+      },
+      {
+        question: 'How to get a really high score in Block Blast?',
+        answer: 'Achieving a high score requires implementing effective strategies. Try to create chain reactions that open up opportunities for future moves. Consistently planning your shape placements in advance can trigger cascading effects, helping you maintain high scores. Remember, your high score is based on clearing the maximum number of rows or columns using the given shapes.'
+      },
+      {
+        question: 'What is a Block Blast Solver?',
+        answer: "It's a free online tool that provides unlimited help to decide on shape placement order after pattern recognition of blocks on the grid for the players. It requires simply a single image from the current gameplay of the player. There are no restrictions on the attempts, so upload as many images as you want for assistance, but one for each streak."
+      },
+      {
+        question: 'How to get a Block Blast Solver?',
+        answer: 'If you prefer using a laptop or computer for picture solver you can find our website-based tool using any search engine like Google. Or you can download free and install our app from the Play Store for Android and the App Store for iOS.'
+      },
+      // Add all FAQ items here
+    ];
+  
+    const toggleAccordion = (index: number)=> {
+      setActiveIndex(prev => prev === index ? -1 : index);
+    };
+
 
   function getDynamicStyles(baseColor: string) {
     // Calculate gradient colors
@@ -102,10 +134,10 @@ const Page: FC = () => {
 
 
 
-    <main className='relative bg-[#111827] container'>
+    <div className='relative container'>
 
-      <section className="w-full grid items-center lg:gap-20 gap-6 pt-6 pb-0 md:pt-10 bg-[#0F172D]">
-        <div className="container flex w-full  flex-col items-start gap-2  bg-red-600">
+      <section className="w-full grid items-center lg:gap-8 gap-6 pt-6 pb-0 md:pt-10">
+        <div className="container flex w-full  flex-col items-center gap-2">
           <h1 className="text-5xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
             Block Blast Solver
           </h1>
@@ -153,7 +185,11 @@ const Page: FC = () => {
 
 
 
-        <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row md:flex-row gap-4 lg:gap-20 justify-center items-stretch bg-[#274aa6] py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
+        <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row md:flex-row gap-4 lg:gap-20 justify-center items-stretch bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
+
+
+
+          
           {/* Pass uploadedFile state and setter to FileInput */}
           <FileInput uploadedFile={uploadedFile} setUploadedFile={setUploadedFile} onUploadSuccess={handleUploadSuccess} />
 
@@ -161,7 +197,7 @@ const Page: FC = () => {
 
             <Image
               className="rounded-lg"
-              src={example}
+              src={gameScreenshot}
               alt="Uploaded Preview"
               width={150}
               height={150}
@@ -171,7 +207,7 @@ const Page: FC = () => {
 
             <span>OR</span>
 
-            <button className="flex items-center justify-center gap-3 bg-[#468beb] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#316edf] w-[200px] lg:w-[252px] h-[56px]">
+            <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px]">
               <Image alt="select image" className="w-[32px] h-[32px] aspect-square" src={manualIcon} />
               <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
             </button>
@@ -198,7 +234,7 @@ const Page: FC = () => {
                     {step.board.map((row, rowIndex) => (
                       <div key={rowIndex} className="row">
                         {row.map((cell, cellIndex) => {
-                          // Determine the base class for each cell.
+                          // Determine the base classn for each cell.
                           const cellClass =
                             cell === 0 ? 'empty' : cell === 1 ? 'block' : 'placed';
 
@@ -273,19 +309,19 @@ const Page: FC = () => {
 
 
 
-        <div className='bg-white pt-10 z-10'>
+        <div className=' py-4 z-10'>
           <div className="container flex w-full flex-col items-start gap-2 ">
 
 
 
 
-            <p className="text-lg text-[#0F172D] dark:text-[#0F172D] sm:text-xl">
+            <p className="text-base leading-7 text-gray-300 ">
               <strong>It&apos;s an AI-based problem solver</strong> that finds the best possible moves for a Block Blast game using just a screenshot of your gameplay. You can achieve a high score in the game with a single click using our free online tool.
             </p>
-            <p className="text-lg text-[#0F172D] dark:text-[#0F172D] sm:text-xl">
+            <p className="text-base leading-7 text-gray-300 ">
               What makes it better than other helpers is its advanced solver algorithms. Block Blast Solver finds the best possible steps to take to maximize your score in a given situation.
             </p>
-            <p className="text-lg text-[#0F172D] dark:text-[#0F172D] sm:text-xl">
+            <p className="text-base leading-7 text-gray-300 ">
               Also, its solution helps you understand the right place for the right shape with the help of 3D design and colors. Unlike others, this online solver represents each shape with its original color for a better understanding of the player, which makes it the best.
             </p>
           </div>
@@ -295,19 +331,19 @@ const Page: FC = () => {
 
 
 
-      <section className='my-8'>
+      <section className='my-8 md:my-8 lg:my-16'>
 
 
         <h2 className='text-4xl text-sky-500 font-bold tracking-tight text-center'>How to Use <strong className='mark'>Block Blast Solver?</strong></h2>
         <p className='mt-6 text-base leading-7 text-gray-300 text-center'>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
 
 
-        <div className=" bg-gray-900 p-0 my-8 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
+        <div className=" p-0 my-8 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
 
 
 
 
-          <div className="group relative max-w-md rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl"
+          <div className="group relative max-w-md rounded-xl border border-white/10 lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl"
             onMouseMove={handleMouseMove}
           >
             <motion.div
@@ -369,9 +405,9 @@ const Page: FC = () => {
           Take the Screenshot</h3>
 
 
-        <div className="bg-gray-900 p-0 md:p-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8">
+        <div className="p-0 md:p-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8">
 
-          <details className="group relative rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
+          <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
           >
 
 
@@ -412,7 +448,7 @@ const Page: FC = () => {
             </table>
           </details>
 
-          <details className="group relative rounded-xl border border-white/10 bg-gray-900 lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl">
+          <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl">
             <summary><h4>For iPhone</h4>
               <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">
                 <path fill="white" d="M 44.527344 34.75 C 43.449219 37.144531 42.929688 38.214844 41.542969 40.328125 C 39.601563 43.28125 36.863281 46.96875 33.480469 46.992188 C 30.46875 47.019531 29.691406 45.027344 25.601563 45.0625 C 21.515625 45.082031 20.664063 47.03125 17.648438 47 C 14.261719 46.96875 11.671875 43.648438 9.730469 40.699219 C 4.300781 32.429688 3.726563 22.734375 7.082031 17.578125 C 9.457031 13.921875 13.210938 11.773438 16.738281 11.773438 C 20.332031 11.773438 22.589844 13.746094 25.558594 13.746094 C 28.441406 13.746094 30.195313 11.769531 34.351563 11.769531 C 37.492188 11.769531 40.8125 13.480469 43.1875 16.433594 C 35.421875 20.691406 36.683594 31.78125 44.527344 34.75 Z M 31.195313 8.46875 C 32.707031 6.527344 33.855469 3.789063 33.4375 1 C 30.972656 1.167969 28.089844 2.742188 26.40625 4.78125 C 24.878906 6.640625 23.613281 9.398438 24.105469 12.066406 C 26.796875 12.152344 29.582031 10.546875 31.195313 8.46875 Z"></path>
@@ -456,6 +492,7 @@ const Page: FC = () => {
 
       </section>
 
+
       <section>
 
         <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
@@ -470,7 +507,7 @@ const Page: FC = () => {
             <h4 className=' text-[#0F172A] text-2xl md:text-3xl font-bold tracking-tight'>What to Do</h4>
           </div>
 
-          <ul className="bg-gray-900 p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
+          <ul className=" p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
 
             <li>
 
@@ -511,7 +548,7 @@ const Page: FC = () => {
           </div>
 
 
-          <ul className="bg-gray-900 p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
+          <ul className=" p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
 
 
 
@@ -564,11 +601,106 @@ const Page: FC = () => {
 
 
 
-      <section>
+      <section className='my-8 md:my-8 lg:my-16'>
 
-        <h3>Screenshot Examples</h3>
-        <h4>Valid Captures</h4>
-        <h4>Invalid Captures</h4>
+
+      <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
+          <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
+            Step 4:
+          </span>
+          Screenshot Examples</h3>
+
+       
+<div className="flex flex-col md:flex-row justify-center items-center py-4 gap-8 ">
+
+
+
+<div>
+
+<h4 className='mb-2 text-center'>✔️ Valid Capture</h4>
+
+<figure>
+
+
+<Image className='mx-auto'
+              
+              src={accurateScreenshot}
+              alt="Uploaded Preview"
+              width={150}
+              height={150}
+              loading="lazy"
+            />
+<figcaption>Accurate screenshot</figcaption>
+
+</figure>
+
+</div>
+
+<div>
+
+<h4 className='mb-2'>❌ Invalid Captures</h4>
+
+<div className="grid  grid-cols-1 md:grid-cols-[1fr_1fr_1fr] items-center lg:items-start justify-center gap-8">
+
+<figure>
+
+
+<Image
+             
+              src={incompleteAnimation}
+              alt="Uploaded Preview"
+              width={150}
+              height={150}
+              loading="lazy"
+            />
+<figcaption>Incomplete animation</figcaption>
+
+</figure>
+
+<figure>
+
+
+<Image
+              
+              src={animationOnShapes}
+              alt="Uploaded Preview"
+              width={150}
+              height={150}
+              loading="lazy"
+            />
+<figcaption>Animation on shapes</figcaption>
+
+</figure>
+<figure>
+
+
+<Image
+            
+              src={croppedScreenshot}
+              alt="Uploaded Preview"
+              width={150}
+              height={150}
+              loading="lazy"
+            />
+<figcaption>Cropped screenshot</figcaption>
+
+</figure>
+
+</div>
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+      
+        
 
 
       </section>
@@ -577,12 +709,103 @@ const Page: FC = () => {
 
       <section>
 
-        <h3>Upload Or Draw: </h3>
-        <p>Click the upload button and select a screenshot from your device, or you can manually draw your shapes and board. Once the upload is completed, then an algorithm that is specifically designed for this game will find solutions automatically, just wait a few seconds for a response.</p>
 
-        <h3>Solve and play:</h3>
+<div className="grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-center lg:items-start justify-center gap-8">
 
-        <p>The final output of the combo solver will contain all 3 steps with solutions. Each shape will be placed in a position that maximizes your score or sets up the next move for a high-scoring play. Completed rows or columns will be highlighted using a green border. Each shape in the output will retain the same color and form as it has in the uploaded screenshot.</p>
+
+
+      <div className="group fixed-style2 relative max-w-md rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  mt-0 lg:mt-[50px] justify-self-center lg:justify-self-end"
+            onMouseMove={handleMouseMove}
+          >
+          
+            <div>
+
+              <div className="mt-2 flex items-center gap-x-2">
+
+
+                <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
+
+                  <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
+                    Step 1:
+                  </span>
+                  Upload Or Draw
+                </h3>
+              </div>
+              <p className="mt-6 text-base leading-7 text-gray-300">
+              Click the upload button and select a screenshot from your device, or you can manually draw your shapes and board. Once the upload is completed, then an algorithm that is specifically designed for this game will find solutions automatically, just wait a few seconds for a response.
+              </p>
+            </div>
+          </div>
+
+
+{/* <div className='max-w-md rounded-xl border border-red-500  flex  items-center justify-center justify-self-start lg:px-8 md:px-6 p-4 md:py-8 lg:py-16'> */}
+
+<Image
+              className="rounded-xl max-w-md w-full object-cover border border-white/10 h-[400px] justify-self-center lg:justify-self-start"
+              src={uploadDraw}
+              alt="Uploaded Preview"
+            
+              loading="lazy"
+            />
+
+{/* </div> */}
+
+</div>
+
+
+
+
+
+<div className="flex flex-col-reverse lg:grid lg:grid-cols-[1fr_1fr] items-center lg:items-start justify-center gap-8">
+
+
+
+<Image
+              className="rounded-xl max-w-md w-full object-cover border border-white/10 h-[400px] justify-self-center lg:justify-self-end  mt-0 lg:mt-[50px]"
+              src={solvePlay}
+              alt="Uploaded Preview"
+             
+              loading="lazy"
+            />
+
+      <div className="group relative max-w-md fixed-style rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  justify-self-center lg:justify-self-start lg:mt-[-25px] mt-8"
+            onMouseMove={handleMouseMove}
+          >
+         
+            <div>
+
+              <div className="mt-2 flex items-center gap-x-2">
+
+
+                <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
+
+                  <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
+                    Step 1:
+                  </span>
+                  Solve and play
+                </h3>
+              </div>
+              <p className="mt-6 text-base leading-7 text-gray-300">
+              The final output of the combo solver will contain all 3 steps with solutions. Each shape will be placed in a position that maximizes your score or sets up the next move for a high-scoring play. Completed rows or columns will be highlighted using a green border. Each shape in the output will retain the same color and form as it has in the uploaded screenshot.
+              </p>
+            </div>
+          </div>
+
+
+{/* <div className='max-w-md rounded-xl border border-red-500  flex  items-center justify-center justify-self-start lg:px-8 md:px-6 p-4 md:py-8 lg:py-16'> */}
+
+
+
+{/* </div> */}
+
+</div>
+
+        {/* <h3>Upload Or Draw: </h3>
+        <p>Click the upload button and select a screenshot from your device, or you can manually draw your shapes and board. Once the upload is completed, then an algorithm that is specifically designed for this game will find solutions automatically, just wait a few seconds for a response.</p> */}
+
+        {/* <h3>Solve and play:</h3>
+
+        <p>The final output of the combo solver will contain all 3 steps with solutions. Each shape will be placed in a position that maximizes your score or sets up the next move for a high-scoring play. Completed rows or columns will be highlighted using a green border. Each shape in the output will retain the same color and form as it has in the uploaded screenshot.</p> */}
 
 
 
@@ -590,7 +813,7 @@ const Page: FC = () => {
 
 
 
-      <section>
+      {/* <section>
 
 
         <h2>Frequently Asked Questions</h2>
@@ -615,7 +838,7 @@ const Page: FC = () => {
         <p>If you prefer using a laptop or computer for picture solver you can find our website-based tool using any search engine like Google. Or you can download free and install our app from the Play Store for Android and the App Store for iOS.</p>
 
 
-      </section>
+      </section> */}
 
 
 
@@ -623,29 +846,80 @@ const Page: FC = () => {
 
 
 
+{/* faq */}
+
+    <section className="py-24" aria-label="FAQ Section">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16">
+       
 
 
+          <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center' role="heading" 
+  aria-level="2"> Frequently Asked<span className='text-sky-500'> Questions</span></h2>
 
-
-
-
-
-
-
-
-      <footer className="flex flex-col gap-4 mt-12">
-        <div className="flex items-center gap-4">
-          <Button href="/terms" className={buttonVariants({ variant: 'link', size: 'sm' })}>
-            Terms
-          </Button>
-          <Button href="/privacy-policy" className={buttonVariants({ variant: 'link', size: 'sm' })}>
-            Privacy Policy
-          </Button>
+          <p className='mt-6 text-base leading-7 text-gray-300 text-center'>Discover tips, tricks and hacks for the Block Blast game. Whether you&apos;re a newbie or a pro player, quickly get clear information with our frequently asked question&apos;s answers.</p>
         </div>
-      </footer>
+        <div className="accordion-group">
+          {faqs.map((faq, index) => (
+            <div 
+              key={index}
+              className={`accordion border border-solid border-gray-300 p-4 rounded-xl transition duration-500 mb-8 lg:p-4 ${
+                activeIndex === index ? 'active bg-indigo-50 border-indigo-600' : ''
+              }`}
+            >
+              <button
+                className="group inline-flex items-center justify-between text-left text-lg font-normal leading-8 text-gray-900 w-full transition duration-500 hover:text-indigo-600"
+                onClick={() => toggleAccordion(index)}
+                aria-expanded={activeIndex === index}
+              >
+                <h3>{faq.question}</h3>
+                <div className="flex items-center">
+                  <svg
+                    className={`w-6 h-6 transition duration-500 ${
+                      activeIndex === index ? 'hidden' : 'block'
+                    }`}
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M6 12H18M12 18V6" stroke="currentColor" strokeWidth="1.6" />
+                  </svg>
+                  <svg
+                    className={`w-6 h-6 transition duration-500 ${
+                      activeIndex === index ? 'block' : 'hidden'
+                    }`}
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M6 12H18" stroke="currentColor" strokeWidth="1.6" />
+                  </svg>
+                </div>
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  activeIndex === index ? 'max-h-[500px]' : 'max-h-0'
+                }`}
+              >
+                <p className="text-base text-white font-normal leading-6 pt-4">
+                  {faq.answer}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+ 
+                                            
 
 
-    </main>
+
+
+
+
+
+  
+
+
+
+    </div>
 
 
 

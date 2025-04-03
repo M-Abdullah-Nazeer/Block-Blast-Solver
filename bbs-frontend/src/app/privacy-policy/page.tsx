@@ -1,10 +1,10 @@
 import { FC } from 'react'
-import Link from 'next/link'
+// import Link from 'next/link'
 
 const page: FC = () => {
   return (
     <div className="text-slate-300">
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-bold mb-4 text-slate-100">
           ImageToAlt Privacy Policy
         </h1>
@@ -86,7 +86,7 @@ const page: FC = () => {
           If you have any questions about this Privacy Policy, please contact us
           at admin@wordful.ai.
         </p>
-      </div>
+      </div> */}
     </div>
   )
 }

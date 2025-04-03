@@ -4,13 +4,14 @@ import Head from 'next/head'
 const page: FC = () => {
   return (
     <div className="text-slate-300">
-      <Head>
-        <title>ImageToAlt - Terms and Conditions</title>
+
+      {/* <Head>
+        <title>Terms and Conditions</title>
       </Head>
 
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-bold mb-4">
-          ImageToAlt Terms and Conditions
+          Terms and Conditions
         </h1>
         <p className="mb-4">
           These terms and conditions (&quot;Terms&quot;) apply to your use of
@@ -88,7 +89,7 @@ const page: FC = () => {
           please contact us at admin@wordful.ai.
         </p>
         <p className="text-sm">Last Updated: Feb 20th, 2023</p>
-      </div>
+      </div> */}
     </div>
   )
 }

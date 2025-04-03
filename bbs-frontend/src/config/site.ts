@@ -15,12 +15,16 @@ export const siteConfig: SiteConfig = {
   description: 'Easily create alt-descriptions for your images.',
   mainNav: [
     {
-      title: 'Home',
+      title: 'Screenshot',
+      href: '/',
+    },
+    {
+      title: 'Fill Manually',
       href: '/',
     },
   ],
   links: {
-    github: 'https://github.com/joschan21/image-alt-generator',
-    youtube: 'https://www.youtube.com/@joshtriedcoding',
+    github: '',
+    youtube: '',
   },
 }
