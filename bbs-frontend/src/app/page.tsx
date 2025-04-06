@@ -3,11 +3,15 @@
 import { FC, useState } from 'react'
 import { Button, buttonVariants } from '@/ui/button'
 import { FileInput } from '@/ui/file-input'
+import FillManual from '@/components/fill-manual'
 import incompleteAnimation from "public/incomplete-animation.webp"
 import croppedScreenshot from "public/cropped-screenshot.webp"
 import accurateScreenshot from "public/accurate-screenshot.webp"
 import animationOnShapes from "public/animation-on-shapes.webp"
 import gameScreenshot from "public/game-screenshot.webp"
+import AndroidLogo from "public/android-logo.webp"
+import AppleLogo from "public/apple-logo.webp"
+
 import solvePlay from "public/solve-play.webp"
 import uploadDraw from "public/upload-draw.webp"
 import manualIcon from "public/manual-icon.png"
@@ -19,7 +23,7 @@ import { useMotionTemplate } from "framer-motion";
 
 
 import { MouseEvent as ReactMouseEvent } from "react";
-
+import { useTab } from '../context/TabContext';
 
 
 
@@ -36,9 +40,14 @@ export const metadata = {
 const Page: FC = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
 
+  const { activeTab, setActiveTab  } = useTab();
+
+  const [fmSolved, setFmSolved] = useState(false);
+
   // Function to clear the uploaded file
   const clearFile = () => {
     setUploadedFile(null);
+    setFmSolved(false);
     setHideComp((prev) => !prev);
     console.log(hideComp);
     console.log(uploadedFile);
@@ -61,6 +70,7 @@ const Page: FC = () => {
     setSteps(receivedSteps);
     setShapeColors(receivedShapeColors);
     setHideComp((prev) => !prev);
+    setFmSolved(true);
   };
 
 
@@ -138,7 +148,7 @@ const Page: FC = () => {
 
       <section className="w-full grid items-center lg:gap-8 gap-6 pt-6 pb-0 md:pt-10">
         <div className="container flex w-full  flex-col items-center gap-2">
-          <h1 className="text-5xl font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl">
+          <h1 className="text-[40px] font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl text-center">
             Block Blast Solver
           </h1>
 
@@ -151,12 +161,12 @@ const Page: FC = () => {
 
 
         {/* Try Another Button */}
-        {uploadedFile && (
+        {(uploadedFile || fmSolved) && (
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex justify-center w-full my-4">
                 <Button
-                  disabled={!uploadedFile}
+                  disabled={!(uploadedFile || fmSolved) }
                   className={buttonVariants({
                     size: "lg",
                     className: "w-fit hover:!bg-[#468beb] hover:!text-white"
@@ -184,7 +194,7 @@ const Page: FC = () => {
         {/* Upload Section */}
 
 
-
+        {activeTab === 1 &&
         <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row md:flex-row gap-4 lg:gap-20 justify-center items-stretch bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
 
 
@@ -207,17 +217,34 @@ const Page: FC = () => {
 
             <span>OR</span>
 
-            <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px]">
+            <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px]"  onClick={() => setActiveTab(prev => prev === 1 ? 2 : 1)}>
               <Image alt="select image" className="w-[32px] h-[32px] aspect-square" src={manualIcon} />
               <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
             </button>
           </div>
         </div>
 
+        }
 
 
 
-        {uploadedFile && (
+{(activeTab === 2 &&  !fmSolved) &&
+
+
+        <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row  gap-4 lg:gap-20 justify-center items-center lg:items-start bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
+
+
+
+          
+<FillManual handleUploadSuccess={handleUploadSuccess}/>         
+
+
+        </div>
+
+        }
+
+
+        {(uploadedFile || fmSolved) && (
           <div className="steps-container-wrapper">
             {steps.map((step, stepIndex) => {
               // Compute completed rows and columns from the board in this step.
@@ -414,10 +441,13 @@ const Page: FC = () => {
 
             <summary><h4>For Android</h4>
 
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0,0,256,256"
-                fill="#FFFFFF;">
-                <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none"><g transform="scale(4,4)"><path d="M19.92578,4.45898c-0.12891,0.01597 -0.2555,0.05795 -0.375,0.12695c-0.478,0.276 -0.64319,0.88723 -0.36719,1.36523l2.68945,4.6582c-3.45074,2.73959 -5.89874,6.80214 -6.62695,11.39063h33.57422c-0.63375,-4.69499 -3.0921,-8.7927 -6.62109,-11.51367l2.61719,-4.53516c0.276,-0.478 0.11081,-1.08923 -0.36719,-1.36523c-0.478,-0.276 -1.08924,-0.11277 -1.36523,0.36523l-2.55078,4.41797c-2.42063,-1.44629 -5.21465,-2.30781 -8.20898,-2.36523c-3.21465,-0.06145 -6.23025,0.84124 -8.81445,2.43945l-2.59375,-4.49219c-0.207,-0.3585 -0.60352,-0.54009 -0.99023,-0.49219zM24.5,14c0.828,0 1.5,0.672 1.5,1.5c0,0.828 -0.672,1.5 -1.5,1.5c-0.828,0 -1.5,-0.672 -1.5,-1.5c0,-0.828 0.672,-1.5 1.5,-1.5zM39.5,14c0.828,0 1.5,0.672 1.5,1.5c0,0.828 -0.672,1.5 -1.5,1.5c-0.828,0 -1.5,-0.672 -1.5,-1.5c0,-0.828 0.672,-1.5 1.5,-1.5zM15.03906,24.05469c-0.012,0.266 -0.03906,0.52887 -0.03906,0.79687v21.05469c0,2.26 1.791,4.09375 4,4.09375h3v6.5c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-6.5h10v6.5c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-6.5h3c2.209,0 4,-1.83375 4,-4.09375v-20.95898zM9.5,25c-1.381,0 -2.5,1.119 -2.5,2.5v8c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-8c0,-1.381 -1.119,-2.5 -2.5,-2.5zM54.5,25c-1.381,0 -2.5,1.119 -2.5,2.5v8c0,1.381 1.119,2.5 2.5,2.5c1.381,0 2.5,-1.119 2.5,-2.5v-8c0,-1.381 -1.119,-2.5 -2.5,-2.5z"></path></g></g>
-              </svg>
+            <Image
+              src={AndroidLogo}
+              alt="Uploaded Preview"
+              width={100}
+              height={100}
+              className="w-6 h-6 ml-1"
+            />
 
             </summary>
             <table>
@@ -450,9 +480,14 @@ const Page: FC = () => {
 
           <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl">
             <summary><h4>For iPhone</h4>
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">
-                <path fill="white" d="M 44.527344 34.75 C 43.449219 37.144531 42.929688 38.214844 41.542969 40.328125 C 39.601563 43.28125 36.863281 46.96875 33.480469 46.992188 C 30.46875 47.019531 29.691406 45.027344 25.601563 45.0625 C 21.515625 45.082031 20.664063 47.03125 17.648438 47 C 14.261719 46.96875 11.671875 43.648438 9.730469 40.699219 C 4.300781 32.429688 3.726563 22.734375 7.082031 17.578125 C 9.457031 13.921875 13.210938 11.773438 16.738281 11.773438 C 20.332031 11.773438 22.589844 13.746094 25.558594 13.746094 C 28.441406 13.746094 30.195313 11.769531 34.351563 11.769531 C 37.492188 11.769531 40.8125 13.480469 43.1875 16.433594 C 35.421875 20.691406 36.683594 31.78125 44.527344 34.75 Z M 31.195313 8.46875 C 32.707031 6.527344 33.855469 3.789063 33.4375 1 C 30.972656 1.167969 28.089844 2.742188 26.40625 4.78125 C 24.878906 6.640625 23.613281 9.398438 24.105469 12.066406 C 26.796875 12.152344 29.582031 10.546875 31.195313 8.46875 Z"></path>
-              </svg>
+             
+            <Image
+              src={AppleLogo}
+              alt="Uploaded Preview"
+              width={100}
+              height={100}
+              className="w-6 h-6 ml-1"
+            />
             </summary>
             <table>
               <thead>
@@ -611,7 +646,7 @@ const Page: FC = () => {
           Screenshot Examples</h3>
 
        
-<div className="flex flex-col md:flex-row justify-center items-center py-4 gap-8 ">
+<div className="flex flex-col md:flex-row justify-center items-center py-4 gap-8 mt-6">
 
 
 
@@ -854,8 +889,7 @@ const Page: FC = () => {
        
 
 
-          <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center' role="heading" 
-  aria-level="2"> Frequently Asked<span className='text-sky-500'> Questions</span></h2>
+          <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center' role="heading" > Frequently Asked<span className='text-sky-500'> Questions</span></h2>
 
           <p className='mt-6 text-base leading-7 text-gray-300 text-center'>Discover tips, tricks and hacks for the Block Blast game. Whether you&apos;re a newbie or a pro player, quickly get clear information with our frequently asked question&apos;s answers.</p>
         </div>
@@ -868,11 +902,11 @@ const Page: FC = () => {
               }`}
             >
               <button
-                className="group inline-flex items-center justify-between text-left text-lg font-normal leading-8 text-gray-900 w-full transition duration-500 hover:text-indigo-600"
+                className="group inline-flex items-center justify-between text-left text-lg font-normal leading-8 w-full transition duration-500 "
                 onClick={() => toggleAccordion(index)}
                 aria-expanded={activeIndex === index}
               >
-                <h3>{faq.question}</h3>
+                <h3 className='text-[#0F172A] font-extrabold'>{faq.question}</h3>
                 <div className="flex items-center">
                   <svg
                     className={`w-6 h-6 transition duration-500 ${

@@ -8,6 +8,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from scipy.stats import mode
 from math import ceil
 import copy
+import logging
+from pydantic import BaseModel
+
+# Initialize logging immediately after import
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Configure logger at the top of your file
+logger = logging.getLogger(__name__)
+
+
+class SolveRequest(BaseModel):
+    grid: list
+    shape1: list
+    shape2: list
+    shape3: list
 
 UPLOAD_DIR = "uploads"
 CROPPED_DIR = "cropped"
@@ -891,5 +909,63 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 
-# make UI better
-# create other pages
+
+
+# -------------------------------------------------
+
+
+def trim_shape(shape_array):
+    """Trim all-zero rows and columns from a 2D array"""
+    arr = np.array(shape_array)
+    
+    # Remove all-zero rows
+    arr = arr[~np.all(arr == 0, axis=1)]
+    # Remove all-zero columns
+    arr = arr[:, ~np.all(arr == 0, axis=0)]
+    
+    return arr.tolist()
+
+
+
+@app.post("/fm")
+async def get_stepwise_boards(request: SolveRequest):
+    """
+    Endpoint for stepwise board placements
+    """
+    try:
+        # Process and trim all shapes into DICTIONARY format
+        processed_shapes = {
+            f"shape_{i}": trim_shape(shape)
+            for i, shape in enumerate([
+                request.shape1,
+                request.shape2,
+                request.shape3
+            ])
+        }
+
+        # Process with trimmed shapes (now in required dict format)
+        stepwise_boards = find_shape_placement_stepwise(
+            request.grid,
+            processed_shapes  # Now properly formatted as dict
+        )
+        shape_colors = {
+            'shape 0': '#00BFFF', 'shape 1': '#fb00ff', 'shape 2': '#ffc800'
+        }
+        # Convert numpy arrays to lists if needed
+        if isinstance(stepwise_boards, np.ndarray):
+            stepwise_boards = stepwise_boards.tolist()
+        elif isinstance(stepwise_boards, list):
+            stepwise_boards = [
+                board.tolist() if isinstance(board, np.ndarray) else board
+                for board in stepwise_boards
+            ]
+
+        return {
+            "shape_colors": shape_colors,
+            "final_output": stepwise_boards}
+    
+    except Exception as e:
+        return JSONResponse(
+            content={"error": str(e)},
+            status_code=500
+        )

@@ -19,13 +19,7 @@
   display: flex;
 }
 
-p,
-h3,
-h2,
-h4,
-li {
-  color: #ffffff;
-}
+
 
 body {
   color: #ffffff;
@@ -38,25 +32,13 @@ body {
 }
 
 .accordion{
-  background-color: #0088cc;
-
-  h3{
-    color: #0F172A;
-    font-weight: bolder;
-  }
-  
-
-  p{
-    color: white;
-  }
-}
-.accordion:hover{
   background-color: #00bfff;
 
-  h3{
-    color: #171d3d;
-   
-  }
+}
+.accordion:hover{
+  
+  background-color: #0088cc;
+
   
 
 }
@@ -71,6 +53,24 @@ body {
   font-size: 12px;
 
 }
+
+
+.fm-block{
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ccc;
+  margin: 1px;
+  cursor: pointer;
+
+}
+
+.fm-grid{
+  width: 40px;
+  height: 40px;
+
+
+}
+
 
 .board .empty {
   background-color: #1e2444;
@@ -227,16 +227,16 @@ figcaption{
 .step2 summary {
   font-size: 18px;
   font-weight: bold;
-  color: #00bfff;
+  color: #ffffff;
   cursor: pointer;
   list-style: none;
   display: flex;
   align-items: center;
+  transition: color 0.3s ease-in-out;
 
-
-  svg {
-    margin-left: 2%;
-  }
+}
+.step2 summary svg {
+  margin-left: 2%;
 }
 
 .step2 table {
@@ -293,9 +293,12 @@ figcaption{
 .step2 tr:nth-child(even) {
   background-color: #0d8abc67;
 
-  td {
+
+}
+.step2 tr:nth-child(even) td {
+
     color: rgb(245, 245, 245);
-  }
+  
 }
 
 .step2 tr:nth-child(odd) {
@@ -306,9 +309,6 @@ figcaption{
   color: #ffffff;
 }
 
-.step2 summary:hover {
-  color: #0088cc;
-}
 
 
 
@@ -383,6 +383,22 @@ figcaption{
   .steps-container-wrapper {
     grid-template-columns: 1fr 1fr;
   }
+
+  
+.fm-block{
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  margin: 1px;
+  cursor: pointer;
+
+}
+.fm-grid{
+  width: 30px;
+  height: 30px;
+
+
+}
 }
 
 @media only screen and (max-width:768px) {
@@ -435,6 +451,15 @@ figcaption{
 }
 
 @media only screen and (max-width:536px) {
+
+
+  .fm-grid{
+    width: 25px;
+    height: 25px;
+  
+  
+  }
+
   .steps-container-wrapper {
     grid-template-columns: 1fr;
     grid-gap: 15px;

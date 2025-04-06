@@ -9,7 +9,7 @@ import {
 import axios from 'axios'
 import { useToast } from '@/src/hooks/use-toast'
 import { cn, validateFileType } from '@/lib/utils'
-import { Icons } from '../icons'
+
 import Image from 'next/image'
 
 // export interface InputProps
