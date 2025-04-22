@@ -9,7 +9,7 @@ import {
 import axios from 'axios'
 import { useToast } from '@/src/hooks/use-toast'
 import { cn, validateFileType } from '@/lib/utils'
-
+import { useTab } from '../../context/TabContext';
 import Image from 'next/image'
 
 // export interface InputProps
@@ -34,7 +34,12 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
     const { toast } = useToast()
     const [dragActive, setDragActive] = useState<boolean>(false)
     const [uploading, setUploading] = useState<boolean>(false)
+    const { setActiveTab  } = useTab();
 
+
+    const API_URL ="http://localhost:8000";
+
+   
     // handle drag events
     const handleDrag = (e: DragEvent<HTMLFormElement | HTMLDivElement>) => {
       e.preventDefault()
@@ -98,7 +103,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         const formData = new FormData()
         formData.append('file', file)
 
-        const response = await axios.post('http://127.0.0.1:8000/upload', formData, {
+        const response = await axios.post(`${API_URL}/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         console.log('Response2:', response.data.final_output);
@@ -114,11 +119,13 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
             completedLines: step.completedLines,
           }));
 
+          setActiveTab(3);
           // Pass the processed data to the parent component
           onUploadSuccess(processedSteps, response.data.shape_colors);
         }
 
       } catch (error) {
+        // alert(`Backend URL: ${API_URL}`); 
         toast({
           title: 'Upload failed',
           description: 'There was an error uploading the image.',

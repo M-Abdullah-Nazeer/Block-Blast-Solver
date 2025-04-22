@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-
+import { useTab } from '../context/TabContext';
 
 interface FillManualProps {
     handleUploadSuccess: (
@@ -30,6 +30,11 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess }) => {
   const [shape1, setShape1] = useState<GridType>(createEmptyShape1());
   const [shape2, setShape2] = useState<GridType>(createEmptyShape2());
   const [shape3, setShape3] = useState<GridType>(createEmptyShape3());
+  const { setActiveTab  } = useTab();
+
+  const API_URL ="http://localhost:8000";
+
+ 
 
   const handleClick = (rowIdx: number, colIdx: number): void => {
     setGrid((prevGrid) =>
@@ -92,7 +97,7 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess }) => {
         };
 
         const response = await axios.post(
-            "http://127.0.0.1:8000/fm", 
+          `${API_URL}/fm`, 
             payload,
             {
                 headers: {
@@ -102,7 +107,7 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess }) => {
         );
 
         console.log("Stepwise boards:", response.data.final_output);
-        
+        setActiveTab(3); 
 
         handleUploadSuccess(
             response.data.final_output,  // Steps data
@@ -110,6 +115,7 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess }) => {
           );
         
     } catch (error) {
+      // alert(`Backend URL: ${API_URL}`); 
         console.error("Error solving puzzle:", error);
         // Handle error state
     }
@@ -227,11 +233,11 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess }) => {
 
 <div className="flex flex-col lg:flex-row items-center justify-center">
 
-    <button className="flex mr-0 mb-2 lg:mb-0 lg:mr-2 items-center justify-center gap-3 bg-transparent border border-solid border-white text-white p-[16px] lg:px-[16px] lg:py-[16px] rounded-lg hover:bg-[#00bfff20] transition-all duration-300 ease-in-out w-[200px] lg:w-[150px] h-[56px]" onClick={handleClear}>
+    <button className="flex mr-0 mb-2 lg:mb-0 lg:mr-2 items-center justify-center gap-3 bg-transparent border border-solid border-white text-white p-[16px] lg:px-[16px] lg:py-[16px] rounded-lg hover:bg-[#00bfff20] transition-all duration-300 ease-in-out w-[200px] lg:w-[150px] h-[56px] cursor-pointer" onClick={handleClear}>
               {/* <Image alt="select image" className="w-[32px] h-[32px] aspect-square" src={manualIcon} /> */}
               <span className="text-18px font-semibold leading-24px text-center">Clear</span>
             </button>
-    <button className="flex ml-0 mt-2 lg:mt-0 lg:ml-2 items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[150px] h-[56px]"  onClick={handleSolve}>
+    <button className="flex ml-0 mt-2 lg:mt-0 lg:ml-2 items-center justify-center gap-3 bg-[#0088cc] active:bg-[#0088cc5c] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[150px] h-[56px] cursor-pointer"  onClick={handleSolve}>
               {/* <Image alt="select image" className="w-[32px] h-[32px] aspect-square" src={manualIcon} /> */}
               <span className="text-18px font-semibold leading-24px text-center">Solve</span>
             </button>

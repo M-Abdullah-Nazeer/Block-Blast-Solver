@@ -33,10 +33,11 @@ export function MainNav({ items }: MainNavProps) {
       <Image
               className="w-10 h-10"
               src={BlockBlastSolverLogo}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
-              loading="lazy"
+              alt="Block Blast Solver Logo"
+              priority
+              width={500}
+              height={500}
+             
             />
 
        
@@ -75,10 +76,11 @@ export function MainNav({ items }: MainNavProps) {
             <Image
               className="w-6 h-6"
               src={MenuIcon}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
-              loading="lazy"
+              alt="Menu Icon"
+              priority
+              width={500}
+              height={500}
+            
             />
          
           </Button>
@@ -90,23 +92,31 @@ export function MainNav({ items }: MainNavProps) {
         >
           
           <DropdownMenuSeparator />
-          {items?.map(
+          {/* {
+          items?.map(
             (item, index) =>
-              item.href && (
-                <DropdownMenuItem key={index} asChild>
-                  <Link href={item.href} onClick={() => setActiveTab(prev => prev === 1 ? 2 : 1)}>{item.title}</Link>
+              item.href && ( */}
+
+{items?.length ? (
+
+                <DropdownMenuItem asChild>
+                  <Link className='cursor-pointer' href={items[0].href!} onClick={() => setActiveTab(1)}>{items[0].title}</Link>
+                  <Link className='cursor-pointer' href={items[1].href!} onClick={() => setActiveTab(2)}>{items[1].title}</Link>
                 </DropdownMenuItem>
-              )
-          )}
+                ) : null}
+
+              {/* )
+          )} */}
         </DropdownMenuContent>
       </DropdownMenu>
       <Image
               className="w-10 h-10 block md:hidden"
               src={BlockBlastSolverLogo}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
-              loading="lazy"
+              alt="Block Blast Solver Logo"
+              priority
+              width={500}
+              height={500}
+             
             />
 
     </div>

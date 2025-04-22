@@ -1,7 +1,7 @@
 import { FC } from 'react'
 
 const head: FC = () => {
-  return <title>ImageToAlt - Generate alt tags from images</title>
+  return <title>Block Blast Solver - Solve from screenshot</title>
 }
 
 export default head

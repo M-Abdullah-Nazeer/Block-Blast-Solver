@@ -2,14 +2,14 @@
 import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 
 type TabContextType = {
-  activeTab: 1 | 2;
-  setActiveTab: Dispatch<SetStateAction<1 | 2>>;
+  activeTab: 1 | 2 | 3;
+  setActiveTab: Dispatch<SetStateAction<1 | 2 | 3>>;
 };
 
 const TabContext = createContext<TabContextType | undefined>(undefined);
 
 export function TabProvider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTab] = useState<1 | 2>(1);
+  const [activeTab, setActiveTab] = useState<1 | 2 | 3>(1);
   
   return (
     <TabContext.Provider value={{ activeTab, setActiveTab }}>

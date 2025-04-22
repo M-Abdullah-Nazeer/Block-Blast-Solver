@@ -1,0 +1,33 @@
+
+
+services:
+  backend:
+    build: ./bbs-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    networks:
+      - bbs-network
+  frontend:
+    build: ./bbs-frontend
+    ports:
+      - "3000:3000"
+    # volumes:
+      # - ./bbs-frontend:/app
+
+    depends_on:
+      - backend
+    networks:
+      - bbs-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - bbs-network
+
+networks:
+  bbs-network:
+    driver: bridge

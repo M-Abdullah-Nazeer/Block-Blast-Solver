@@ -8,7 +8,7 @@ import { Progress } from '@/ui/progress'
 import { Loader2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { Icons } from '@/components/icons'
+
 
 interface ImageUploadProps extends React.HTMLAttributes<HTMLTableRowElement> {
   name: string
@@ -34,7 +34,7 @@ const ImageUpload = forwardRef<HTMLTableRowElement, ImageUploadProps>(
           <div className="relative flex h-12 w-20">
             {error ? (
               <div className="flex w-full justify-center items-center">
-                <Icons.redx className="h-6 w-6" />
+                {/* <Icons.redx className="h-6 w-6" /> */}
               </div>
             ) : (
               <Image

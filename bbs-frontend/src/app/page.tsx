@@ -1,6 +1,6 @@
 'use client'
 
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Button, buttonVariants } from '@/ui/button'
 import { FileInput } from '@/ui/file-input'
 import FillManual from '@/components/fill-manual'
@@ -33,8 +33,34 @@ import { useTab } from '../context/TabContext';
 // const borderColor = '#e6f4ff9';    // Light blue border
 
 
+// app/page.tsx (Homepage)
 export const metadata = {
-  title: 'ImageToAlt - Home',
+  // Basic SEO
+  title: "Home | Your Tool",
+  description: "Your tool's homepage with a long article and tool demo.",
+
+  alternates: {
+    canonical: "https://yourdomain.com",
+  },
+
+  // Open Graph (Social Sharing)
+  openGraph: {
+    images: "/og-image.webp", // Path to OG image
+    url: "https://yourdomain.com", // Absolute URL for social links
+    type: "website",
+  },
+
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    images: "/og-image.webp", // Same as OG or specific Twitter image
+  },
+};
+
+
+
+export async function generateStaticParams() {
+  return []; // Empty array = pre-render as static page
 }
 
 const Page: FC = () => {
@@ -43,6 +69,21 @@ const Page: FC = () => {
   const { activeTab, setActiveTab  } = useTab();
 
   const [fmSolved, setFmSolved] = useState(false);
+
+
+  useEffect(() => {
+
+    if(activeTab === 1){
+      setFmSolved(false);
+    } else if(activeTab === 2){
+      setUploadedFile(null);
+
+    }
+
+    setHideComp(activeTab === 3);
+  }, [activeTab]);
+  
+
 
   // Function to clear the uploaded file
   const clearFile = () => {
@@ -142,7 +183,41 @@ const Page: FC = () => {
 
   return (
 
+<>
+<script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Your Tool",
+          "url": "https://yourdomain.com",
+          "description": "A tool to solve X problem...",
+        })}
+      </script>
 
+
+
+      <script type="application/ld+json">
+  {JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Your Article Title",
+    "description": "Brief summary of the article",
+    "image": "https://yourdomain.com/article-image.webp",
+    "author": {
+      "@type": "Person",
+      "name": "Author Name"
+    },
+    "datePublished": "2024-01-01",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Your Tool",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://yourdomain.com/logo.webp"
+      }
+    }
+  })}
+</script>
 
     <div className='relative container'>
 
@@ -169,7 +244,7 @@ const Page: FC = () => {
                   disabled={!(uploadedFile || fmSolved) }
                   className={buttonVariants({
                     size: "lg",
-                    className: "w-fit hover:!bg-[#468beb] hover:!text-white"
+                    className: "w-fit hover:!bg-[#468beb] hover:!text-white cursor-pointer"
                   })}
                   onClick={clearFile}
                 >
@@ -194,7 +269,7 @@ const Page: FC = () => {
         {/* Upload Section */}
 
 
-        {activeTab === 1 &&
+        {(activeTab === 1 && !fmSolved) &&
         <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row md:flex-row gap-4 lg:gap-20 justify-center items-stretch bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
 
 
@@ -208,17 +283,18 @@ const Page: FC = () => {
             <Image
               className="rounded-lg"
               src={gameScreenshot}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
-              loading="lazy"
+              alt="gameplay screenshot"
+              priority
+              width={580}
+              height={1280}
+         
             />
 
 
             <span>OR</span>
 
-            <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px]"  onClick={() => setActiveTab(prev => prev === 1 ? 2 : 1)}>
-              <Image alt="select image" className="w-[32px] h-[32px] aspect-square" src={manualIcon} />
+            <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px] cursor-pointer"  onClick={() => setActiveTab(2)}>
+              <Image priority alt="fill manually icon" className="w-[32px] h-[32px] aspect-square" src={manualIcon} width={86} height={86}/>
               <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
             </button>
           </div>
@@ -228,7 +304,7 @@ const Page: FC = () => {
 
 
 
-{(activeTab === 2 &&  !fmSolved) &&
+{(activeTab === 2 && !uploadedFile) && 
 
 
         <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row  gap-4 lg:gap-20 justify-center items-center lg:items-start bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
@@ -244,7 +320,7 @@ const Page: FC = () => {
         }
 
 
-        {(uploadedFile || fmSolved) && (
+        {(uploadedFile || fmSolved) && (activeTab === 3) && (
           <div className="steps-container-wrapper">
             {steps.map((step, stepIndex) => {
               // Compute completed rows and columns from the board in this step.
@@ -311,7 +387,7 @@ const Page: FC = () => {
 
 
 
-        {uploadedFile && (
+        {(uploadedFile && activeTab === 1) && (
 
 
           <div className="flex flex-col justify-center items-center">
@@ -319,9 +395,10 @@ const Page: FC = () => {
 
             <Image
               src={URL.createObjectURL(uploadedFile)}
-              alt="Uploaded Preview"
-              width={200}
-              height={100}
+              alt="Uploaded Image Preview"
+              loading='lazy'
+              width={1080}
+              height={2400}
               className="object-cover rounded-lg mx-auto mb-2 lg:w-1/6 lg:h-[auto] md:w-1/4 sm:w-full md:h-[auto]"
             />
           </div>
@@ -443,9 +520,10 @@ const Page: FC = () => {
 
             <Image
               src={AndroidLogo}
-              alt="Uploaded Preview"
-              width={100}
-              height={100}
+              alt="Android logo"
+              loading='lazy'
+              width={500}
+              height={500}
               className="w-6 h-6 ml-1"
             />
 
@@ -483,9 +561,10 @@ const Page: FC = () => {
              
             <Image
               src={AppleLogo}
-              alt="Uploaded Preview"
-              width={100}
-              height={100}
+              alt="Iphone logo"
+              loading='lazy'
+              width={500}
+              height={500}
               className="w-6 h-6 ml-1"
             />
             </summary>
@@ -660,9 +739,9 @@ const Page: FC = () => {
 <Image className='mx-auto'
               
               src={accurateScreenshot}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
+              alt="puzzle game accurate screenshot"
+              width={580}
+              height={1280}
               loading="lazy"
             />
 <figcaption>Accurate screenshot</figcaption>
@@ -683,9 +762,9 @@ const Page: FC = () => {
 <Image
              
               src={incompleteAnimation}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
+              alt="screenshot with incomplete aimation"
+              width={580}
+              height={1280}
               loading="lazy"
             />
 <figcaption>Incomplete animation</figcaption>
@@ -698,9 +777,9 @@ const Page: FC = () => {
 <Image
               
               src={animationOnShapes}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
+              alt="screenshot with animation covering shapes"
+              width={580}
+              height={1280}
               loading="lazy"
             />
 <figcaption>Animation on shapes</figcaption>
@@ -712,9 +791,9 @@ const Page: FC = () => {
 <Image
             
               src={croppedScreenshot}
-              alt="Uploaded Preview"
-              width={150}
-              height={150}
+              alt="modified screenshot"
+              width={580}
+              height={1280}
               loading="lazy"
             />
 <figcaption>Cropped screenshot</figcaption>
@@ -778,9 +857,10 @@ const Page: FC = () => {
 <Image
               className="rounded-xl max-w-md w-full object-cover border border-white/10 h-[400px] justify-self-center lg:justify-self-start"
               src={uploadDraw}
-              alt="Uploaded Preview"
-            
+              alt="Block Blast Solver Features"
               loading="lazy"
+              width={1000}
+              height={1000}
             />
 
 {/* </div> */}
@@ -798,9 +878,10 @@ const Page: FC = () => {
 <Image
               className="rounded-xl max-w-md w-full object-cover border border-white/10 h-[400px] justify-self-center lg:justify-self-end  mt-0 lg:mt-[50px]"
               src={solvePlay}
-              alt="Uploaded Preview"
-             
+              alt="screenshot solver"
               loading="lazy"
+              width={1000}
+              height={1000}
             />
 
       <div className="group relative max-w-md fixed-style rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  justify-self-center lg:justify-self-start lg:mt-[-25px] mt-8"
@@ -959,7 +1040,7 @@ const Page: FC = () => {
 
 
 
-
+    </>
 
 
 

@@ -1487,10 +1487,15 @@ from math import ceil
 import copy
 from pydantic import BaseModel
 from fastapi.concurrency import run_in_threadpool
-
+from slowapi.errors import RateLimitExceeded  # Add this
 from slowapi import Limiter, _rate_limit_exceeded_handler  # Uncomment for rate limiting
 from slowapi.util import get_remote_address                 # Requires redis
 from prometheus_fastapi_instrumentator import Instrumentator  # Uncomment for monitoring
+
+
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+
 
 import redis  # NEW: Required for rate limiting
 
@@ -1528,13 +1533,18 @@ PROCESSING_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
 
 
-redis_connection = redis.Redis(
-    host='localhost',  # Use Redis URL in production
-    port=6379,
-    db=0,
-    decode_responses=True
-)
+# redis_connection = redis.Redis(
+#     host='localhost',  # Use Redis URL in production
+#     port=6379,
+#     db=0,
+#     decode_responses=True
+# )
 
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+# Parse the URL to create a Redis connection
+redis_connection = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 app = FastAPI()
 
@@ -1547,10 +1557,11 @@ Instrumentator().instrument(app).expose(app)
 # NEW: Rate limiter setup
 limiter = Limiter(
     key_func=get_remote_address,
-    storage_uri="redis://localhost:6379/0"  # Use your Redis URL
+    storage_uri=REDIS_URL  # Use your Redis URL
 )
 app.state.limiter = limiter
-app.add_exception_handler(Exception, _rate_limit_exceeded_handler)
+# app.add_exception_handler(Exception, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  
 
 # NEW: Generate unique paths per request
 def get_user_dirs(request_id: str):
@@ -2129,7 +2140,37 @@ def get_shapes_colors(directory: str = SHAPES_BASE_DIR) -> dict:
 # API Endpoints
 # --------------------------
 
-@app.post("/upload/")
+
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Credentials": "true",
+        }
+    )
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        content={"error": "Rate limit exceeded"},
+        status_code=429,
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Credentials": "true"
+        }
+    )
+
+
+
+
+
+
+@app.post("/upload")
 @limiter.limit("100/minute")
 async def upload_file(
     request: Request,
@@ -2224,8 +2265,13 @@ async def upload_file(
         for d in dirs.values():
             cleanup_directory(d)
         return JSONResponse(
-            content={"error": f"Processing failed: {str(e)}"},
-            status_code=500
+        content={"error": f"Processing failed: {str(e)}"},
+        status_code=500,
+        headers={
+            # Add CORS headers manually
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Credentials": "true"
+        }
         )
 
 
