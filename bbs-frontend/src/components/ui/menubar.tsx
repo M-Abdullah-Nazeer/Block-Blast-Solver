@@ -23,7 +23,7 @@ const Menubar = React.forwardRef<
   <MenubarPrimitive.Root
     ref={ref}
     className={cn(
-      'flex h-10 items-center space-x-1 rounded-md border border-slate-300 bg-white p-1 dark:border-slate-700 dark:bg-slate-800',
+      'flex h-10 items-center space-x-1 rounded-md border border-slate-300 bg-white p-1dark:border-slate-700 dark:bg-slate-800',
       className
     )}
     {...props}
@@ -74,7 +74,7 @@ const MenubarSubContent = React.forwardRef<
   <MenubarPrimitive.SubContent
     ref={ref}
     className={cn(
-      'z-50 min-w-[8rem] overflow-hidden rounded-md border border-slate-100 bg-white p-1 shadow-md animate-in slide-in-from-left-1 dark:border-slate-700 dark:bg-slate-800',
+      'z-50 min-w-[8rem] overflow-hidden rounded-md border border-slate-100 bg-white p-1 shadow-md animate-in slide-in-from-left-1dark:border-slate-700 dark:bg-slate-800',
       className
     )}
     {...props}

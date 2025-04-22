@@ -36,7 +36,7 @@
 //             <main>{children}</main>
 //             <footer className="flex flex-col items-center justify-center gap-0 mt-12 border-t border-t-slate-200 dark:border-t-slate-700">
 
-     
+
 
 
 
@@ -68,6 +68,7 @@ import { Inter as FontSans } from '@next/font/google'
 import { ClientLayout } from './client-layout'
 import '@/styles/globals.css'
 import { cn } from '@/lib/utils'
+// import Head from 'next/head'
 
 const fontSans = FontSans({
   subsets: ['latin'],
@@ -78,6 +79,23 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
+
+// Website Schema
+// const websiteSchema = {
+//   "@context": "https://schema.org",
+//   "@type": "WebSite",
+//   "name": "Block Blast Solver",
+//   "url": "https://yourdomain.com",
+//   "description": "Your tool description here...",
+//   "potentialAction": {
+//     "@type": "SearchAction",
+//     "target": "{search_term_string}",
+//     "query-input": "required name=search_term_string"
+//   }
+// };
+
+
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
@@ -87,6 +105,28 @@ export default function RootLayout({ children }: RootLayoutProps) {
         fontSans.variable
       )}
     >
+
+      <head>
+        {/* Website Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Block Blast Solver",
+              "url": "https://yourdomain.com",
+              "description": "Your tool description here...",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "{search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+      </head>
+
       <body className="min-h-screen bg-white font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50">
         <ClientLayout>{children}</ClientLayout>
       </body>

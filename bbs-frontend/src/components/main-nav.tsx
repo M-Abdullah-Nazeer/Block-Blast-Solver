@@ -29,18 +29,18 @@ export function MainNav({ items }: MainNavProps) {
   return (
     <div className="flex w-full gap-6 md:gap-10 items-center justify-between ">
       <Link href="/" className="hidden float-right items-center space-x-2 md:flex">
-     
-      <Image
-              className="w-10 h-10"
-              src={BlockBlastSolverLogo}
-              alt="Block Blast Solver Logo"
-              priority
-              width={500}
-              height={500}
-             
-            />
 
-       
+        <Image
+          className="w-10 h-10"
+          src={BlockBlastSolverLogo}
+          alt="Block Blast Solver Logo"
+          priority
+          width={500}
+          height={500}
+
+        />
+
+
       </Link>
       {items?.length ? (
         <nav className="hidden gap-6 md:flex">
@@ -80,9 +80,9 @@ export function MainNav({ items }: MainNavProps) {
               priority
               width={500}
               height={500}
-            
+
             />
-         
+
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -90,34 +90,42 @@ export function MainNav({ items }: MainNavProps) {
           sideOffset={24}
           className="w-[300px] overflow-scroll"
         >
-          
+
           <DropdownMenuSeparator />
           {/* {
           items?.map(
             (item, index) =>
               item.href && ( */}
 
-{items?.length ? (
+          {items?.length ? (
+            <>
+              <DropdownMenuItem asChild>
+                <Link className='cursor-pointer' href={items[0].href!} onClick={() => setActiveTab(1)}>
+                  {items[0].title}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link className='cursor-pointer' href={items[1].href!} onClick={() => setActiveTab(2)}>
+                  {items[1].title}
+                </Link>
+              </DropdownMenuItem>
+            </>
+          ) : null}
 
-                <DropdownMenuItem asChild>
-                  <Link className='cursor-pointer' href={items[0].href!} onClick={() => setActiveTab(1)}>{items[0].title}</Link>
-                  <Link className='cursor-pointer' href={items[1].href!} onClick={() => setActiveTab(2)}>{items[1].title}</Link>
-                </DropdownMenuItem>
-                ) : null}
 
-              {/* )
+          {/* )
           )} */}
         </DropdownMenuContent>
       </DropdownMenu>
       <Image
-              className="w-10 h-10 block md:hidden"
-              src={BlockBlastSolverLogo}
-              alt="Block Blast Solver Logo"
-              priority
-              width={500}
-              height={500}
-             
-            />
+        className="w-10 h-10 block md:hidden"
+        src={BlockBlastSolverLogo}
+        alt="Block Blast Solver Logo"
+        priority
+        width={500}
+        height={500}
+
+      />
 
     </div>
   )

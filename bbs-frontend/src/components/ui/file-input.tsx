@@ -34,12 +34,12 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
     const { toast } = useToast()
     const [dragActive, setDragActive] = useState<boolean>(false)
     const [uploading, setUploading] = useState<boolean>(false)
-    const { setActiveTab  } = useTab();
+    const { setActiveTab } = useTab();
 
 
-    const API_URL ="http://localhost:8000";
+    const API_URL = "http://localhost:8000";
 
-   
+
     // handle drag events
     const handleDrag = (e: DragEvent<HTMLFormElement | HTMLDivElement>) => {
       e.preventDefault()
@@ -125,7 +125,9 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         }
 
       } catch (error) {
-        // alert(`Backend URL: ${API_URL}`); 
+        alert(`Backend URL: ${API_URL}`);
+        alert("Backend URL:" + error);
+        // console.log(error);
         toast({
           title: 'Upload failed',
           description: 'There was an error uploading the image.',
@@ -133,6 +135,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
       } finally {
         setUploading(false)
       }
+
     }
 
     return (

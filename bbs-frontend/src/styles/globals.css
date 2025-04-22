@@ -31,15 +31,16 @@ body {
   margin-bottom: 0rem;
 }
 
-.accordion{
-  background-color: #00bfff;
+.accordion {
+  background-color: transparent;
 
 }
-.accordion:hover{
-  
-  background-color: #0088cc;
 
-  
+.accordion:hover {
+
+  background-color: #0088cc17;
+
+
 
 }
 
@@ -55,7 +56,7 @@ body {
 }
 
 
-.fm-block{
+.fm-block {
   width: 30px;
   height: 30px;
   border: 1px solid #ccc;
@@ -64,7 +65,7 @@ body {
 
 }
 
-.fm-grid{
+.fm-grid {
   width: 40px;
   height: 40px;
 
@@ -109,22 +110,26 @@ body {
 
 }
 
-figcaption{
+figcaption {
   color: #d1d5db;
   font-size: 0.8rem;
   text-align: center;
   margin-top: 15px;
 }
+
 .fixed-style {
   background: radial-gradient(650px circle at 90% 100%, rgba(14, 165, 233, 0.12), transparent 90%);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: background-color 0.3s ease-in-out;
   background-color: rgba(13, 138, 188, 0.023);
 }
-.fixed-style:hover, .fixed-style2:hover  {
+
+.fixed-style:hover,
+.fixed-style2:hover {
   background-color: rgba(13, 138, 188, 0.109);
 
 }
+
 .fixed-style2 {
   background: radial-gradient(650px circle at 0% 10%, rgba(14, 165, 233, 0.12), transparent 90%);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -177,7 +182,7 @@ figcaption{
   transition: background-color 0.3s ease-in-out;
   list-style: none;
   background-color: rgba(13, 138, 188, 0.023);
- 
+
 }
 
 .cust-li li:hover {
@@ -235,6 +240,7 @@ figcaption{
   transition: color 0.3s ease-in-out;
 
 }
+
 .step2 summary svg {
   margin-left: 2%;
 }
@@ -295,10 +301,11 @@ figcaption{
 
 
 }
+
 .step2 tr:nth-child(even) td {
 
-    color: rgb(245, 245, 245);
-  
+  color: rgb(245, 245, 245);
+
 }
 
 .step2 tr:nth-child(odd) {
@@ -328,6 +335,7 @@ figcaption{
 
 
 }
+
 .cmtd:hover {
 
   background-color: #00bfff;
@@ -384,21 +392,22 @@ figcaption{
     grid-template-columns: 1fr 1fr;
   }
 
-  
-.fm-block{
-  width: 20px;
-  height: 20px;
-  border: 1px solid #ccc;
-  margin: 1px;
-  cursor: pointer;
 
-}
-.fm-grid{
-  width: 30px;
-  height: 30px;
+  .fm-block {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    margin: 1px;
+    cursor: pointer;
+
+  }
+
+  .fm-grid {
+    width: 30px;
+    height: 30px;
 
 
-}
+  }
 }
 
 @media only screen and (max-width:768px) {
@@ -453,11 +462,11 @@ figcaption{
 @media only screen and (max-width:536px) {
 
 
-  .fm-grid{
+  .fm-grid {
     width: 25px;
     height: 25px;
-  
-  
+
+
   }
 
   .steps-container-wrapper {

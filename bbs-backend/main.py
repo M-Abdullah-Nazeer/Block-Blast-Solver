@@ -2171,7 +2171,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 
 @app.post("/upload")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def upload_file(
     request: Request,
     file: UploadFile = File(...),
