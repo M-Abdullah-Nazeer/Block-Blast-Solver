@@ -80,6 +80,7 @@ const Page: FC = () => {
 
   const [fmSolved, setFmSolved] = useState(false);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
 
@@ -90,6 +91,12 @@ const Page: FC = () => {
 
     }
 
+    console.log("active Tab", activeTab);
+
+    console.log("fmsolved", fmSolved);
+    console.log("uploadedfile", uploadedFile);
+
+
     setHideComp(activeTab === 3);
   }, [activeTab]);
 
@@ -97,11 +104,30 @@ const Page: FC = () => {
 
   // Function to clear the uploaded file
   const clearFile = () => {
+
+
+
+    if (activeTab > 1 && uploadedFile) {
+      setActiveTab((activeTab - 2) as 1 | 2 | 3);
+      setFmSolved(false);
+
+    }
+    if (activeTab > 1 && fmSolved) {
+      setActiveTab((activeTab - 1) as 1 | 2 | 3);
+      setFmSolved(true);
+    }
+
     setUploadedFile(null);
-    setFmSolved(false);
+
+
+    // setFmSolved((prev) => !prev);
+
+
+
+
     setHideComp((prev) => !prev);
-    console.log(hideComp);
-    console.log(uploadedFile);
+
+
   }
 
 
@@ -118,7 +144,8 @@ const Page: FC = () => {
     setSteps(receivedSteps);
     setShapeColors(receivedShapeColors);
     setHideComp((prev) => !prev);
-    setFmSolved(true);
+    // setFmSolved((prev) => !prev);
+    // setFmSolved(true);
   };
 
 
@@ -231,29 +258,41 @@ const Page: FC = () => {
 
 
 
-              {/* Pass uploadedFile state and setter to FileInput */}
-              <FileInput uploadedFile={uploadedFile} setUploadedFile={setUploadedFile} onUploadSuccess={handleUploadSuccess} />
 
-              <div className="flex flex-col justify-center items-center gap-4 w-full lg:w-1/2 md:w-1/2 bg-[#0f172d] rounded-lg py-8 px-2 lg:p-10 border-4 border-[#9ac8f6] border-solid">
+              {isLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  {/* Loading spinner */}
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                </div>
+              ) : (
+                <>
+                  <FileInput uploadedFile={uploadedFile} setIsLoading={setIsLoading} setUploadedFile={setUploadedFile} onUploadSuccess={handleUploadSuccess} />
 
-                <Image
-                  className="rounded-lg  h-auto w-[150px]"
-                  src={gameScreenshot}
-                  alt="gameplay screenshot"
-                  priority
-                  width={580}
-                  height={1280}
+                  <div className="flex flex-col justify-center items-center gap-4 w-full lg:w-1/2 md:w-1/2 bg-[#0f172d] rounded-lg py-8 px-2 lg:p-10 border-4 border-[#9ac8f6] border-solid">
 
-                />
+                    <Image
+                      className="rounded-lg  h-auto w-[150px]"
+                      src={gameScreenshot}
+                      alt="gameplay screenshot"
+                      priority
+                      width={580}
+                      height={1280}
+
+                    />
 
 
-                <span>OR</span>
+                    <span>OR</span>
 
-                <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px] cursor-pointer" onClick={() => setActiveTab(2)}>
-                  <Image priority alt="fill manually icon" className="w-[32px] h-[32px] aspect-square" src={manualIcon} width={86} height={86} />
-                  <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
-                </button>
-              </div>
+                    <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px] cursor-pointer" onClick={() => setActiveTab(2)}>
+                      <Image priority alt="fill manually icon" className="w-[32px] h-[32px] aspect-square" src={manualIcon} width={86} height={86} />
+                      <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
+                    </button>
+                  </div>
+
+                </>
+              )}
+
+
             </div>
 
           }
@@ -268,7 +307,7 @@ const Page: FC = () => {
 
 
 
-              <FillManual handleUploadSuccess={handleUploadSuccess} />
+              <FillManual handleUploadSuccess={handleUploadSuccess} setFmSolved={setFmSolved} />
 
 
             </div>
@@ -347,7 +386,7 @@ const Page: FC = () => {
 
 
 
-          {(uploadedFile && activeTab === 1) && (
+          {(uploadedFile) && (
 
 
             <div className="flex flex-col justify-center items-center">

@@ -25,12 +25,13 @@ export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   uploadedFile: File | null
   setUploadedFile: (file: File | null) => void
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
   onUploadSuccess: (steps: { board: number[][]; completedLines: number }[], shapeColors: Record<string, string>) => void;
 }
 
 
 const FileInput = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, uploadedFile, setUploadedFile, onUploadSuccess, ...props }, ref) => {
+  ({ className, uploadedFile, setUploadedFile, setIsLoading, onUploadSuccess, ...props }, ref) => {
     const { toast } = useToast()
     const [dragActive, setDragActive] = useState<boolean>(false)
     const [uploading, setUploading] = useState<boolean>(false)
@@ -100,6 +101,9 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
       setUploading(true)
 
       try {
+
+        setIsLoading(true);
+
         const formData = new FormData()
         formData.append('file', file)
 
@@ -134,11 +138,15 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         })
       } finally {
         setUploading(false)
+        setIsLoading(false);
       }
 
     }
 
     return (
+
+
+
       <form
         onSubmit={(e) => e.preventDefault()}
         onDragEnter={handleDrag}
