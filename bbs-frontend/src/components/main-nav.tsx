@@ -18,6 +18,7 @@ import {
 import { useTab } from '../context/TabContext';
 import Image from 'next/image'
 
+
 interface MainNavProps {
   items?: NavItem[]
 }
@@ -25,6 +26,8 @@ interface MainNavProps {
 export function MainNav({ items }: MainNavProps) {
 
   const { setActiveTab } = useTab();
+
+
 
   return (
     <div className="flex w-full gap-6 md:gap-10 items-center justify-between ">
@@ -44,23 +47,35 @@ export function MainNav({ items }: MainNavProps) {
       </Link>
       {items?.length ? (
         <nav className="hidden gap-6 md:flex">
-          {items?.map(
-            (item, index) =>
-              item.href && (
+          {/* {items?.map(
+            (item, index) => */}
+             
                 <Link
-                  key={index}
-                  href={item.href}
+               
+                  href={items[0].href!}
                   className={cn(
                     'flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm',
-                    item.disabled && 'cursor-not-allowed opacity-80'
+                    items[0].disabled && 'cursor-not-allowed opacity-80'
                   )}
-                  onClick={() => setActiveTab(prev => prev === 1 ? 2 : 1)}
+                  onClick={() => setActiveTab(1)}
 
                 >
-                  {item.title}
+                   {items[0].title}
                 </Link>
-              )
-          )}
+                <Link
+               
+                  href={items[1].href!}
+                  className={cn(
+                    'flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm',
+                    items[1].disabled && 'cursor-not-allowed opacity-80'
+                  )}
+                  onClick={() => setActiveTab(2)}
+
+                >
+                   {items[1].title}
+                </Link>
+         
+        
 
         </nav>
 
