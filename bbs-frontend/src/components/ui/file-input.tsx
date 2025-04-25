@@ -129,8 +129,8 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         }
 
       } catch (error) {
-        alert(`Backend URL: ${API_URL}`);
-        alert("Backend URL:" + error);
+        // alert(`Backend URL: ${API_URL}`);
+        // alert("Backend URL:" + error);
         // console.log(error);
         toast({
           title: 'Upload failed',

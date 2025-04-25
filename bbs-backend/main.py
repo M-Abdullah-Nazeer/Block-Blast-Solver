@@ -1624,14 +1624,31 @@ async def process_image_async(image_path: str):
         raise FileNotFoundError(f"Image not found: {image_path}")
     return await run_in_threadpool(process_image, image_path)
 
-def crop_board(image_path: str, output_dir: str):
+
+
+
+def crop_board(image_path: str, output_dir: str, is_resized: bool):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    edges = cv2.Canny(thresh, 30, 100)
     
+    
+    if is_resized:
+        # logic working with resized image
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        edges = cv2.Canny(thresh, 50, 150)
+
+
+    else:
+        # logic working with original image
+        thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        edges = cv2.Canny(thresh, 30, 100)
+
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # cv2.drawContours(image, contours, -1, (0, 255, 0), 2)
+    # cv2.imwrite("debug_contours.jpg", image)
+
     board_contour = None
     max_area = 0
     
@@ -1654,6 +1671,16 @@ def crop_board(image_path: str, output_dir: str):
         return cropped_path, (x, y, w, h)
 
     return None, None
+
+
+
+
+
+
+
+
+
+
 
 
 def process_image(image_path: str):
@@ -2132,6 +2159,8 @@ def get_shapes_colors(directory: str = SHAPES_BASE_DIR) -> dict:
 
 
 
+
+
 # -----------------------------------------------------
 
 
@@ -2168,6 +2197,50 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 
 
+def process_and_resize_image(contents: bytes) -> bytes:
+    """Resize image to 1080x2400 while preserving aspect ratio and padding if needed"""
+    # Decode image
+    image = cv2.imdecode(np.frombuffer(contents, np.uint8), cv2.IMREAD_COLOR)
+    if image is None:
+        raise ValueError("Invalid image file")
+
+    # Target dimensions (width, height)
+    target_width = 1080
+    target_height = 2400
+
+    # Skip if already at target size
+    if image.shape[1] == target_width and image.shape[0] == target_height:
+        return contents
+
+    # Calculate new size preserving aspect ratio
+    h, w = image.shape[:2]
+    scale = min(target_width / w, target_height / h)
+    new_w, new_h = int(w * scale), int(h * scale)
+
+    resized = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LANCZOS4)
+
+    # Padding to fit target size
+    delta_w = target_width - new_w
+    delta_h = target_height - new_h
+    top, bottom = delta_h // 2, delta_h - (delta_h // 2)
+    left, right = delta_w // 2, delta_w - (delta_w // 2)
+
+    padded = cv2.copyMakeBorder(resized, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(0, 0, 0))
+
+    # Final encode with JPEG optimization
+    success, encoded = cv2.imencode(
+        '.jpg',
+        padded,
+        [int(cv2.IMWRITE_JPEG_QUALITY), 90,
+         int(cv2.IMWRITE_JPEG_OPTIMIZE), 1]
+    )
+
+    if not success:
+        raise ValueError("Image encoding failed")
+
+    return encoded.tobytes()
+
+
 
 
 @app.post("/upload")
@@ -2185,17 +2258,68 @@ async def upload_file(
         for d in dirs.values():
             os.makedirs(d, exist_ok=True)
 
-        # Save uploaded file
+
+        contents = await file.read()
+
+
+
+
+
+        # Decode just for dimension check
+        image = cv2.imdecode(np.frombuffer(contents, np.uint8), cv2.IMREAD_COLOR)
+        if image is None:
+            raise ValueError("Invalid image file")
+
+        h, w = image.shape[:2]
+        needs_resize = not (w == 1080 and h == 2400)
+
+        if needs_resize:
+            processed = await run_in_threadpool(process_and_resize_image, contents)
+            was_resized = True
+        else:
+            processed = contents
+            was_resized = False
+
+
+
+
+        # # Process and resize
+        # processed = await run_in_threadpool(
+        #     process_and_resize_image, 
+        #     contents  # Removed explicit size parameter
+        # )
+        
+        # # Save resized image
         file_path = os.path.join(dirs["upload"], file.filename)
         async with aiofiles.open(file_path, "wb") as buffer:
-            while chunk := await file.read(8192):
-                await buffer.write(chunk)
+            await buffer.write(processed)
+        
+
+
+        # # Verify file exists before processing
+        # if not os.path.exists(file_path):
+        #     raise RuntimeError("Resized image not saved")
+
+
+
+
+
+
+
+
+        # Save uploaded file
+        # file_path = os.path.join(dirs["upload"], file.filename)
+        # async with aiofiles.open(file_path, "wb") as buffer:
+        #     while chunk := await file.read(8192):
+        #         await buffer.write(chunk)
 
         # Process board
         cropped_board_path, board_coords = await run_in_threadpool(
             crop_board, 
             file_path,
-            dirs["cropped"]  # Pass user-specific cropped directory
+            dirs["cropped"],  
+            was_resized
+
         )
 
         if not board_coords:
@@ -2250,9 +2374,9 @@ async def upload_file(
         )
 
         # Cleanup
-        background_tasks.add_task(cleanup_directory, dirs["upload"])
-        background_tasks.add_task(cleanup_directory, dirs["cropped"])
-        background_tasks.add_task(cleanup_directory, dirs["shapes"])
+        # background_tasks.add_task(cleanup_directory, dirs["upload"])
+        # background_tasks.add_task(cleanup_directory, dirs["cropped"])
+        # background_tasks.add_task(cleanup_directory, dirs["shapes"])
         
 
         return {
@@ -2262,8 +2386,8 @@ async def upload_file(
 
     except Exception as e:
         # Cleanup on error
-        for d in dirs.values():
-            cleanup_directory(d)
+        # for d in dirs.values():
+        #     cleanup_directory(d)
         return JSONResponse(
         content={"error": f"Processing failed: {str(e)}"},
         status_code=500,
@@ -2350,6 +2474,5 @@ if __name__ == "__main__":
         loop="asyncio",
         timeout_keep_alive=300
     )
-
 
 
