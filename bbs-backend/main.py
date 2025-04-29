@@ -186,13 +186,28 @@ def crop_board(image_path: str, output_dir: str):
 
 
 def crop_board_small(img, output_dir):
-    # -- the “new” logic from above, but operating on the already-loaded `img` --
-    # 1) upsample to 800×800
-    img = cv2.resize(img, (800, 800), interpolation=cv2.INTER_AREA)
-    gray = cv2.cvtColor(cv2.GaussianBlur(img, (5,5), 0), cv2.COLOR_BGR2GRAY)
+    """
+    - img: the original cv2 image (any width <600)
+    - output_dir: where we save the board crop & debug
+    Returns (board_crop_path, (x0, y0, w0_box, h0_box)) 
+    where coords are in the ORIGINAL image's space.
+    """
+
+
+    # 1) keep original
+    orig = img.copy()
+    h0, w0 = orig.shape[:2]
+
+    # 2) upsample to square 800×800 for board detection
+    resized = cv2.resize(orig, (800, 800), interpolation=cv2.INTER_AREA)
+    debug_dir = os.path.join(output_dir, "debug_small")
+    os.makedirs(debug_dir, exist_ok=True)
+    cv2.imwrite(os.path.join(debug_dir, "resized_800.jpg"), resized)
+
+    gray = cv2.cvtColor(cv2.GaussianBlur(resized, (5,5), 0), cv2.COLOR_BGR2GRAY)
     h, w = gray.shape
 
-    # 2) threshold & edge
+    # 3) threshold & edge
     block = max(3, (w//20)|1)
     thresh = cv2.adaptiveThreshold(
         gray, 255,
@@ -200,82 +215,83 @@ def crop_board_small(img, output_dir):
         cv2.THRESH_BINARY_INV,
         block, 2
     )
+    cv2.imwrite(os.path.join(debug_dir, "thresh.jpg"), thresh)
+
     low, high = max(10, int(255*0.01)), max(30, int(255*0.03))
     edges = cv2.Canny(thresh, low, high)
+    cv2.imwrite(os.path.join(debug_dir, "edges.jpg"), edges)
 
-    # 3) close & dilate
+    # 4) close & dilate
     k = max(3, (w//200)|1)
     kernel = np.ones((k, k), np.uint8)
     clean = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=2)
     dilated = cv2.dilate(clean, kernel, iterations=1)
+    cv2.imwrite(os.path.join(debug_dir, "dilated.jpg"), dilated)
 
-    # 4) find all 4-point contours, but only those in top half & near-square
+    # 5) find 4-point quads in top half
     quads = []
     contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
-        approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
+        approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
         if len(approx) != 4:
             continue
         x, y, ww, hh = cv2.boundingRect(approx)
         if y > h * 0.5:
             continue
-        ar = ww/float(hh)
+        ar = ww / float(hh)
         if 0.8 <= ar <= 1.25:
-            quads.append((ww*hh, (x, y, ww, hh)))
+            quads.append((ww * hh, (x, y, ww, hh)))
 
-    # 5) choose best or fallback to largest
+    # fallback to largest quad anywhere
     if quads:
-        _, board = max(quads, key=lambda t: t[0])
+        _, (x8, y8, w8, h8) = max(quads, key=lambda t: t[0])
     else:
-        board, max_area = None, 0
+        x8 = y8 = w8 = h8 = None
+        max_area = 0
         for cnt in contours:
-            approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
-            if len(approx)==4:
+            approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
+            if len(approx) == 4:
                 x, y, ww, hh = cv2.boundingRect(approx)
-                area = ww*hh
+                area = ww * hh
                 if area > max_area:
-                    max_area, board = area, (x,y,ww,hh)
+                    max_area = area
+                    x8, y8, w8, h8 = x, y, ww, hh
 
-    if not board:
+    if x8 is None:
         return None, None
 
-    x,y,ww,hh = board
-    crop = img[y:y+hh, x:x+ww]
+    # 6) draw debug rectangle on the 800×800
+    vis = resized.copy()
+    cv2.rectangle(vis, (x8, y8), (x8 + w8, y8 + h8), (0, 255, 0), 2)
+    cv2.imwrite(os.path.join(debug_dir, "contours_800.jpg"), vis)
 
-    # debug overlay
-    vis = img.copy()
-    cv2.rectangle(vis, (x,y), (x+ww,y+hh), (0,255,0), 3)
-    cv2.imwrite(os.path.join(output_dir, "contours.jpg"), vis)
+    # 7) map coords *back* to original image:
+    sx = w0 / 800.0
+    sy = h0 / 800.0
+    x0 = int(x8 * sx)
+    y0 = int(y8 * sy)
+    w0_box = int(w8 * sx)
+    h0_box = int(h8 * sy)
 
-    # save
+    # clamp to original bounds
+    x0 = max(0, min(x0, w0 - 1))
+    y0 = max(0, min(y0, h0 - 1))
+    w0_box = max(1, min(w0_box, w0 - x0))
+    h0_box = max(1, min(h0_box, h0 - y0))
+
+    # 8) crop on the ORIGINAL
+    board_crop = orig[y0 : y0 + h0_box, x0 : x0 + w0_box]
     fname = f"board_{uuid.uuid4()}.jpg"
     path = os.path.join(output_dir, fname)
-    cv2.imwrite(path, crop)
-    return path, board
+    cv2.imwrite(path, board_crop)
+
+    # 9) return the path + ORIGINAL coords
+    return path, (x0, y0, w0_box, h0_box)
+
 
 
 def crop_board_standard(img, output_dir):
-    # -- your existing 8× steps exactly as before, but accepting `img` instead of reloading --
-    # (just copy-paste your old crop_board body here, replacing cv2.imread with the passed `img`)
-    ...
-
-
-
-# --------------------experiment-------------
-
-
-
-
-
-
-
-# old working
-
-
-
-def crop_board(image_path: str, output_dir: str):
-    # 1) load and optional debug folder
-    img = cv2.imread(image_path)
+    # 1) Remove redundant image load, use provided 'img'
     debug_dir = os.path.join(output_dir, "debug")
     os.makedirs(debug_dir, exist_ok=True)
 
@@ -338,6 +354,86 @@ def crop_board(image_path: str, output_dir: str):
     path  = os.path.join(output_dir, fname)
     cv2.imwrite(path, crop)
     return path, board
+
+
+
+# --------------------experiment-------------
+
+
+
+
+
+
+
+# old working
+
+
+
+# def crop_board(image_path: str, output_dir: str):
+#     # 1) load and optional debug folder
+#     img = cv2.imread(image_path)
+#     debug_dir = os.path.join(output_dir, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     # 2) blur to suppress high-frequency JPEG artifacts
+#     blur = cv2.GaussianBlur(img, (5, 5), 0)
+#     gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+#     cv2.imwrite(os.path.join(debug_dir, "gray.jpg"), gray)
+
+#     # 3) adaptive threshold with a blocksize ~1/20 of width (and odd)
+#     h, w = gray.shape
+#     block = max(3, (w // 20) | 1)  # ensure odd, >=3
+#     thresh = cv2.adaptiveThreshold(
+#         gray, 255,
+#         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+#         cv2.THRESH_BINARY_INV,
+#         block, 2
+#     )
+#     cv2.imwrite(os.path.join(debug_dir, "thresh.jpg"), thresh)
+
+#     # 4) dynamic Canny: low/high = 1%/3% of 255
+#     low = max(10, int(255 * 0.01))
+#     high = max(30, int(255 * 0.03))
+#     edges = cv2.Canny(thresh, low, high)
+#     cv2.imwrite(os.path.join(debug_dir, "edges.jpg"), edges)
+
+#     # 5) morphology: close + dilate with a kernel ~1/200 of width
+#     ksize = max(3, (w // 200) | 1)
+#     kernel = np.ones((ksize, ksize), np.uint8)
+#     closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=2)
+#     dilated = cv2.dilate(closed, kernel, iterations=1)
+#     cv2.imwrite(os.path.join(debug_dir, "edges_fixed.jpg"), dilated)
+
+#     # 6) find the largest 4-point contour
+#     contours, _ = cv2.findContours(
+#         dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+#     )
+#     board = None
+#     max_area = 0
+#     for cnt in contours:
+#         approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
+#         if len(approx) == 4:
+#             x, y, ww, hh = cv2.boundingRect(approx)
+#             area = ww*hh
+#             if area > max_area:
+#                 max_area = area
+#                 board = (x, y, ww, hh)
+
+#     if not board:
+#         return None, None
+
+#     x, y, ww, hh = board
+#     # debug overlay
+#     vis = img.copy()
+#     cv2.rectangle(vis, (x,y), (x+ww, y+hh), (0,255,0), 3)
+#     cv2.imwrite(os.path.join(debug_dir, "contours.jpg"), vis)
+
+#     # crop & save
+#     crop = img[y:y+hh, x:x+ww]
+#     fname = f"board_{uuid.uuid4()}.jpg"
+#     path  = os.path.join(output_dir, fname)
+#     cv2.imwrite(path, crop)
+#     return path, board
 
 
 
@@ -543,37 +639,122 @@ def process_image(image_path: str):
 
 
 
+# -------------------------------experiment-----------------------------
 
 
+
+
+
+
+# def crop_shapes(image_path: str, board_coords: tuple, output_path: str):
+#     """
+#     - For width ≥600: use original image + your existing half-height logic
+#     - For width <600: resize to 800×800, then use the same logic in that space
+#     """
+#     import cv2, os
+
+#     # 1) load
+#     orig = cv2.imread(image_path)
+#     if orig is None:
+#         raise FileNotFoundError(f"Cannot read {image_path}")
+#     H0, W0 = orig.shape[:2]
+
+#     # 2) choose working image & coords
+#     if W0 < 600:
+#         # narrow: resize to same 800×800 you used for board detection
+#         work = cv2.resize(orig, (800, 800), interpolation=cv2.INTER_AREA)
+#         H, W = 800, 800
+#     else:
+#         # wide: work directly on original
+#         work = orig
+#         H, W = H0, W0
+
+#     # 3) unpack board rectangle (always in the work-image’s space)
+#     x, y, w, h = board_coords
+
+#     # 4) compute the “below-board” slice (half the board’s height)
+#     shape_area_start  = min(y + h + 30, H)
+#     shape_area_height = h // 2
+#     shape_area_end    = min(shape_area_start + shape_area_height, H)
+
+#     cropped_shapes = work[shape_area_start:shape_area_end, x:x+w]
+
+#     # 5) fallback to bottom half if empty
+#     if cropped_shapes.size == 0:
+#         cropped_shapes = work[y+h:, x:x+w]
+#         if cropped_shapes.size == 0:
+#             # give up—save full work image
+#             cv2.imwrite(output_path, work)
+#             return output_path
+
+#     # 6) remove any ad banner
+#     try:
+#         cleaned = remove_ad_banner(cropped_shapes)
+#     except Exception:
+#         cleaned = cropped_shapes
+
+#     # 7) save & return
+#     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+#     cv2.imwrite(output_path, cleaned)
+#     return output_path
+
+
+
+
+
+
+
+
+
+# -------------------------------experiment-----------------------------
+
+
+
+# old working
 
 
 def crop_shapes(image_path: str, board_coords: tuple, output_path: str):
+    """
+    Always crop the “below‐board” shapes area, but for narrow (<600px)
+    images we first resize to 800×800 so that board_coords line up,
+    then crop in that space.
+    """
+    # 1) load
     image = cv2.imread(image_path)
+    if image is None:
+        raise FileNotFoundError(f"Cannot read {image_path}")
+    h0, w0 = image.shape[:2]
+
+    # 2) if narrow, resize entire screenshot to 800×800
+    #    so that board_coords from crop_board_small make sense
+    if w0 < 600:
+        image = cv2.resize(image, (800, 800), interpolation=cv2.INTER_AREA)
+
+    # 3) unpack coords (these are now in the same coordinate space)
     x, y, w, h = board_coords
+    H, W = image.shape[:2]
 
-    # Determine the start/end of the shape area,
-    # but clip them to the image’s bounds:
-    shape_area_start = min(y + h + 30, image.shape[0])
-    shape_area_height = h // 2
-    shape_area_end = min(shape_area_start + shape_area_height, image.shape[0])
+    # 4) define the region just below the board, half the remaining height
+    start_y = min(y + h + 30, H)
+    end_y   = min(start_y + (H - (y + h)) // 2, H)
 
-    cropped_shapes = image[shape_area_start:shape_area_end, x:x+w]
-    
-    # If our slice is empty for any reason, fall back to
-    # using the bottom half of the original board crop:
-    if cropped_shapes.size == 0:
-        cropped_shapes = image[y+h:, x:x+w]
-        if cropped_shapes.size == 0:
-            # still empty? just bail and save the original
+    cropped = image[start_y:end_y, x:x+w]
+
+    # 5) fallback if it came out empty
+    if cropped.size == 0:
+        cropped = image[y+h:, x:x+w]
+        if cropped.size == 0:
+            # give up—save the full image
             cv2.imwrite(output_path, image)
             return output_path
 
-    # Now safely try to remove an ad banner
+    # 6) remove any ad banner at the bottom
     try:
-        cleaned = remove_ad_banner(cropped_shapes)
+        cleaned = remove_ad_banner(cropped)
     except Exception:
-        cleaned = cropped_shapes
+        cleaned = cropped
 
+    # 7) write result
     cv2.imwrite(output_path, cleaned)
     return output_path
 
