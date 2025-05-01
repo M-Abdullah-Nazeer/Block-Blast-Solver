@@ -178,7 +178,7 @@ def crop_board(image_path: str, output_dir: str):
     h0, w0 = img.shape[:2]
 
     # If it’s a small image, use the “fixed” routine:
-    if w0 < 600:
+    if w0 < 600 or (h0/w0) > 2:
         return crop_board_small(img, output_dir)
 
     # Otherwise fall back to your original crop_board logic:
@@ -290,19 +290,104 @@ def crop_board(image_path: str, output_dir: str):
 
 
 
+
+# working
+
+# def crop_board_standard(img, output_dir):
+#     # 1) Remove redundant image load, use provided 'img'
+#     debug_dir = os.path.join(output_dir, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     # 2) blur to suppress high-frequency JPEG artifacts
+#     blur = cv2.GaussianBlur(img, (5, 5), 0)
+#     gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+#     cv2.imwrite(os.path.join(debug_dir, "gray.jpg"), gray)
+
+#     # 3) adaptive threshold with a blocksize ~1/20 of width (and odd)
+#     h, w = gray.shape
+#     # block = max(3, (w // 20) | 1) 
+#     block = max(3, ((w // 40) | 1))  # half as big a window
+    
+#     thresh = cv2.adaptiveThreshold(
+#         gray, 255,
+#         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+#         cv2.THRESH_BINARY_INV,
+#         block, 2
+#     )
+#     cv2.imwrite(os.path.join(debug_dir, "thresh.jpg"), thresh)
+
+#     # 4) dynamic Canny: low/high = 1%/3% of 255
+#     low = max(10, int(255 * 0.01))
+#     high = max(30, int(255 * 0.03))
+#     edges = cv2.Canny(thresh, low, high)
+#     cv2.imwrite(os.path.join(debug_dir, "edges.jpg"), edges)
+
+#     # # 5) morphology: close + dilate with a kernel ~1/200 of width
+#     ksize = max(3, (w // 200) | 1)
+#     kernel = np.ones((ksize, ksize), np.uint8)
+#     closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=1)
+#     dilated = cv2.dilate(closed, kernel, iterations=1)
+#     cv2.imwrite(os.path.join(debug_dir, "edges_fixed.jpg"), dilated)
+
+
+
+
+
+
+#     # 6) find the largest 4-point contour
+#     contours, _ = cv2.findContours(
+#         dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+#     )
+#     board = None
+#     max_area = 0
+#     for cnt in contours:
+#         approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
+#         if len(approx) == 4:
+#             x, y, ww, hh = cv2.boundingRect(approx)
+#             area = ww*hh
+#             if area > max_area:
+#                 max_area = area
+#                 board = (x, y, ww, hh)
+
+#     if not board:
+#         return None, None
+
+#     x, y, ww, hh = board
+#     # debug overlay
+#     vis = img.copy()
+#     cv2.rectangle(vis, (x,y), (x+ww, y+hh), (0,255,0), 3)
+#     cv2.imwrite(os.path.join(debug_dir, "contours.jpg"), vis)
+
+#     # crop & save
+#     crop = img[y:y+hh, x:x+ww]
+#     fname = f"board_{uuid.uuid4()}.jpg"
+#     path  = os.path.join(output_dir, fname)
+#     cv2.imwrite(path, crop)
+#     return path, board
+
+
+
+
+
+
+
+
+
+
+
 def crop_board_standard(img, output_dir):
-    # 1) Remove redundant image load, use provided 'img'
+    # 1) Debug folder
     debug_dir = os.path.join(output_dir, "debug")
     os.makedirs(debug_dir, exist_ok=True)
 
-    # 2) blur to suppress high-frequency JPEG artifacts
-    blur = cv2.GaussianBlur(img, (5, 5), 0)
+    # 2) Blur + grayscale
+    blur = cv2.GaussianBlur(img, (5,5), 0)
     gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
     cv2.imwrite(os.path.join(debug_dir, "gray.jpg"), gray)
 
-    # 3) adaptive threshold with a blocksize ~1/20 of width (and odd)
-    h, w = gray.shape
-    block = max(3, (w // 20) | 1)  # ensure odd, >=3
+    # 3) Adaptive threshold
+    h_img, w_img = gray.shape
+    block = max(3, ((w_img // 40) | 1))
     thresh = cv2.adaptiveThreshold(
         gray, 255,
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
@@ -311,49 +396,91 @@ def crop_board_standard(img, output_dir):
     )
     cv2.imwrite(os.path.join(debug_dir, "thresh.jpg"), thresh)
 
-    # 4) dynamic Canny: low/high = 1%/3% of 255
-    low = max(10, int(255 * 0.01))
+    # 4) Canny edges
+    low  = max(10, int(255 * 0.01))
     high = max(30, int(255 * 0.03))
     edges = cv2.Canny(thresh, low, high)
     cv2.imwrite(os.path.join(debug_dir, "edges.jpg"), edges)
 
-    # 5) morphology: close + dilate with a kernel ~1/200 of width
-    ksize = max(3, (w // 200) | 1)
-    kernel = np.ones((ksize, ksize), np.uint8)
-    closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=2)
-    dilated = cv2.dilate(closed, kernel, iterations=1)
-    cv2.imwrite(os.path.join(debug_dir, "edges_fixed.jpg"), dilated)
+    # 5) Try closing with increasing strength until we get a 4-point rectangle
+    def find_board_from(masked_edges):
+        contours, _ = cv2.findContours(
+            masked_edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        best = (None, 0)  # (coords, area)
+        for cnt in contours:
+            approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
+            if len(approx) != 4:
+                continue
+            x,y,ww,hh = cv2.boundingRect(approx)
+            area = ww * hh
+            # filter out tiny quads
+            if ww < 0.5 * w_img or hh < 0.5 * h_img:
+                continue
+            # roughly square
+            ratio = hh / float(ww)
+            if not (0.7 <= ratio <= 1.3):
+                continue
+            if area > best[1]:
+                best = ((x,y,ww,hh), area)
+        return best[0]
 
-    # 6) find the largest 4-point contour
-    contours, _ = cv2.findContours(
-        dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-    )
+    # We will mask out the top 15% (score/diamond) before any closing
+    H, W = edges.shape
+    y0   = int(0.15 * H)
+    base = edges.copy()
+    base[:y0,:] = edges[:y0,:]  # preserve top, though it won't be closed
+
     board = None
-    max_area = 0
-    for cnt in contours:
-        approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
-        if len(approx) == 4:
-            x, y, ww, hh = cv2.boundingRect(approx)
-            area = ww*hh
-            if area > max_area:
-                max_area = area
-                board = (x, y, ww, hh)
+    trials = [
+        # (kernel_div, iterations)
+        (200, 1),  # gentle: (w//200)//2 inside
+        (150, 1),  # a bit stronger
+        (150, 2),  # stronger still
+        (100, 2),  # fallback: bigger kernel
+    ]
+
+    for div, iters in trials:
+        raw = (W // div) // 2
+        ksize = max(3, (raw | 1))
+        ksize = min(ksize, 15)                 # cap at 15×15
+        kernel = np.ones((ksize, ksize), np.uint8)
+
+        # apply closing only to the bottom 85%
+        closed = base.copy()
+        roi    = closed[y0:,:]
+        closed_roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, kernel, iterations=iters)
+        closed[y0:,:] = closed_roi
+
+        fname = f"edges_closed_{ksize}x{ksize}_iter{iters}.jpg"
+        cv2.imwrite(os.path.join(debug_dir, fname), closed)
+
+        board = find_board_from(closed)
+        if board:
+            edges_fixed = closed
+            cv2.imwrite(os.path.join(debug_dir, "edges_fixed.jpg"), edges_fixed)
+            break
 
     if not board:
+        # final debug dump
+        cv2.imwrite(os.path.join(debug_dir, "edges_failed.jpg"), base)
         return None, None
 
+    # 6) We have our board rectangle
     x, y, ww, hh = board
-    # debug overlay
+
+    # 7) Debug draw
     vis = img.copy()
-    cv2.rectangle(vis, (x,y), (x+ww, y+hh), (0,255,0), 3)
+    cv2.rectangle(vis, (x, y), (x+ww, y+hh), (0,255,0), 3)
     cv2.imwrite(os.path.join(debug_dir, "contours.jpg"), vis)
 
-    # crop & save
+    # 8) Crop & save
     crop = img[y:y+hh, x:x+ww]
     fname = f"board_{uuid.uuid4()}.jpg"
     path  = os.path.join(output_dir, fname)
     cv2.imwrite(path, crop)
     return path, board
+
 
 
 
@@ -790,7 +917,9 @@ def crop_board_small(orig, output_dir):
         approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
         if len(approx) == 4:
             x, y, ww, hh = cv2.boundingRect(approx)
-            if y < new_h * 0.5 and 0.8 <= ww/float(hh) <= 1.25:
+            # if y < new_h * 0.5 and 0.8 <= ww/float(hh) <= 1.25:
+            # allow quads anywhere, with a broader shape tolerance
+            if 0.6 <= ww/float(hh) <= 1.4:
                 quads.append((ww*hh, (x, y, ww, hh)))
     if quads:
         _, (x8, y8, w8, h8) = max(quads, key=lambda t: t[0])
@@ -859,7 +988,10 @@ def crop_shapes(image_path: str, board_coords: tuple, output_path: str):
     # gap is at least 3% of full height _or_ 10% of the board height
     gap = max(int(0.03 * H), int(0.10 * h))
     below_px = H - (y + h)
-    crop_h  = int(0.4 * below_px)   # take 40% of that remaining space
+    # crop_h  = int(0.4 * below_px)
+    # take up to 40% but no more than, say, 500px
+    crop_h = min(int(0.4 * below_px), 500)
+
 
     start_y = min(y + h + gap, H)
     end_y   = min(start_y + crop_h, H)
@@ -989,6 +1121,8 @@ def crop_shapes(image_path: str, board_coords: tuple, output_path: str):
 
 # -----------------------------------------------------------
 
+# working
+
 def detect_shapes(image_path: str, user_shapes_dir: str):
     # Load image and convert to grayscale
     image = cv2.imread(image_path)
@@ -1032,16 +1166,16 @@ def detect_shapes(image_path: str, user_shapes_dir: str):
         shape_paths.append(shape_filename)
 
     # Debugging images
-    # if debug:
-    #     debug_dir = "debug_images"
-    #     os.makedirs(debug_dir, exist_ok=True)
-    #     cv2.imwrite(f"{debug_dir}/debug_threshold.jpg", thresh)
+    
+    debug_dir = "debug_images"
+    os.makedirs(debug_dir, exist_ok=True)
+    cv2.imwrite(f"{debug_dir}/debug_threshold.jpg", thresh)
 
     return {"shapes": shape_paths}  # Returning JSON-serializable format
 
 
 
-# all shapes getting detected
+# # all shapes getting detected
 
 
 
@@ -1113,6 +1247,9 @@ def detect_blocks_final_v2(directory):
 
         # Find contours of the blocks
         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contour_img = img.copy()
+        cv2.drawContours(contour_img, contours, -1, (0,255,0), 2)
+        cv2.imwrite(f"4_contours_{filename}", contour_img)
         if not contours:
             detected_shapes[filename] = []
             continue
@@ -1165,7 +1302,12 @@ def detect_blocks_final_v2(directory):
     return detected_shapes
 
 
+# -----------------------experimant--------------------
 
+
+
+
+# -----------------------experimant--------------------
 
 
 def clear_completed_lines(board):
