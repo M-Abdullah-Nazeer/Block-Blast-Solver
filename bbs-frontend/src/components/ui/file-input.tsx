@@ -38,7 +38,8 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
     const { setActiveTab } = useTab();
 
 
-    const API_URL = "http://localhost:8000";
+    // const API_URL = "http://localhost:8000";
+    const API_URL = "http://192.168.0.108:8000";
 
 
     // handle drag events

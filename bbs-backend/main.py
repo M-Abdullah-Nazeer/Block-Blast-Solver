@@ -1,7 +1,7 @@
 # Add this import at the top with other imports
 import aiofiles  # Required for async file operations
 import concurrent.futures  # Required for thread pools
-
+from typing import Dict, List
 # Rest of your existing imports
 import os
 import cv2
@@ -97,14 +97,28 @@ def get_user_dirs(request_id: str):
     }
 
 
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:3000"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# ----development------
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://192.168.0.108:3000" 
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 
@@ -480,7 +494,7 @@ def crop_shapes(image_path: str, board_coords: tuple, output_path: str):
     below_px = H - (y + h)
     # crop_h  = int(0.4 * below_px)
     # take up to 40% but no more than, say, 500px
-    crop_h = min(int(0.4 * below_px), 500)
+    crop_h = min(int(0.6 * below_px), 700)
 
 
     start_y = min(y + h + gap, H)
@@ -582,12 +596,151 @@ def cluster_coords(coords, threshold):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ------------------exp---------------------
+
+
+
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+#     # debug_dir = os.path.join(directory, "debug")
+#     # os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Check for purple color using HSV color space
+#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#         # Convert your original values to OpenCV's HSV ranges:
+#         h = 263.8 / 2  # → ~131.9
+#         s = 58 * 2.55  # → ~148
+#         v = 82 * 2.55  # → ~209
+
+#         # With tolerance ranges:
+#         lower_purple = np.array([h-5, s-20, v-30])  # [127, 128, 179]
+#         upper_purple = np.array([h+5, s+20, v+30])  # [137, 168, 239]
+
+#         # Round to integers:
+#         lower_purple = np.array([125, 140, 190], dtype=np.uint8)
+#         upper_purple = np.array([140, 200, 220], dtype=np.uint8)
+#         mask = cv2.inRange(hsv, lower_purple, upper_purple)
+#         has_purple = cv2.countNonZero(mask) > 0
+
+#                 # After creating the mask:
+#         # purple_debug = cv2.bitwise_and(img, img, mask=mask)
+#         # cv2.imwrite(os.path.join(debug_dir, f"purple_{filename}"), purple_debug)
+
+#         # Set kernel size based on purple presence
+#         # kernel_size = (3, 3) if has_purple else (2, 2)
+#         # kernel = np.ones(kernel_size, np.uint8)
+
+#         # Preprocess image: grayscale and threshold
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         blur = cv2.GaussianBlur(gray, (5,5), 0)
+#         cv2.imwrite(f"gray_{filename}", blur)
+#         thresh = cv2.adaptiveThreshold(
+#             blur, 255,
+#             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+#             cv2.THRESH_BINARY_INV,
+#             blockSize=15,
+#             C=3
+#         )
+
+
+#         # Apply morphological operations
+#        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+#        clean = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+#        clean = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+#         # Find contours of the blocks
+#         contours, _ = cv2.findContours(clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         contour_img = img.copy()
+#         cv2.drawContours(contour_img, contours, -1, (0,255,0), 2)
+#         cv2.imwrite(f"4_contours_{filename}", contour_img)
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # Compute centroids for each detected contour
+#         centroids = []
+#         widths = []
+#         heights = []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             centroids.append((x + w/2, y + h/2))
+#             widths.append(w)
+#             heights.append(h)
+#         centroids = np.array(centroids)
+
+#         # Use centroids' coordinates for clustering
+#         xs = centroids[:, 0]
+#         ys = centroids[:, 1]
+        
+#         # Dynamic threshold based on median block size
+#         median_size = np.median(np.concatenate((widths, heights)))
+#         thresh_val = median_size / 2.0
+
+#         # Cluster coordinates
+#         x_clusters = cluster_coords(xs, thresh_val)
+#         y_clusters = cluster_coords(ys, thresh_val)
+        
+#         # Initialize grid
+#         num_cols = len(x_clusters)
+#         num_rows = len(y_clusters)
+#         grid = np.zeros((num_rows, num_cols), dtype=int)
+        
+#         # Populate grid
+#         for cx, cy in centroids:
+#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
+#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
+#             grid[row, col] = 1
+
+
+#         detected_shapes[filename] = grid.tolist()
+
+#     return detected_shapes
+
+
+
+# ------------------exp---------------------
+
+
+
+
+
+
+
+
+
 def detect_blocks_final_v2(directory):
     detected_shapes = {}
-    # debug_dir = os.path.join(directory, "debug")
-    # os.makedirs(debug_dir, exist_ok=True)
-
     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+
+    # HSV ranges for purple
+    lower_purple = np.array([125, 140, 190], dtype=np.uint8)
+    upper_purple = np.array([140, 200, 220], dtype=np.uint8)
+    # HSV ranges for light-blue
+    lower_blue = np.array([90,  50,  50], dtype=np.uint8)   # tweak H,S,V to match your light-blue
+    upper_blue = np.array([130, 255, 255], dtype=np.uint8)
+
     for filename in filenames:
         img_path = os.path.join(directory, filename)
         img = cv2.imread(img_path)
@@ -595,49 +748,59 @@ def detect_blocks_final_v2(directory):
             print(f"Failed to load {filename}. Skipping.")
             continue
 
-        # Check for purple color using HSV color space
+        # Convert to HSV for color detection
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        # Convert your original values to OpenCV's HSV ranges:
-        h = 263.8 / 2  # → ~131.9
-        s = 58 * 2.55  # → ~148
-        v = 82 * 2.55  # → ~209
+        # Purple detection
+        mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
+        has_purple = cv2.countNonZero(mask_purple) > 0
 
-        # With tolerance ranges:
-        lower_purple = np.array([h-5, s-20, v-30])  # [127, 128, 179]
-        upper_purple = np.array([h+5, s+20, v+30])  # [137, 168, 239]
+        # Light-blue detection
+        mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+        has_blue = cv2.countNonZero(mask_blue) > 0
 
-        # Round to integers:
-        lower_purple = np.array([125, 140, 190], dtype=np.uint8)
-        upper_purple = np.array([140, 200, 220], dtype=np.uint8)
-        mask = cv2.inRange(hsv, lower_purple, upper_purple)
-        has_purple = cv2.countNonZero(mask) > 0
-
-                # After creating the mask:
-        # purple_debug = cv2.bitwise_and(img, img, mask=mask)
-        # cv2.imwrite(os.path.join(debug_dir, f"purple_{filename}"), purple_debug)
-
-        # Set kernel size based on purple presence
+        # Choose morphological kernel based on purple presence
         kernel_size = (3, 3) if has_purple else (2, 2)
         kernel = np.ones(kernel_size, np.uint8)
 
-        # Preprocess image: grayscale and threshold
+        # Grayscale conversion
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+        # Two thresholds: high for general blocks, low for light-blue
+        _, thresh_high = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
+        _, thresh_low  = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
 
-        # Apply morphological operations
+        if has_blue:
+            # combine masks: use low threshold on light-blue, high threshold elsewhere
+            inv_blue = cv2.bitwise_not(mask_blue)
+            blue_part    = cv2.bitwise_and(thresh_low,  mask_blue)
+            nonblue_part = cv2.bitwise_and(thresh_high, inv_blue)
+            thresh = cv2.bitwise_or(blue_part, nonblue_part)
+        else:
+            # no light-blue -> use standard high threshold
+            thresh = thresh_high
+
+        # Morphological operations
         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
         eroded = cv2.erode(closed, kernel, iterations=1)
 
-        # Find contours of the blocks
-        contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Find contours
+        # contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # --- add this ---
+        # make the white regions a bit thicker so contours bridge small gaps
+        dilate_kernel = np.ones((3,3), np.uint8)       # or (5,5) to go bigger
+        thick_mask    = cv2.dilate(eroded, dilate_kernel, iterations=1)
+
+        # then find contours on `thick_mask`
+        contours, _ = cv2.findContours(thick_mask,
+                                        cv2.RETR_EXTERNAL,
+                                        cv2.CHAIN_APPROX_SIMPLE)
         contour_img = img.copy()
-        cv2.drawContours(contour_img, contours, -1, (0,255,0), 2)
+        cv2.drawContours(contour_img, contours, -1, (0,255,0), 5)
         cv2.imwrite(f"4_contours_{filename}", contour_img)
         if not contours:
             detected_shapes[filename] = []
             continue
 
-        # Compute centroids for each detected contour
+        # Compute centroids and bounding sizes
         centroids = []
         widths = []
         heights = []
@@ -648,33 +811,135 @@ def detect_blocks_final_v2(directory):
             heights.append(h)
         centroids = np.array(centroids)
 
-        # Use centroids' coordinates for clustering
+        # Cluster centroids into grid
         xs = centroids[:, 0]
         ys = centroids[:, 1]
-        
-        # Dynamic threshold based on median block size
         median_size = np.median(np.concatenate((widths, heights)))
         thresh_val = median_size / 2.0
-
-        # Cluster coordinates
         x_clusters = cluster_coords(xs, thresh_val)
         y_clusters = cluster_coords(ys, thresh_val)
-        
-        # Initialize grid
+
+        # Build grid
         num_cols = len(x_clusters)
         num_rows = len(y_clusters)
         grid = np.zeros((num_rows, num_cols), dtype=int)
-        
-        # Populate grid
         for cx, cy in centroids:
             col = np.argmin(np.abs(np.array(x_clusters) - cx))
             row = np.argmin(np.abs(np.array(y_clusters) - cy))
             grid[row, col] = 1
 
-
         detected_shapes[filename] = grid.tolist()
 
     return detected_shapes
+
+
+
+
+
+
+
+
+
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+#     # debug_dir = os.path.join(directory, "debug")
+#     # os.makedirs(debug_dir, exist_ok=True)
+
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         # Check for purple color using HSV color space
+#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#         # Convert your original values to OpenCV's HSV ranges:
+#         h = 263.8 / 2  # → ~131.9
+#         s = 58 * 2.55  # → ~148
+#         v = 82 * 2.55  # → ~209
+
+#         # With tolerance ranges:
+#         lower_purple = np.array([h-5, s-20, v-30])  # [127, 128, 179]
+#         upper_purple = np.array([h+5, s+20, v+30])  # [137, 168, 239]
+
+#         # Round to integers:
+#         lower_purple = np.array([125, 140, 190], dtype=np.uint8)
+#         upper_purple = np.array([140, 200, 220], dtype=np.uint8)
+#         mask = cv2.inRange(hsv, lower_purple, upper_purple)
+#         has_purple = cv2.countNonZero(mask) > 0
+
+#                 # After creating the mask:
+#         # purple_debug = cv2.bitwise_and(img, img, mask=mask)
+#         # cv2.imwrite(os.path.join(debug_dir, f"purple_{filename}"), purple_debug)
+
+#         # Set kernel size based on purple presence
+#         kernel_size = (3, 3) if has_purple else (2, 2)
+#         kernel = np.ones(kernel_size, np.uint8)
+
+#         # Preprocess image: grayscale and threshold
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         cv2.imwrite(f"gray_{filename}", gray)
+#         _, thresh = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
+#         # _, thresh = cv2.threshold(gray, 0, 255,
+#         #                   cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+      
+
+
+
+
+#         # Apply morphological operations
+#         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+#         eroded = cv2.erode(closed, kernel, iterations=1)
+
+#         # Find contours of the blocks
+#         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         contour_img = img.copy()
+#         cv2.drawContours(contour_img, contours, -1, (0,255,0), 2)
+#         cv2.imwrite(f"4_contours_{filename}", contour_img)
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # Compute centroids for each detected contour
+#         centroids = []
+#         widths = []
+#         heights = []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             centroids.append((x + w/2, y + h/2))
+#             widths.append(w)
+#             heights.append(h)
+#         centroids = np.array(centroids)
+
+#         # Use centroids' coordinates for clustering
+#         xs = centroids[:, 0]
+#         ys = centroids[:, 1]
+        
+#         # Dynamic threshold based on median block size
+#         median_size = np.median(np.concatenate((widths, heights)))
+#         thresh_val = median_size / 2.0
+
+#         # Cluster coordinates
+#         x_clusters = cluster_coords(xs, thresh_val)
+#         y_clusters = cluster_coords(ys, thresh_val)
+        
+#         # Initialize grid
+#         num_cols = len(x_clusters)
+#         num_rows = len(y_clusters)
+#         grid = np.zeros((num_rows, num_cols), dtype=int)
+        
+#         # Populate grid
+#         for cx, cy in centroids:
+#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
+#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
+#             grid[row, col] = 1
+
+
+#         detected_shapes[filename] = grid.tolist()
+
+#     return detected_shapes
 
 
 
@@ -1059,6 +1324,8 @@ async def upload_file(
             dirs["shapes"]  # Pass directory path here
         )
         
+
+
         # Then create processed_shapes with ordered numbering
         processed_shapes = {
             f"shape_{i}": all_shapes_data[filename]

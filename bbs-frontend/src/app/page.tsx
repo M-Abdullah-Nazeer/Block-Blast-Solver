@@ -508,7 +508,7 @@ const Page: FC = () => {
             Take the Screenshot</h3>
 
 
-          <div className="p-0 md:p-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8">
+          <div className="p-0 md:p-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8 my-8 md:my-8 lg:my-16">
 
             <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
             >
@@ -606,7 +606,7 @@ const Page: FC = () => {
         </section>
 
 
-        <section>
+        <section className='my-8 md:my-8 lg:my-16'>
 
           <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
             <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
