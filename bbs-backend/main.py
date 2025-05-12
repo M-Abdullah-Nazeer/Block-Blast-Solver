@@ -113,7 +113,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://192.168.200.123:3000" 
+        "http://192.168.0.108:3000" 
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -576,22 +576,22 @@ def detect_shapes(image_path: str, user_shapes_dir: str):
 
 
 
-def cluster_coords(coords, threshold):
-    """
-    Group sorted coordinate values into clusters where successive values
-    differ by no more than the threshold. Returns the cluster centers.
-    """
-    coords_sorted = np.sort(coords)
-    clusters = []
-    current_cluster = [coords_sorted[0]]
-    for coord in coords_sorted[1:]:
-        if abs(coord - current_cluster[-1]) <= threshold:
-            current_cluster.append(coord)
-        else:
-            clusters.append(np.mean(current_cluster))
-            current_cluster = [coord]
-    clusters.append(np.mean(current_cluster))
-    return clusters
+# def cluster_coords(coords, threshold):
+#     """
+#     Group sorted coordinate values into clusters where successive values
+#     differ by no more than the threshold. Returns the cluster centers.
+#     """
+#     coords_sorted = np.sort(coords)
+#     clusters = []
+#     current_cluster = [coords_sorted[0]]
+#     for coord in coords_sorted[1:]:
+#         if abs(coord - current_cluster[-1]) <= threshold:
+#             current_cluster.append(coord)
+#         else:
+#             clusters.append(np.mean(current_cluster))
+#             current_cluster = [coord]
+#     clusters.append(np.mean(current_cluster))
+#     return clusters
 
 
 
@@ -726,116 +726,271 @@ def cluster_coords(coords, threshold):
 
 
 
+def cluster_coords(coords, threshold):
+    """
+    Group sorted coordinate values into clusters where successive values
+    differ by no more than the threshold. Returns the cluster centers.
+    """
+    coords = np.array(coords, dtype=float)
+    if coords.size == 0:
+        return []
+    coords_sorted = np.sort(coords)
+    clusters = []
+    current = [coords_sorted[0]]
+    for x in coords_sorted[1:]:
+        if abs(x - current[-1]) <= threshold:
+            current.append(x)
+        else:
+            clusters.append(np.mean(current))
+            current = [x]
+    clusters.append(np.mean(current))
+    return clusters
 
+def remove_gems(img_bgr):
+    """
+    Detect small bright, low-saturation 'gem' highlights and inpaint them
+    so blocks look uniform again.
+    """
+    hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+    # mask very bright (V>200), low-sat (S<60)
+    gem_mask = cv2.inRange(
+        hsv,
+        np.array([0,   0, 200], dtype=np.uint8),
+        np.array([180, 60, 255], dtype=np.uint8)
+    )
+    # open to remove noise
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
+    gem_mask = cv2.morphologyEx(gem_mask, cv2.MORPH_OPEN, kernel, iterations=2)
+    # keep only small components
+    contours, _ = cv2.findContours(gem_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    small_mask = np.zeros_like(gem_mask)
+    for c in contours:
+        if cv2.contourArea(c) < 2000:
+            cv2.drawContours(small_mask, [c], -1, 255, -1)
+    # inpaint
+    return cv2.inpaint(img_bgr, small_mask, inpaintRadius=5, flags=cv2.INPAINT_TELEA)
 
 def detect_blocks_final_v2(directory):
+    """
+    For each .jpg in `directory`:
+      1) remove gem-like highlights by inpainting,
+      2) apply strong blur to erase seams,
+      3) run your HSV/color-based dual threshold + morphology,
+      4) find contours, cluster their centroids into the shape's grid,
+      5) return a dict filename → 2D list of 0/1 occupancy, and save debug images.
+    """
     detected_shapes = {}
-    filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    debug_dir = os.path.join(directory, "debug")
+    os.makedirs(debug_dir, exist_ok=True)
 
-    # HSV ranges for purple
-    lower_purple = np.array([125, 140, 190], dtype=np.uint8)
-    upper_purple = np.array([140, 200, 220], dtype=np.uint8)
-    # HSV ranges for light‑blue
-    lower_blue = np.array([ 90,  50,  50], dtype=np.uint8)
-    upper_blue = np.array([130, 255, 255], dtype=np.uint8)
-    # HSV ranges for red (split around 0° hue)
-    lower_red1 = np.array([  0,  70,  50], dtype=np.uint8)
-    upper_red1 = np.array([ 10, 255, 255], dtype=np.uint8)
-    lower_red2 = np.array([170,  70,  50], dtype=np.uint8)
-    upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
+    # HSV color ranges
+    lower_purple = np.array([125,140,190], dtype=np.uint8)
+    upper_purple = np.array([140,200,220], dtype=np.uint8)
+    lower_blue   = np.array([ 90, 50, 50], dtype=np.uint8)
+    upper_blue   = np.array([130,255,255], dtype=np.uint8)
+    lower_red1   = np.array([  0, 70, 50], dtype=np.uint8)
+    upper_red1   = np.array([ 10,255,255], dtype=np.uint8)
+    lower_red2   = np.array([170, 70, 50], dtype=np.uint8)
+    upper_red2   = np.array([180,255,255], dtype=np.uint8)
 
-    for filename in filenames:
-        img_path = os.path.join(directory, filename)
-        img = cv2.imread(img_path)
+    for fname in sorted(os.listdir(directory)):
+        if not fname.lower().endswith(".jpg"):
+            continue
+        path = os.path.join(directory, fname)
+        img = cv2.imread(path)
         if img is None:
-            print(f"Failed to load {filename}. Skipping.")
+            detected_shapes[fname] = []
             continue
 
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        # 1) Inpaint gems
+        img_clean = remove_gems(img)
+        cv2.imwrite(os.path.join(debug_dir, f"{fname}_nocontours.jpg"), img_clean)
 
-        # build color masks
+        # 2) Strong blur to smooth out any seams left by inpainting
+        img_blur = cv2.GaussianBlur(img_clean, (9, 9), 0)
+        cv2.imwrite(os.path.join(debug_dir, f"{fname}_blur.jpg"), img_blur)
+
+        # 3) Build color masks on blurred image
+        hsv = cv2.cvtColor(img_blur, cv2.COLOR_BGR2HSV)
         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
         mask_blue   = cv2.inRange(hsv, lower_blue,   upper_blue)
         mask_r1     = cv2.inRange(hsv, lower_red1,   upper_red1)
         mask_r2     = cv2.inRange(hsv, lower_red2,   upper_red2)
         mask_red    = cv2.bitwise_or(mask_r1, mask_r2)
+        color_mask  = cv2.bitwise_or(mask_blue, mask_red)
+        inv_mask    = cv2.bitwise_not(color_mask)
+        has_purple  = cv2.countNonZero(mask_purple) > 0
 
-        has_purple = cv2.countNonZero(mask_purple) > 0
-        has_blue   = cv2.countNonZero(mask_blue)   > 0
-        has_red    = cv2.countNonZero(mask_red)    > 0
-
-        # DEBUG PRINT: which threshold strategy?
-        if has_blue or has_red:
-            colors = []
-            if has_blue: colors.append("blue")
-            if has_red:  colors.append("red")
-            print(f"{filename}: Detected {', '.join(colors)} → low=150 for colored, high=174 elsewhere")
-        else:
-            print(f"{filename}: No blue/red detected → using high=174 only")
-
-        # choose morphological kernel size based on purple
-        kernel_size = (3, 3) if has_purple else (2, 2)
-        kernel = np.ones(kernel_size, np.uint8)
-
-        # grayscale + two thresholds
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # 4) Grayscale + dual threshold
+        gray = cv2.cvtColor(img_blur, cv2.COLOR_BGR2GRAY)
         _, thresh_high = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
         _, thresh_low  = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+        low_part  = cv2.bitwise_and(thresh_low,  color_mask)
+        high_part = cv2.bitwise_and(thresh_high, inv_mask)
+        thresh    = cv2.bitwise_or(low_part, high_part)
+        cv2.imwrite(os.path.join(debug_dir, f"{fname}_thresh.jpg"), thresh)
 
-        # combine low/high based on color mask
-        color_mask = cv2.bitwise_or(mask_blue, mask_red)
-        inv_mask   = cv2.bitwise_not(color_mask)
-        low_part   = cv2.bitwise_and(thresh_low,  color_mask)
-        high_part  = cv2.bitwise_and(thresh_high, inv_mask)
-        thresh     = cv2.bitwise_or(low_part, high_part)
+        # 5) Morphology to get clean mask
+        ksize = (3,3) if has_purple else (2,2)
+        kernel = np.ones(ksize, np.uint8)
+        closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        eroded = cv2.erode(closed, kernel, iterations=1)
+        mask   = cv2.dilate(eroded, np.ones((3,3), np.uint8), iterations=1)
 
-        # morphology & contours
-        closed       = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-        eroded       = cv2.erode(closed, kernel, iterations=1)
-        dilate_kernel= np.ones((3, 3), np.uint8)
-        thick_mask   = cv2.dilate(eroded, dilate_kernel, iterations=1)
-        contours, _  = cv2.findContours(thick_mask,
-                                        cv2.RETR_EXTERNAL,
-                                        cv2.CHAIN_APPROX_SIMPLE)
-
-        # optional contour visualization
-        contour_img = img.copy()
-        cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 5)
-        cv2.imwrite(f"4_contours_{filename}", contour_img)
+        # 6) Find contours
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contour_vis = img_blur.copy()
+        cv2.drawContours(contour_vis, contours, -1, (0,255,0), 3)
+        cv2.imwrite(os.path.join(debug_dir, f"{fname}_contours.jpg"), contour_vis)
 
         if not contours:
-            detected_shapes[filename] = []
+            detected_shapes[fname] = []
             continue
 
-        # compute centroids & grid
-        centroids = []
-        widths = []
-        heights = []
+        # 7) Compute centroids & sizes
+        centroids, widths, heights = [], [], []
         for c in contours:
-            x, y, w, h = cv2.boundingRect(c)
+            x,y,w,h = cv2.boundingRect(c)
             centroids.append((x + w/2, y + h/2))
             widths.append(w)
             heights.append(h)
         centroids = np.array(centroids)
-
-        xs = centroids[:, 0]
-        ys = centroids[:, 1]
+        xs, ys = centroids[:,0], centroids[:,1]
         median_size = np.median(np.concatenate((widths, heights)))
         thresh_val  = median_size / 2.0
-        x_clusters  = cluster_coords(xs, thresh_val)
-        y_clusters  = cluster_coords(ys, thresh_val)
 
-        num_cols = len(x_clusters)
-        num_rows = len(y_clusters)
-        grid = np.zeros((num_rows, num_cols), dtype=int)
-        for cx, cy in centroids:
+        # 8) Cluster into grid axes
+        x_clusters = cluster_coords(xs, thresh_val)
+        y_clusters = cluster_coords(ys, thresh_val)
+        n_cols, n_rows = len(x_clusters), len(y_clusters)
+
+        # 9) Build occupancy grid
+        grid = [[0]*n_cols for _ in range(n_rows)]
+        for (cx, cy) in centroids:
             col = np.argmin(np.abs(np.array(x_clusters) - cx))
             row = np.argmin(np.abs(np.array(y_clusters) - cy))
-            grid[row, col] = 1
+            grid[row][col] = 1
 
-        detected_shapes[filename] = grid.tolist()
+        detected_shapes[fname] = grid
 
     return detected_shapes
+
+
+
+
+
+
+
+# works for basic
+
+# def detect_blocks_final_v2(directory):
+#     detected_shapes = {}
+#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+
+#     # HSV ranges for purple
+#     lower_purple = np.array([125, 140, 190], dtype=np.uint8)
+#     upper_purple = np.array([140, 200, 220], dtype=np.uint8)
+#     # HSV ranges for light‑blue
+#     lower_blue = np.array([ 90,  50,  50], dtype=np.uint8)
+#     upper_blue = np.array([130, 255, 255], dtype=np.uint8)
+#     # HSV ranges for red (split around 0° hue)
+#     lower_red1 = np.array([  0,  70,  50], dtype=np.uint8)
+#     upper_red1 = np.array([ 10, 255, 255], dtype=np.uint8)
+#     lower_red2 = np.array([170,  70,  50], dtype=np.uint8)
+#     upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
+
+#     for filename in filenames:
+#         img_path = os.path.join(directory, filename)
+#         img = cv2.imread(img_path)
+#         if img is None:
+#             print(f"Failed to load {filename}. Skipping.")
+#             continue
+
+#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+#         # build color masks
+#         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
+#         mask_blue   = cv2.inRange(hsv, lower_blue,   upper_blue)
+#         mask_r1     = cv2.inRange(hsv, lower_red1,   upper_red1)
+#         mask_r2     = cv2.inRange(hsv, lower_red2,   upper_red2)
+#         mask_red    = cv2.bitwise_or(mask_r1, mask_r2)
+
+#         has_purple = cv2.countNonZero(mask_purple) > 0
+#         has_blue   = cv2.countNonZero(mask_blue)   > 0
+#         has_red    = cv2.countNonZero(mask_red)    > 0
+
+#         # DEBUG PRINT: which threshold strategy?
+#         if has_blue or has_red:
+#             colors = []
+#             if has_blue: colors.append("blue")
+#             if has_red:  colors.append("red")
+#             print(f"{filename}: Detected {', '.join(colors)} → low=150 for colored, high=174 elsewhere")
+#         else:
+#             print(f"{filename}: No blue/red detected → using high=174 only")
+
+#         # choose morphological kernel size based on purple
+#         kernel_size = (3, 3) if has_purple else (2, 2)
+#         kernel = np.ones(kernel_size, np.uint8)
+
+#         # grayscale + two thresholds
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         _, thresh_high = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
+#         _, thresh_low  = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+
+#         # combine low/high based on color mask
+#         color_mask = cv2.bitwise_or(mask_blue, mask_red)
+#         inv_mask   = cv2.bitwise_not(color_mask)
+#         low_part   = cv2.bitwise_and(thresh_low,  color_mask)
+#         high_part  = cv2.bitwise_and(thresh_high, inv_mask)
+#         thresh     = cv2.bitwise_or(low_part, high_part)
+
+#         # morphology & contours
+#         closed       = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+#         eroded       = cv2.erode(closed, kernel, iterations=1)
+#         dilate_kernel= np.ones((3, 3), np.uint8)
+#         thick_mask   = cv2.dilate(eroded, dilate_kernel, iterations=1)
+#         contours, _  = cv2.findContours(thick_mask,
+#                                         cv2.RETR_EXTERNAL,
+#                                         cv2.CHAIN_APPROX_SIMPLE)
+
+#         # optional contour visualization
+#         contour_img = img.copy()
+#         cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 5)
+#         cv2.imwrite(f"4_contours_{filename}", contour_img)
+
+#         if not contours:
+#             detected_shapes[filename] = []
+#             continue
+
+#         # compute centroids & grid
+#         centroids = []
+#         widths = []
+#         heights = []
+#         for c in contours:
+#             x, y, w, h = cv2.boundingRect(c)
+#             centroids.append((x + w/2, y + h/2))
+#             widths.append(w)
+#             heights.append(h)
+#         centroids = np.array(centroids)
+
+#         xs = centroids[:, 0]
+#         ys = centroids[:, 1]
+#         median_size = np.median(np.concatenate((widths, heights)))
+#         thresh_val  = median_size / 2.0
+#         x_clusters  = cluster_coords(xs, thresh_val)
+#         y_clusters  = cluster_coords(ys, thresh_val)
+
+#         num_cols = len(x_clusters)
+#         num_rows = len(y_clusters)
+#         grid = np.zeros((num_rows, num_cols), dtype=int)
+#         for cx, cy in centroids:
+#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
+#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
+#             grid[row, col] = 1
+
+#         detected_shapes[filename] = grid.tolist()
+
+#     return detected_shapes
 
 
 
@@ -1434,7 +1589,8 @@ async def upload_file(
         # First process all shapes in the directory
         all_shapes_data = await run_in_threadpool(
             detect_blocks_final_v2,
-            dirs["shapes"]  # Pass directory path here
+            dirs["shapes"]
+  
         )
         
 
@@ -1575,4 +1731,3 @@ if __name__ == "__main__":
         loop="asyncio",
         timeout_keep_alive=300
     )
-

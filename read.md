@@ -4,7 +4,12 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1 --loop asyncio
 
 
 
+Which to choose?
+If you already have a good board-warping pipeline, definitely try re-using it on the shapes area so you can do simple center-patch sampling.
 
+If warping is unreliable, the template-matching/classifier approach will give you the best long-term maintainability.
+
+The blur + snap trick can sometimes rescue a contour pipeline in just a few lines of code.
 
 
 
