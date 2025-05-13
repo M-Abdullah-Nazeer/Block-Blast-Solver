@@ -63,7 +63,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         if (!validateFileType(file)) {
           toast({
             title: 'Invalid file type',
-            description: 'Please upload a valid image file.',
+            description: 'Please upload a valid image file (JPG/JPEG/PNG).',
           })
           return
         }

@@ -23,8 +23,8 @@ from slowapi import Limiter, _rate_limit_exceeded_handler  # Uncomment for rate 
 from slowapi.util import get_remote_address                 # Requires redis
 from prometheus_fastapi_instrumentator import Instrumentator  # Uncomment for monitoring
 
-
-
+from pathvalidate import sanitize_filename
+from limits.storage import MemoryStorage 
 from sklearn.cluster import DBSCAN
 
 from fastapi import FastAPI, HTTPException
@@ -65,32 +65,71 @@ os.makedirs(SHAPES_BASE_DIR, exist_ok=True)  # NEW: Create base dir
 
 
 
+safe_name = sanitize_filename(user_filename)
+
 # Processing pool for CPU-bound tasks
 PROCESSING_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
-
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Parse the URL to create a Redis connection
 redis_connection = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
-app = FastAPI()
-
-
-
-
-# NEW: Add monitoring (uncomment)
-Instrumentator().instrument(app).expose(app)
 
 # NEW: Rate limiter setup
 limiter = Limiter(
-    key_func=get_remote_address,
-    storage_uri=REDIS_URL  # Use your Redis URL
+    key_func=get_remote_address
+    # ,
+    # storage_uri=REDIS_URL
+
 )
+
+# dev
+# app = FastAPI()
+
+# prod
+app = FastAPI(limits=["10000 items"])
+
 app.state.limiter = limiter
+app.state.limiter.storage = MemoryStorage()
+
+# NEW: Add monitoring (uncomment) development
+# Instrumentator().instrument(app).expose(app)
+
+# In production
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
+
+
 # app.add_exception_handler(Exception, _rate_limit_exceeded_handler)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  
+
+
+
+
+
+
+async def validate_file(file: UploadFile = File(...)):
+    # Verify file size
+    if file.size > MAX_FILE_SIZE:
+        raise HTTPException(413, "File too large (max 5MB)")
+    
+    # Read file signature
+    contents = await file.read(2048)
+    await file.seek(0)
+    
+    # Validate MIME type
+    mime = magic.from_buffer(contents, mime=True)
+    if mime not in ALLOWED_MIME_TYPES:
+        raise HTTPException(400, "Invalid file type")
+    
+    # Sanitize filename
+    safe_name = sanitize_filename(file.filename)
+    return safe_name, contents
+
 
 # NEW: Generate unique paths per request
 def get_user_dirs(request_id: str):
@@ -820,7 +859,9 @@ def cluster_coords(coords, threshold):
 
 def detect_blocks_final_v2(directory):
     detected_shapes = {}
-    filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    # filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    filenames = sorted([f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in ALLOWED_EXTENSIONS])
+
     debug_dir = os.path.join(directory, "debug")
     os.makedirs(debug_dir, exist_ok=True)
     # HSV ranges for purple
@@ -1646,7 +1687,8 @@ def get_shapes_colors(directory: str = SHAPES_BASE_DIR) -> dict:
     mapping shape names (e.g., "shape 0") to their hex color strings.
     """
     shape_colors = {}
-    filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    # filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    filenames = sorted([f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in ALLOWED_EXTENSIONS])
     for i, filename in enumerate(filenames):
         image_path = os.path.join(directory, filename)
         color = detect_shape_block_color(image_path)
@@ -1672,7 +1714,7 @@ async def http_exception_handler(request, exc):
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
-        content={"error": "Rate limit exceeded"},
+        content={"error": "Internel Error"},
         status_code=429,
         headers={
             "Access-Control-Allow-Origin": "http://localhost:3000",
@@ -1729,12 +1771,20 @@ def process_and_resize_image(contents: bytes) -> bytes:
 
 
 @app.post("/upload")
-# @limiter.limit("100/minute")
+@limiter.limit("100/minute")
 async def upload_file(
     request: Request,
     file: UploadFile = File(...),
     background_tasks: BackgroundTasks = BackgroundTasks()
 ):
+
+
+    # Add validation
+    allowed_types = ["image/jpeg", "image/png", "image/jpg"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(400, "Only JPG/PNG/JPEG images allowed")
+
+
     request_id = str(uuid.uuid4())
     dirs = get_user_dirs(request_id)
 
@@ -1899,8 +1949,10 @@ def trim_shape(shape_array):
 
 
 @app.post("/fm")
+@limiter.limit("100/minute")
 async def get_stepwise_boards(
-    request: SolveRequest,
+    request: Request,  # ← Essential for limiter
+    body_data: SolveRequest,  # ← Renamed from 'request'
     background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """Handle shape solving with memory optimization"""
@@ -1908,15 +1960,15 @@ async def get_stepwise_boards(
         processed_shapes = {
             f"shape_{i}": trim_shape(shape)
             for i, shape in enumerate([
-                request.shape1,
-                request.shape2,
-                request.shape3
+                body_data.shape1,
+                body_data.shape2,
+                body_data.shape3
             ])
         }
 
         stepwise_boards = await run_in_threadpool(
             find_shape_placement_stepwise,
-            request.grid,
+            body_data.grid,
             processed_shapes
         )
 
