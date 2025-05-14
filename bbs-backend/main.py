@@ -23,6 +23,11 @@ from slowapi import Limiter, _rate_limit_exceeded_handler  # Uncomment for rate 
 from slowapi.util import get_remote_address                 # Requires redis
 from prometheus_fastapi_instrumentator import Instrumentator  # Uncomment for monitoring
 
+import magic
+from fastapi import Depends, Header
+from pathvalidate import sanitize_filename
+from limits.storage import MemoryStorage 
+from sklearn.cluster import DBSCAN
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
@@ -31,6 +36,8 @@ from fastapi.responses import JSONResponse
 import traceback
 
 import redis  # NEW: Required for rate limiting
+
+
 
 
 from dotenv import load_dotenv
@@ -60,32 +67,79 @@ os.makedirs(SHAPES_BASE_DIR, exist_ok=True)  # NEW: Create base dir
 
 
 
+
+
 # Processing pool for CPU-bound tasks
 PROCESSING_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
-
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+ALLOWED_MIME_TYPES = {"image/jpeg", "image/png"}
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Parse the URL to create a Redis connection
 redis_connection = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
-app = FastAPI()
-
-
-
-
-# NEW: Add monitoring (uncomment)
-Instrumentator().instrument(app).expose(app)
 
 # NEW: Rate limiter setup
 limiter = Limiter(
-    key_func=get_remote_address,
-    storage_uri=REDIS_URL  # Use your Redis URL
+    key_func=get_remote_address
+    # ,
+    # storage_uri=REDIS_URL
+
 )
+
+# dev
+# app = FastAPI()
+
+# prod
+app = FastAPI(limits=["10000 items"])
+
 app.state.limiter = limiter
+app.state.limiter.storage = MemoryStorage()
+
+# NEW: Add monitoring (uncomment) development
+# Instrumentator().instrument(app).expose(app)
+
+# In production
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
+
+
 # app.add_exception_handler(Exception, _rate_limit_exceeded_handler)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  
+
+
+
+def verify_api_key(api_key: str = Header(None, alias="X-API-Key")):
+    valid_keys = os.getenv("API_KEY", "").split(",")
+    if not api_key or api_key not in valid_keys:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return api_key
+
+
+
+async def validate_file(file: UploadFile = File(...)):
+    """Validate file size, type, and sanitize filename"""
+    # Read entire file contents for validation
+    contents = await file.read()
+    await file.seek(0)  # Reset file pointer
+    
+    # Verify file type using magic numbers
+    try:
+        mime_type = magic.from_buffer(contents, mime=True)  # Add mime=True
+    except Exception:
+        raise HTTPException(400, "Invalid file format")
+    
+    # Normalize MIME type comparison
+    if mime_type.split(';')[0].lower() not in ALLOWED_MIME_TYPES:
+        raise HTTPException(400, f"Invalid file type: {mime_type}")
+    
+    # Sanitize filename
+    safe_name = sanitize_filename(file.filename)
+    return safe_name, contents
+
 
 # NEW: Generate unique paths per request
 def get_user_dirs(request_id: str):
@@ -113,7 +167,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://192.168.0.108:3000" 
+        "http://192.168.200.123:3000" 
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -726,154 +780,371 @@ def detect_shapes(image_path: str, user_shapes_dir: str):
 
 
 
+# def cluster_coords(coords, threshold):
+#     """
+#     Group sorted coordinate values into clusters where successive values
+#     differ by no more than the threshold. Returns the cluster centers.
+#     """
+#     coords = np.array(coords, dtype=float)
+#     if coords.size == 0:
+#         return []
+#     coords_sorted = np.sort(coords)
+#     clusters = []
+#     current = [coords_sorted[0]]
+#     for x in coords_sorted[1:]:
+#         if abs(x - current[-1]) <= threshold:
+#             current.append(x)
+#         else:
+#             clusters.append(np.mean(current))
+#             current = [x]
+#     clusters.append(np.mean(current))
+#     return clusters
+
+# def remove_gems(img_bgr, debug_dir=None, fname=""):
+#     """
+#     Detect small bright, low-saturation 'gem' highlights and inpaint them.
+#     If debug_dir is provided, save out the raw and filtered masks.
+#     """
+#     # 1) convert to HSV and threshold to get raw gem candidates
+#     hsv      = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+#     gem_mask = cv2.inRange(
+#         hsv,
+#         np.array([0,   0, 200], dtype=np.uint8),
+#         np.array([180, 60, 255], dtype=np.uint8)
+#     )
+
+#     # optionally save the raw mask
+#     if debug_dir:
+#         os.makedirs(debug_dir, exist_ok=True)
+#         cv2.imwrite(os.path.join(debug_dir, f"{fname}_gem_raw.png"), gem_mask)
+
+#     # 2) open to remove noise
+#     kernel    = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
+#     gem_mask  = cv2.morphologyEx(gem_mask, cv2.MORPH_OPEN, kernel, iterations=2)
+
+#     # 3) keep only small connected components
+#     contours, _ = cv2.findContours(gem_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#     small_mask  = np.zeros_like(gem_mask)
+#     for c in contours:
+#         if cv2.contourArea(c) < 2000:
+#             cv2.drawContours(small_mask, [c], -1, 255, -1)
+
+#     # save the filtered “small” mask
+#     if debug_dir:
+#         cv2.imwrite(os.path.join(debug_dir, f"{fname}_gem_small.png"), small_mask)
+
+#     # 4) inpaint and return
+#     inpainted = cv2.inpaint(img_bgr, small_mask, inpaintRadius=1, flags=cv2.INPAINT_TELEA)
+#     return inpainted
+
+
+
+
+
+
+
+
+
 def cluster_coords(coords, threshold):
-    """
-    Group sorted coordinate values into clusters where successive values
-    differ by no more than the threshold. Returns the cluster centers.
-    """
-    coords = np.array(coords, dtype=float)
-    if coords.size == 0:
-        return []
     coords_sorted = np.sort(coords)
     clusters = []
-    current = [coords_sorted[0]]
-    for x in coords_sorted[1:]:
-        if abs(x - current[-1]) <= threshold:
-            current.append(x)
+    current_cluster = [coords_sorted[0]]
+    for coord in coords_sorted[1:]:
+        if abs(coord - current_cluster[-1]) <= threshold:
+            current_cluster.append(coord)
         else:
-            clusters.append(np.mean(current))
-            current = [x]
-    clusters.append(np.mean(current))
+            clusters.append(np.mean(current_cluster))
+            current_cluster = [coord]
+    clusters.append(np.mean(current_cluster))
     return clusters
 
-def remove_gems(img_bgr):
-    """
-    Detect small bright, low-saturation 'gem' highlights and inpaint them
-    so blocks look uniform again.
-    """
-    hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
-    # mask very bright (V>200), low-sat (S<60)
-    gem_mask = cv2.inRange(
-        hsv,
-        np.array([0,   0, 200], dtype=np.uint8),
-        np.array([180, 60, 255], dtype=np.uint8)
-    )
-    # open to remove noise
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
-    gem_mask = cv2.morphologyEx(gem_mask, cv2.MORPH_OPEN, kernel, iterations=2)
-    # keep only small components
-    contours, _ = cv2.findContours(gem_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    small_mask = np.zeros_like(gem_mask)
-    for c in contours:
-        if cv2.contourArea(c) < 2000:
-            cv2.drawContours(small_mask, [c], -1, 255, -1)
-    # inpaint
-    return cv2.inpaint(img_bgr, small_mask, inpaintRadius=5, flags=cv2.INPAINT_TELEA)
+
+
+
+
+
+
+
+
 
 def detect_blocks_final_v2(directory):
-    """
-    For each .jpg in `directory`:
-      1) remove gem-like highlights by inpainting,
-      2) apply strong blur to erase seams,
-      3) run your HSV/color-based dual threshold + morphology,
-      4) find contours, cluster their centroids into the shape's grid,
-      5) return a dict filename → 2D list of 0/1 occupancy, and save debug images.
-    """
     detected_shapes = {}
+    # filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    filenames = sorted([f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in ALLOWED_EXTENSIONS])
+
     debug_dir = os.path.join(directory, "debug")
     os.makedirs(debug_dir, exist_ok=True)
+    # HSV ranges for purple
+    lower_purple = np.array([125, 140, 190], dtype=np.uint8)
+    upper_purple = np.array([140, 200, 220], dtype=np.uint8)
+    # HSV ranges for light-blue
+    lower_blue = np.array([ 90,  50,  50], dtype=np.uint8)
+    upper_blue = np.array([130, 255, 255], dtype=np.uint8)
+    # HSV ranges for red (split around 0° hue)
+    lower_red1 = np.array([  0,  70,  50], dtype=np.uint8)
+    upper_red1 = np.array([ 10, 255, 255], dtype=np.uint8)
+    lower_red2 = np.array([170,  70,  50], dtype=np.uint8)
+    upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
 
-    # HSV color ranges
-    lower_purple = np.array([125,140,190], dtype=np.uint8)
-    upper_purple = np.array([140,200,220], dtype=np.uint8)
-    lower_blue   = np.array([ 90, 50, 50], dtype=np.uint8)
-    upper_blue   = np.array([130,255,255], dtype=np.uint8)
-    lower_red1   = np.array([  0, 70, 50], dtype=np.uint8)
-    upper_red1   = np.array([ 10,255,255], dtype=np.uint8)
-    lower_red2   = np.array([170, 70, 50], dtype=np.uint8)
-    upper_red2   = np.array([180,255,255], dtype=np.uint8)
-
-    for fname in sorted(os.listdir(directory)):
-        if not fname.lower().endswith(".jpg"):
-            continue
-        path = os.path.join(directory, fname)
-        img = cv2.imread(path)
+    for filename in filenames:
+        img_path = os.path.join(directory, filename)
+        img = cv2.imread(img_path)
         if img is None:
-            detected_shapes[fname] = []
+            print(f"Failed to load {filename}. Skipping.")
             continue
 
-        # 1) Inpaint gems
-        img_clean = remove_gems(img)
-        cv2.imwrite(os.path.join(debug_dir, f"{fname}_nocontours.jpg"), img_clean)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-        # 2) Strong blur to smooth out any seams left by inpainting
-        img_blur = cv2.GaussianBlur(img_clean, (9, 9), 0)
-        cv2.imwrite(os.path.join(debug_dir, f"{fname}_blur.jpg"), img_blur)
-
-        # 3) Build color masks on blurred image
-        hsv = cv2.cvtColor(img_blur, cv2.COLOR_BGR2HSV)
+        # build color masks
         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
         mask_blue   = cv2.inRange(hsv, lower_blue,   upper_blue)
         mask_r1     = cv2.inRange(hsv, lower_red1,   upper_red1)
         mask_r2     = cv2.inRange(hsv, lower_red2,   upper_red2)
         mask_red    = cv2.bitwise_or(mask_r1, mask_r2)
-        color_mask  = cv2.bitwise_or(mask_blue, mask_red)
-        inv_mask    = cv2.bitwise_not(color_mask)
-        has_purple  = cv2.countNonZero(mask_purple) > 0
 
-        # 4) Grayscale + dual threshold
-        gray = cv2.cvtColor(img_blur, cv2.COLOR_BGR2GRAY)
+        has_purple = cv2.countNonZero(mask_purple) > 0
+        has_blue   = cv2.countNonZero(mask_blue)   > 0
+        has_red    = cv2.countNonZero(mask_red)    > 0
+
+        # DEBUG PRINT: which threshold strategy?
+        if has_blue or has_red:
+            colors = []
+            if has_blue: colors.append("blue")
+            if has_red:  colors.append("red")
+            print(f"{filename}: Detected {', '.join(colors)} → low=150 for colored, high=174 elsewhere")
+        else:
+            print(f"{filename}: No blue/red detected → using high=174 only")
+
+        # choose morphological kernel size based on purple
+        kernel_size = (3, 3) if has_purple else (2, 2)
+        kernel = np.ones(kernel_size, np.uint8)
+
+        # grayscale + two thresholds
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         _, thresh_high = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
         _, thresh_low  = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-        low_part  = cv2.bitwise_and(thresh_low,  color_mask)
-        high_part = cv2.bitwise_and(thresh_high, inv_mask)
-        thresh    = cv2.bitwise_or(low_part, high_part)
-        cv2.imwrite(os.path.join(debug_dir, f"{fname}_thresh.jpg"), thresh)
 
-        # 5) Morphology to get clean mask
-        ksize = (3,3) if has_purple else (2,2)
-        kernel = np.ones(ksize, np.uint8)
-        closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-        eroded = cv2.erode(closed, kernel, iterations=1)
-        mask   = cv2.dilate(eroded, np.ones((3,3), np.uint8), iterations=1)
+        # combine low/high based on color mask
+        color_mask = cv2.bitwise_or(mask_blue, mask_red)
+        inv_mask   = cv2.bitwise_not(color_mask)
+        low_part   = cv2.bitwise_and(thresh_low,  color_mask)
+        high_part  = cv2.bitwise_and(thresh_high, inv_mask)
+        thresh     = cv2.bitwise_or(low_part, high_part)
 
-        # 6) Find contours
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        contour_vis = img_blur.copy()
-        cv2.drawContours(contour_vis, contours, -1, (0,255,0), 3)
-        cv2.imwrite(os.path.join(debug_dir, f"{fname}_contours.jpg"), contour_vis)
+        cv2.imwrite(os.path.join(debug_dir,f"debug_thresh_before_fill_{filename}"), thresh)
+
+        # --- NEW: Fill small interior holes (gems) ---
+        gem_fill_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3,3))
+        thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, gem_fill_kernel)
+
+        cv2.imwrite(os.path.join(debug_dir,f"debug_thresh_after_fill_{filename}"), thresh)
+
+        # morphology & contours (as before)
+        closed        = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        eroded        = cv2.erode(closed, kernel, iterations=1)
+        dilate_kernel = np.ones((3, 3), np.uint8)
+        thick_mask    = cv2.dilate(eroded, dilate_kernel, iterations=1)
+
+        contours, _ = cv2.findContours(thick_mask,
+                                       cv2.RETR_EXTERNAL,
+                                       cv2.CHAIN_APPROX_SIMPLE)
+
+        # optional contour visualization
+        contour_img = img.copy()
+        cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 5)
+        cv2.imwrite(f"4_contours_{filename}", contour_img)
 
         if not contours:
-            detected_shapes[fname] = []
+            detected_shapes[filename] = []
             continue
 
-        # 7) Compute centroids & sizes
-        centroids, widths, heights = [], [], []
+        # --- NEW: 1) Area-based filtering of tiny contours ---
+        areas = np.array([cv2.contourArea(c) for c in contours])
+        if len(areas) > 0:
+            median_area = np.median(areas)
+            contours = [c for c, a in zip(contours, areas) if a >= 0.3 * median_area]
+
+        # --- NEW: 2) Remove nested (gem) contours inside larger blocks ---
+        bbs = [cv2.boundingRect(c) for c in contours]
+        filtered = []
+        for i, (x, y, w, h) in enumerate(bbs):
+            inside = False
+            for j, (x2, y2, w2, h2) in enumerate(bbs):
+                if i == j:
+                    continue
+                # if contour i is fully inside contour j, discard i
+                if x > x2 and y > y2 and x + w < x2 + w2 and y + h < y2 + h2:
+                    inside = True
+                    break
+            if not inside:
+                filtered.append(contours[i])
+        contours = filtered
+
+        # compute centroids & build grid
+        centroids = []
+        widths = []
+        heights = []
         for c in contours:
-            x,y,w,h = cv2.boundingRect(c)
+            x, y, w, h = cv2.boundingRect(c)
             centroids.append((x + w/2, y + h/2))
             widths.append(w)
             heights.append(h)
         centroids = np.array(centroids)
-        xs, ys = centroids[:,0], centroids[:,1]
+
+        xs = centroids[:, 0]
+        ys = centroids[:, 1]
         median_size = np.median(np.concatenate((widths, heights)))
         thresh_val  = median_size / 2.0
+        x_clusters  = cluster_coords(xs, thresh_val)
+        y_clusters  = cluster_coords(ys, thresh_val)
 
-        # 8) Cluster into grid axes
-        x_clusters = cluster_coords(xs, thresh_val)
-        y_clusters = cluster_coords(ys, thresh_val)
-        n_cols, n_rows = len(x_clusters), len(y_clusters)
-
-        # 9) Build occupancy grid
-        grid = [[0]*n_cols for _ in range(n_rows)]
-        for (cx, cy) in centroids:
+        num_cols = len(x_clusters)
+        num_rows = len(y_clusters)
+        grid = np.zeros((num_rows, num_cols), dtype=int)
+        for cx, cy in centroids:
             col = np.argmin(np.abs(np.array(x_clusters) - cx))
             row = np.argmin(np.abs(np.array(y_clusters) - cy))
-            grid[row][col] = 1
+            grid[row, col] = 1
 
-        detected_shapes[fname] = grid
+        detected_shapes[filename] = grid.tolist()
 
     return detected_shapes
+
+
+
+
+
+
+
+
+
+
+
+
+# works for some classic
+
+# def detect_blocks_final_v2(directory):
+#     """
+#     For each .jpg in `directory`:
+#       1) remove gem-like highlights by inpainting,
+#       2) apply strong blur to erase seams,
+#       3) run your HSV/color-based dual threshold + morphology,
+#          with dynamic thresholds based on red/blue presence,
+#       4) find contours, cluster their centroids into the shape's grid,
+#       5) return a dict filename → 2D list of 0/1 occupancy, and save debug images.
+#     """
+#     detected_shapes = {}
+#     debug_dir = os.path.join(directory, "debug")
+#     os.makedirs(debug_dir, exist_ok=True)
+
+#     # HSV color ranges
+#     lower_purple = np.array([110, 100,  80], dtype=np.uint8)
+#     upper_purple = np.array([160, 255, 255], dtype=np.uint8)
+#     lower_blue   = np.array([ 90, 50, 50], dtype=np.uint8)
+#     upper_blue   = np.array([130,255,255], dtype=np.uint8)
+#     lower_red1   = np.array([  0, 70, 50], dtype=np.uint8)
+#     upper_red1   = np.array([ 10,255,255], dtype=np.uint8)
+#     lower_red2   = np.array([170, 70, 50], dtype=np.uint8)
+#     upper_red2   = np.array([180,255,255], dtype=np.uint8)
+
+#     for fname in sorted(os.listdir(directory)):
+#         if not fname.lower().endswith('.jpg'):
+#             continue
+#         path = os.path.join(directory, fname)
+#         img = cv2.imread(path)
+#         if img is None:
+#             detected_shapes[fname] = []
+#             continue
+
+#         base, _ = os.path.splitext(fname)
+
+#         # 1) Inpaint gems
+#         img_clean = remove_gems(img, debug_dir=debug_dir, fname=base)
+#         cv2.imwrite(os.path.join(debug_dir, f"{base}_nocontours.jpg"), img_clean)
+
+#         # 2) Strong blur
+#         img_blur = cv2.GaussianBlur(img_clean, (3, 3), 0)
+#         cv2.imwrite(os.path.join(debug_dir, f"{base}_blur.jpg"), img_blur)
+
+#         # 3) Build color masks on blurred image
+#         hsv         = cv2.cvtColor(img_blur, cv2.COLOR_BGR2HSV)
+#         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
+#         mask_blue   = cv2.inRange(hsv, lower_blue,   upper_blue)
+#         mask_r1     = cv2.inRange(hsv, lower_red1,   upper_red1)
+#         mask_r2     = cv2.inRange(hsv, lower_red2,   upper_red2)
+#         mask_red    = cv2.bitwise_or(mask_r1, mask_r2)
+#         color_mask  = cv2.bitwise_or(mask_blue, mask_red)
+#         inv_mask    = cv2.bitwise_not(color_mask)
+
+#         has_purple = cv2.countNonZero(mask_purple) > 0
+#         has_blue   = cv2.countNonZero(mask_blue)   > 0
+#         has_red    = cv2.countNonZero(mask_red)    > 0
+
+#         # DEBUG: threshold strategy
+#         if has_blue or has_red:
+#             cols = []
+#             if has_blue: cols.append('blue')
+#             if has_red:  cols.append('red')
+#             print(f"{fname}: Detected {', '.join(cols)} → low=150 on colored, high=174 elsewhere")
+#         else:
+#             print(f"{fname}: No blue/red → using high=174 only")
+
+#         # 4) Grayscale + dual threshold
+#         gray         = cv2.cvtColor(img_blur, cv2.COLOR_BGR2GRAY)
+#         _, thr_high  = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
+#         _, thr_low   = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+#         if has_blue or has_red:
+#             low_part  = cv2.bitwise_and(thr_low,  color_mask)
+#             high_part = cv2.bitwise_and(thr_high, inv_mask)
+#             thresh    = cv2.bitwise_or(low_part, high_part)
+#         else:
+#             thresh = thr_high
+#         cv2.imwrite(os.path.join(debug_dir, f"{base}_thresh.jpg"), thresh)
+
+#         # 5) Morphology based on purple presence
+#         ksize  = (5,5) if has_purple else (5,5)
+#         kernel = np.ones(ksize, np.uint8)
+#         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+#         eroded = cv2.erode(closed, kernel, iterations=1)
+#         # mask   = cv2.dilate(eroded, np.ones((3,3), np.uint8), iterations=1)
+
+#         # 6) Contours
+#         mask = cv2.dilate(eroded, np.ones((3,3),np.uint8), iterations=1)
+#         mask = cv2.erode(mask,  np.ones((3,3),np.uint8), iterations=1)
+
+#         contours, _   = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         contour_vis   = img_blur.copy()
+#         cv2.drawContours(contour_vis, contours, -1, (0,255,0), 3)
+#         cv2.imwrite(os.path.join(debug_dir, f"{base}_contours.jpg"), contour_vis)
+
+#         if not contours:
+#             detected_shapes[fname] = []
+#             continue
+
+#         # 7) Centroids & grid clustering
+#         cents, ws, hs = [], [], []
+#         for c in contours:
+#             x,y,w,h = cv2.boundingRect(c)
+#             cents.append((x + w/2, y + h/2))
+#             ws.append(w); hs.append(h)
+#         cents = np.array(cents)
+#         xs, ys = cents[:,0], cents[:,1]
+#         median_size = np.median(np.concatenate((ws, hs)))
+#         thresh_val  = median_size / 2.0
+#         x_clust     = cluster_coords(xs, thresh_val)
+#         y_clust     = cluster_coords(ys, thresh_val)
+
+#         # 8) Build occupancy matrix
+#         n_cols = len(x_clust); n_rows = len(y_clust)
+#         grid   = [[0]*n_cols for _ in range(n_rows)]
+#         for cx, cy in cents:
+#             col = np.argmin(np.abs(np.array(x_clust) - cx))
+#             row = np.argmin(np.abs(np.array(y_clust) - cy))
+#             grid[row][col] = 1
+
+#         detected_shapes[fname] = grid
+
+#     return detected_shapes
 
 
 
@@ -1426,7 +1697,8 @@ def get_shapes_colors(directory: str = SHAPES_BASE_DIR) -> dict:
     mapping shape names (e.g., "shape 0") to their hex color strings.
     """
     shape_colors = {}
-    filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    # filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
+    filenames = sorted([f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in ALLOWED_EXTENSIONS])
     for i, filename in enumerate(filenames):
         image_path = os.path.join(directory, filename)
         color = detect_shape_block_color(image_path)
@@ -1452,7 +1724,7 @@ async def http_exception_handler(request, exc):
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
-        content={"error": "Rate limit exceeded"},
+        content={"error": "Internel Error"},
         status_code=429,
         headers={
             "Access-Control-Allow-Origin": "http://localhost:3000",
@@ -1509,12 +1781,23 @@ def process_and_resize_image(contents: bytes) -> bytes:
 
 
 @app.post("/upload")
-# @limiter.limit("100/minute")
+@limiter.limit("100/minute")
 async def upload_file(
     request: Request,
     file: UploadFile = File(...),
-    background_tasks: BackgroundTasks = BackgroundTasks()
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    validated_data: tuple = Depends(validate_file),
+    api_key: str = Depends(verify_api_key)
 ):
+
+
+    # Add validation
+    # allowed_types = ["image/jpeg", "image/png", "image/jpg"]
+    # if file.content_type not in allowed_types:
+    #     raise HTTPException(400, "Only JPG/PNG/JPEG images allowed")
+
+
+    safe_name, contents = validated_data
     request_id = str(uuid.uuid4())
     dirs = get_user_dirs(request_id)
 
@@ -1524,22 +1807,22 @@ async def upload_file(
             os.makedirs(d, exist_ok=True)
 
 
-        contents = await file.read()
+        # contents = await file.read()
 
 
 
 
 
         # Decode just for dimension check
-        image = cv2.imdecode(np.frombuffer(contents, np.uint8), cv2.IMREAD_COLOR)
-        if image is None:
-            raise ValueError("Invalid image file")
+        # image = cv2.imdecode(np.frombuffer(contents, np.uint8), cv2.IMREAD_COLOR)
+        # if image is None:
+        #     raise ValueError("Invalid image file")
 
 
         processed = contents
         
         # # Save resized image
-        file_path = os.path.join(dirs["upload"], file.filename)
+        file_path = os.path.join(dirs["upload"], safe_name)
         async with aiofiles.open(file_path, "wb") as buffer:
             await buffer.write(processed)
         
@@ -1679,24 +1962,27 @@ def trim_shape(shape_array):
 
 
 @app.post("/fm")
+@limiter.limit("100/minute")
 async def get_stepwise_boards(
-    request: SolveRequest,
-    background_tasks: BackgroundTasks = BackgroundTasks()
+    request: Request,  # ← Essential for limiter
+    body_data: SolveRequest,  # ← Renamed from 'request'
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    api_key: str = Depends(verify_api_key)
 ):
     """Handle shape solving with memory optimization"""
     try:
         processed_shapes = {
             f"shape_{i}": trim_shape(shape)
             for i, shape in enumerate([
-                request.shape1,
-                request.shape2,
-                request.shape3
+                body_data.shape1,
+                body_data.shape2,
+                body_data.shape3
             ])
         }
 
         stepwise_boards = await run_in_threadpool(
             find_shape_placement_stepwise,
-            request.grid,
+            body_data.grid,
             processed_shapes
         )
 

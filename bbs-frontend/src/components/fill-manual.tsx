@@ -37,7 +37,7 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
 
   // const API_URL = "http://localhost:8000";
   const API_URL = "http://192.168.0.108:8000";
-
+  const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 
   const handleClick = (rowIdx: number, colIdx: number): void => {
@@ -102,12 +102,18 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
       setFmSolved(true);
       setIsDisabled(true);
       setIsLoading(true);
+      if (!API_KEY) {
+        console.error("API key is missing!");
+        return;
+      }
+
       const response = await axios.post(
         `${API_URL}/fm`,
         payload,
         {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-API-Key': API_KEY
           }
         }
       );

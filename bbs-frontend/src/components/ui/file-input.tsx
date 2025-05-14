@@ -40,6 +40,8 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
 
     // const API_URL = "http://localhost:8000";
     const API_URL = "http://192.168.0.108:8000";
+    const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+    
 
 
     // handle drag events
@@ -63,7 +65,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         if (!validateFileType(file)) {
           toast({
             title: 'Invalid file type',
-            description: 'Please upload a valid image file.',
+            description: 'Please upload a valid image file (JPG/JPEG/PNG).',
           })
           return
         }
@@ -108,8 +110,17 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         const formData = new FormData()
         formData.append('file', file)
 
+        if (!API_KEY) {
+          console.error("API key is missing!");
+          return;
+        }
+
         const response = await axios.post(`${API_URL}/upload`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            'X-API-Key': API_KEY
+          
+          },
         })
         console.log('Response2:', response.data.final_output);
         toast({
