@@ -36,7 +36,8 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
   const [isLoading, setIsLoading] = useState(false);
 
   // const API_URL = "http://localhost:8000";
-  const API_URL = "http://backend:8000";
+  // const API_URL = "http://backend:8000";
+  const API_URL = "/api";
   // const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 

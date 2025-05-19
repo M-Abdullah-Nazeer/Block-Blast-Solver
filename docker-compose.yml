@@ -1,30 +1,67 @@
 
 
+# services:
+#   backend:
+#     build: ./bbs-backend
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - redis
+#     networks:
+#       - bbs-network
+#   frontend:
+#     build: ./bbs-frontend
+#     ports:
+#       - "3000:3000"
+#     # volumes:
+#       # - ./bbs-frontend:/app
+
+#     depends_on:
+#       - backend
+#     networks:
+#       - bbs-network
+
+#   redis:
+#     image: redis:alpine
+#     ports:
+#       - "6379:6379"
+#     networks:
+#       - bbs-network
+
+# networks:
+#   bbs-network:
+#     driver: bridge
+
+
+
+version: "3.8"
 services:
-  backend:
-    build: ./bbs-backend
+  nginx:
+    image: nginx:stable-alpine
     ports:
-      - "8000:8000"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
-      - redis
+      - frontend
+      - backend
     networks:
       - bbs-network
+
   frontend:
     build: ./bbs-frontend
-    ports:
-      - "3000:3000"
-    # volumes:
-      # - ./bbs-frontend:/app
+    networks:
+      - bbs-network
 
-    depends_on:
-      - backend
+  backend:
+    build: ./bbs-backend
     networks:
       - bbs-network
 
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
     networks:
       - bbs-network
 
