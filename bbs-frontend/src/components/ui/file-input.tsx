@@ -38,7 +38,8 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
     const { setActiveTab } = useTab();
 
 
-    const API_URL = "http://localhost:8000";
+    // const API_URL = "http://localhost:8000";
+    const API_URL = "http://backend:8000";
     // const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 

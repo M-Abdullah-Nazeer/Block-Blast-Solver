@@ -127,8 +127,8 @@ def get_user_dirs(request_id: str):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
+        # "http://localhost:3000",
+        "http://frontend:3000"
         # "http://192.168.200.123:3000" 
     ],
     allow_credentials=True,
@@ -925,7 +925,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
         content={"error": "Internel Error"},
         status_code=429,
         headers={
-            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Origin": "http://frontend:3000",
             "Access-Control-Allow-Credentials": "true"
         }
     )
@@ -1105,7 +1105,7 @@ async def upload_file(
         status_code=500,
         headers={
             # Add CORS headers manually
-            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Origin": "http://frontend:3000",
             "Access-Control-Allow-Credentials": "true"
         }
         )

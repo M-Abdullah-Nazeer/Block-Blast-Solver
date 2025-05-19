@@ -21,3 +21,5 @@ EXPOSE 8000
 
 # Start FastAPI server
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--loop", "asyncio", "--timeout-keep-alive", "300"]
+
+# $ python -m uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4 --loop asyncio --timeout-keep-alive 300
