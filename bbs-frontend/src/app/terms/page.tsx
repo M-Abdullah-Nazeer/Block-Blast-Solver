@@ -1,95 +1,83 @@
+import Link from 'next/link'
 import { FC } from 'react'
-import Head from 'next/head'
+
+export const metadata = {
+  title: 'Terms & Conditions - Block Blast Solver',
+  description: 'Legal terms for using Block Blast Solver - your AI-powered puzzle optimization tool',
+  openGraph: {
+    title: 'Terms & Conditions - Block Blast Solver',
+    description: 'Web-based tool for solving Block Blast puzzles via screenshot analysis',
+    url: 'https://blockblastsolverai.com/terms',
+    siteName: 'Block Blast Solver',
+    locale: 'en_US',
+    type: 'website',
+  },
+}
+
 
 const page: FC = () => {
   return (
     <div className="text-slate-300">
 
-      {/* <Head>
-        <title>Terms and Conditions</title>
-      </Head>
 
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold mb-4">
-          Terms and Conditions
-        </h1>
-        <p className="mb-4">
-          These terms and conditions (&quot;Terms&quot;) apply to your use of
-          the ImageToAlt app (&quot;App&quot;) and the alt tag generation
-          service (&quot;Service&quot;) provided by ImageToAlt (&quot;we&quot;
-          or &quot;us&quot;). By using the App or the Service, you agree to be
-          bound by these Terms.
-        </p>
-        <h2 className="text-xl font-bold mb-2">
-          Use of the App and the Service
-        </h2>
-        <p className="mb-4">
-          The App and the Service are provided for informational purposes only.
-          You may use the App and the Service at your own risk, and we shall not
-          be liable for any damages or harm that may arise from your use of the
-          App or the Service.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Intellectual Property</h2>
-        <p className="mb-4">
-          The App and the Service, including any content or materials made
-          available through the App or the Service, are protected by copyright
-          and other intellectual property laws. You may not copy, modify,
-          distribute, sell, or lease any part of the App or the Service without
-          our prior written consent.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Disclaimer of Liability</h2>
-        <p className="mb-4">
-          The App and the Service are provided &quot;as is&quot; and without warranty of
-          any kind. We make no representations or warranties of any kind,
-          express or implied, about the completeness, accuracy, reliability,
-          suitability or availability with respect to the App or the Service or
-          the information, products, services, or related graphics contained in
-          the App or the Service for any purpose. To the fullest extent
-          permitted by law, we disclaim any and all warranties, express or
-          implied, including, but not limited to, implied warranties of
-          merchantability and fitness for a particular purpose.
-        </p>
-        <p className="mb-4">
-          In no event shall ImageToAlt be liable for any direct, indirect,
-          incidental, consequential, special or exemplary damages, including,
-          but not limited to, damages for loss of profits, goodwill, use, data
-          or other intangible losses resulting from the use of or inability to
-          use the App or the Service.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Indemnification</h2>
-        <p className="mb-4">
-          You agree to indemnify and hold ImageToAlt, its affiliates, officers,
-          agents, and other partners and employees, harmless from any loss,
-          liability, claim or demand, including reasonable attorneys&apos; fees, made
-          by any third party due to or arising out of your use of the App or the
-          Service.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Termination</h2>
-        <p className="mb-4">
-          We may terminate your access to the App and the Service at any time,
-          without cause or notice.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Governing Law</h2>
-        <p className="mb-4">
-          These Terms and your use of the App and the Service shall be governed
-          by and construed in accordance with the laws of Germany, without
-          giving effect to any principles of conflicts of law.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Changes to these Terms</h2>
-        <p className="mb-4">
-          We reserve the right to modify these Terms at any time. If we make
-          changes to these Terms, we will post the revised Terms on the App and
-          update the &quot;Last Updated&quot; date at the top of these Terms. By
-          continuing to use the App and the Service after the revised Terms
-          become effective, you agree to be bound by the revised Terms.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Contact Us</h2>
-        <p className="mb-4">
-          If you have any questions about these Terms or the App or the Service,
-          please contact us at admin@wordful.ai.
-        </p>
-        <p className="text-sm">Last Updated: Feb 20th, 2023</p>
-      </div> */}
+     
+
+      <div className="text-slate-300">
+  <h1 className="text-2xl font-bold mb-4 text-slate-100">Terms & Conditions</h1>
+  <p className="mb-4">Last updated: May 18, 2025</p>
+
+
+
+  <h2 className="text-xl font-bold mb-2">1. Account & Content</h2>
+  <ul className="list-disc ml-8 mb-4">
+    <li><strong>No user accounts:</strong> Service requires no registration</li>
+    <li><strong>No content storage:</strong> Uploaded screenshots are immediately deleted after processing</li>
+  </ul>
+
+  <h2 className="text-xl font-bold mb-2">2. Commercial Terms</h2>
+  <ul className="list-disc ml-8 mb-4">
+    <li><strong>No purchases:</strong> This is a free service</li>
+    <li><strong>No subscriptions:</strong> No recurring payment plans</li>
+  </ul>
+
+  <h2 className="text-xl font-bold mb-2">3. Intellectual Property</h2>
+  <ul className="list-disc ml-8 mb-4">
+    <li>Block Blast Solver retains all rights to:
+      <ul className="list-circle ml-6">
+        <li>Logo and visual design</li>
+        <li>Algorithm implementations</li>
+        <li>3D visualization systems</li>
+      </ul>
+    </li>
+    <li>User feedback becomes our property:
+      <ul className="list-circle ml-6">
+        <li>We may implement suggestions without compensation</li>
+        <li>No obligation to acknowledge contributors</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2 className="text-xl font-bold mb-2">4. Promotions</h2>
+  <p className="mb-4">We currently offer no contests/sweepstakes. Any future promotions will have separate terms.</p>
+
+  <h2 className="text-xl font-bold mb-2">5. Contact</h2>
+  <p className="mb-4">For terms inquiries:</p>
+  <ul className="list-disc ml-8 mb-4">
+    <li>Email: admin@blockblastsolverai.com</li>
+    <li>
+      Contact Form: <Link
+            className="underline text-blue-400"
+            href="https://blockblastsolverai.com/contact"
+          >
+            https://blockblastsolverai.com/contact
+          </Link>
+    </li>
+  </ul>
+</div>
+
+
+      </div>
     </div>
   )
 }

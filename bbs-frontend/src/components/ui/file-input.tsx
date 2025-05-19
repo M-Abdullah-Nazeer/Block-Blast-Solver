@@ -122,7 +122,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
           
           },
         })
-        console.log('Response2:', response.data.final_output);
+        // console.log('Response2:', response.data.final_output);
         toast({
           title: 'Upload successful',
           description: 'Your image has been uploaded.',

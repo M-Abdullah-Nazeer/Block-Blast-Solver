@@ -118,7 +118,7 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
         }
       );
 
-      console.log("Stepwise boards:", response.data.final_output);
+      // console.log("Stepwise boards:", response.data.final_output);
       setActiveTab(3);
 
       handleUploadSuccess(

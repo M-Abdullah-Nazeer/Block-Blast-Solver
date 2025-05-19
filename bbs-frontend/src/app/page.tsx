@@ -11,6 +11,7 @@ import animationOnShapes from "public/animation-on-shapes.webp"
 import gameScreenshot from "public/game-screenshot.webp"
 import AndroidLogo from "public/android-logo.webp"
 import AppleLogo from "public/apple-logo.webp"
+import OGImage from "public/og-image.webp"
 
 import solvePlay from "public/solve-play.webp"
 import uploadDraw from "public/upload-draw.webp"
@@ -46,24 +47,33 @@ import { Step } from "../types/steps"
 // app/page.tsx (Homepage)
 export const metadata = {
   // Basic SEO
-  title: "Home | Your Tool",
-  description: "Your tool's homepage with a long article and tool demo.",
+  title: "Block Blast Solver | Free Online AI Screenshot Solver",
+  description: "Get Block Blast high score in 1 click. Upload screenshot and let our AI solver give you step-by-step solution. Enjoy free unlimited attempts.",
 
   alternates: {
-    canonical: "https://yourdomain.com",
+    canonical: "https://blockblastsolverai.com",
   },
 
   // Open Graph (Social Sharing)
   openGraph: {
-    images: "/og-image.webp", // Path to OG image
-    url: "https://yourdomain.com", // Absolute URL for social links
+    title: "Block Blast Solver - Instant Puzzle Solutions",
+    description: "AI-powered tool that analyzes Block Blast screenshots to generate optimal moves",
+    url: "https://blockblastsolverai.com",
     type: "website",
+    images: [{
+      url: OGImage,
+      width: 1076,
+      height: 428,
+      alt: "AI Block Blast cheat",
+    }],
   },
 
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    images: "/og-image.webp", // Same as OG or specific Twitter image
+    title: "Block Blast Solver AI",
+    description: "Free AI-powered solution generator for Block Blast puzzles",
+    images: OGImage // Same as OG or specific Twitter image
   },
 };
 
@@ -91,10 +101,9 @@ const Page: FC = () => {
 
     }
 
-    console.log("active Tab", activeTab);
-
-    console.log("fmsolved", fmSolved);
-    console.log("uploadedfile", uploadedFile);
+    // console.log("active Tab", activeTab);
+    // console.log("fmsolved", fmSolved);
+    // console.log("uploadedfile", uploadedFile);
 
 
     setHideComp(activeTab === 3);

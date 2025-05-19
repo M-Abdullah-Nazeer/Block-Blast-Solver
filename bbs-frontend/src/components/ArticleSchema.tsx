@@ -4,20 +4,20 @@ export const ArticleSchema = () => {
     const articleSchema = {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": "Your Article Title",
-        "description": "Brief summary of the article",
-        "image": "https://yourdomain.com/article-image.webp",
+        "headline": "Block Blast Solver",
+        "description": "Explains the steps to use block blast solver, elaborates the AI features of the game helper.",
+        "image": "https://blockblastsolverai.com/article-image.webp",
         "author": {
             "@type": "Person",
-            "name": "Author Name"
+            "name": "Abdullah"
         },
-        "datePublished": "2024-01-01",
+        "datePublished": "2025-05-18",
         "publisher": {
             "@type": "Organization",
-            "name": "Your Tool",
+            "name": "Block Blast Solver",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://yourdomain.com/logo.webp"
+                "url": "https://blockblastsolverai.com/block-blast-solver-logo.webp"
             }
         }
     };

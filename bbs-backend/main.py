@@ -1,8 +1,6 @@
-# Add this import at the top with other imports
-import aiofiles  # Required for async file operations
-import concurrent.futures  # Required for thread pools
+import aiofiles 
+import concurrent.futures  
 from typing import Dict, List
-# Rest of your existing imports
 import os
 import cv2
 import uuid
@@ -18,36 +16,26 @@ from math import ceil
 import copy
 from pydantic import BaseModel
 from fastapi.concurrency import run_in_threadpool
-from slowapi.errors import RateLimitExceeded  # Add this
-from slowapi import Limiter, _rate_limit_exceeded_handler  # Uncomment for rate limiting
-from slowapi.util import get_remote_address                 # Requires redis
-from prometheus_fastapi_instrumentator import Instrumentator  # Uncomment for monitoring
-
+from slowapi.errors import RateLimitExceeded  
+from slowapi import Limiter, _rate_limit_exceeded_handler 
+from slowapi.util import get_remote_address                 
+from prometheus_fastapi_instrumentator import Instrumentator  
 import magic
 from fastapi import Depends, Header
 from pathvalidate import sanitize_filename
 from limits.storage import MemoryStorage 
 from sklearn.cluster import DBSCAN
-
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
-
-
 import traceback
-
-import redis  # NEW: Required for rate limiting
-
-
-
-
+import redis  
 from dotenv import load_dotenv
-load_dotenv()  # Add this before app = FastAPI()
+load_dotenv()  
 
 # NEW: Dynamic thread pool based on CPU cores
 PROCESSING_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
     max_workers=os.cpu_count() * 2 + 1
 )
-
 
 class SolveRequest(BaseModel):
     grid: list
@@ -64,11 +52,6 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(CROPPED_DIR, exist_ok=True)
 os.makedirs(SHAPES_BASE_DIR, exist_ok=True)  # NEW: Create base dir
 
-
-
-
-
-
 # Processing pool for CPU-bound tasks
 PROCESSING_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
@@ -81,7 +64,6 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # Parse the URL to create a Redis connection
 redis_connection = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
-
 # NEW: Rate limiter setup
 limiter = Limiter(
     key_func=get_remote_address
@@ -89,7 +71,6 @@ limiter = Limiter(
     # storage_uri=REDIS_URL
 
 )
-
 # dev
 # app = FastAPI()
 
@@ -105,20 +86,14 @@ app.state.limiter.storage = MemoryStorage()
 # In production
 Instrumentator().instrument(app).expose(app, include_in_schema=False)
 
-
-
 # app.add_exception_handler(Exception, _rate_limit_exceeded_handler)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  
-
-
 
 def verify_api_key(api_key: str = Header(None, alias="X-API-Key")):
     valid_keys = os.getenv("API_KEY", "").split(",")
     if not api_key or api_key not in valid_keys:
         raise HTTPException(status_code=401, detail="Invalid API key")
     return api_key
-
-
 
 async def validate_file(file: UploadFile = File(...)):
     """Validate file size, type, and sanitize filename"""
@@ -140,7 +115,6 @@ async def validate_file(file: UploadFile = File(...)):
     safe_name = sanitize_filename(file.filename)
     return safe_name, contents
 
-
 # NEW: Generate unique paths per request
 def get_user_dirs(request_id: str):
     """Return all user-specific directories"""
@@ -149,18 +123,6 @@ def get_user_dirs(request_id: str):
         "cropped": os.path.join(CROPPED_DIR, request_id),
         "shapes": os.path.join(SHAPES_BASE_DIR, request_id)  # NEW: User-specific shapes
     }
-
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# ----development------
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -174,18 +136,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 # NEW: Priority middleware
 @app.middleware("http")
 async def priority_middleware(request: Request, call_next):
     if request.headers.get("X-Priority") == "high":
         return await call_next(request)
     return await call_next(request)  # Add actual queue logic here
-
-
-
-
 
 # Utility Functions
 # --------------------------
@@ -208,26 +164,11 @@ def fast_image_processing(image):
     return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                  cv2.THRESH_BINARY, 11, 2)
 
-
-
 async def process_image_async(image_path: str):
     """Run CPU-bound processing in thread pool"""
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Image not found: {image_path}")
     return await run_in_threadpool(process_image, image_path)
-
-
-
-
-
-
-
-
-# --------------------experiment-------------
-
-
-
-
 
 def crop_board(image_path: str, output_dir: str):
     img = cv2.imread(image_path)
@@ -242,8 +183,6 @@ def crop_board(image_path: str, output_dir: str):
 
     # Otherwise fall back to your original crop_board logic:
     return crop_board_standard(img, output_dir)
-
-
 
 def crop_board_standard(img, output_dir):
     # 1) Debug folder
@@ -303,11 +242,10 @@ def crop_board_standard(img, output_dir):
 
     board = None
     trials = [
-        # (kernel_div, iterations)
-        (200, 1),  # gentle: (w//200)//2 inside
-        (150, 1),  # a bit stronger
-        (150, 2),  # stronger still
-        (100, 2),  # fallback: bigger kernel
+        (200, 1),  
+        (150, 1),  
+        (150, 2),  
+        (100, 2),  
     ]
 
     for div, iters in trials:
@@ -360,7 +298,7 @@ def process_image(image_path: str):
     # 1) load & resize square
     img = cv2.imread(image_path)
     img = cv2.resize(img, (800, 800), interpolation=cv2.INTER_AREA)
-    cv2.imwrite('resized_image.jpg', img)
+    # cv2.imwrite('resized_image.jpg', img)
 
     # 2) convert to HSV and pull out V channel
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -395,11 +333,7 @@ def process_image(image_path: str):
             row.append(1 if mean_val > 100 else 0)
         board.append(row)
 
-    # 5) optional: save a diagnostic “board of means”
-    #    (you can print board or log it)
     return board
-
-
 
 def remove_ad_banner(cropped_image):
     h, w = cropped_image.shape[:2]
@@ -434,7 +368,6 @@ def remove_ad_banner(cropped_image):
     ad_top = min(cv2.boundingRect(cnt)[1] for cnt in ads)
     ad_top_absolute = bottom_y + ad_top
     return cropped_image[:ad_top_absolute, :]
-
 
 def crop_board_small(orig, output_dir):
     """
@@ -572,8 +505,6 @@ def crop_shapes(image_path: str, board_coords: tuple, output_path: str):
     cv2.imwrite(output_path, cleaned)
     return output_path
 
-
-
 def detect_shapes(image_path: str, user_shapes_dir: str):
     # Load image and convert to grayscale
     image = cv2.imread(image_path)
@@ -618,232 +549,11 @@ def detect_shapes(image_path: str, user_shapes_dir: str):
 
     # Debugging images
     
-    debug_dir = "debug_images"
-    os.makedirs(debug_dir, exist_ok=True)
-    cv2.imwrite(f"{debug_dir}/debug_threshold.jpg", thresh)
+    # debug_dir = "debug_images"
+    # os.makedirs(debug_dir, exist_ok=True)
+    # cv2.imwrite(f"{debug_dir}/debug_threshold.jpg", thresh)
 
     return {"shapes": shape_paths}  # Returning JSON-serializable format
-
-
-
-# # all shapes getting detected
-
-
-
-# def cluster_coords(coords, threshold):
-#     """
-#     Group sorted coordinate values into clusters where successive values
-#     differ by no more than the threshold. Returns the cluster centers.
-#     """
-#     coords_sorted = np.sort(coords)
-#     clusters = []
-#     current_cluster = [coords_sorted[0]]
-#     for coord in coords_sorted[1:]:
-#         if abs(coord - current_cluster[-1]) <= threshold:
-#             current_cluster.append(coord)
-#         else:
-#             clusters.append(np.mean(current_cluster))
-#             current_cluster = [coord]
-#     clusters.append(np.mean(current_cluster))
-#     return clusters
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ------------------exp---------------------
-
-
-
-# def detect_blocks_final_v2(directory):
-#     detected_shapes = {}
-#     # debug_dir = os.path.join(directory, "debug")
-#     # os.makedirs(debug_dir, exist_ok=True)
-
-#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
-#     for filename in filenames:
-#         img_path = os.path.join(directory, filename)
-#         img = cv2.imread(img_path)
-#         if img is None:
-#             print(f"Failed to load {filename}. Skipping.")
-#             continue
-
-#         # Check for purple color using HSV color space
-#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-#         # Convert your original values to OpenCV's HSV ranges:
-#         h = 263.8 / 2  # → ~131.9
-#         s = 58 * 2.55  # → ~148
-#         v = 82 * 2.55  # → ~209
-
-#         # With tolerance ranges:
-#         lower_purple = np.array([h-5, s-20, v-30])  # [127, 128, 179]
-#         upper_purple = np.array([h+5, s+20, v+30])  # [137, 168, 239]
-
-#         # Round to integers:
-#         lower_purple = np.array([125, 140, 190], dtype=np.uint8)
-#         upper_purple = np.array([140, 200, 220], dtype=np.uint8)
-#         mask = cv2.inRange(hsv, lower_purple, upper_purple)
-#         has_purple = cv2.countNonZero(mask) > 0
-
-#                 # After creating the mask:
-#         # purple_debug = cv2.bitwise_and(img, img, mask=mask)
-#         # cv2.imwrite(os.path.join(debug_dir, f"purple_{filename}"), purple_debug)
-
-#         # Set kernel size based on purple presence
-#         # kernel_size = (3, 3) if has_purple else (2, 2)
-#         # kernel = np.ones(kernel_size, np.uint8)
-
-#         # Preprocess image: grayscale and threshold
-#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#         blur = cv2.GaussianBlur(gray, (5,5), 0)
-#         cv2.imwrite(f"gray_{filename}", blur)
-#         thresh = cv2.adaptiveThreshold(
-#             blur, 255,
-#             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-#             cv2.THRESH_BINARY_INV,
-#             blockSize=15,
-#             C=3
-#         )
-
-
-#         # Apply morphological operations
-#        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-#        clean = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-#        clean = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, kernel, iterations=2)
-
-#         # Find contours of the blocks
-#         contours, _ = cv2.findContours(clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#         contour_img = img.copy()
-#         cv2.drawContours(contour_img, contours, -1, (0,255,0), 2)
-#         cv2.imwrite(f"4_contours_{filename}", contour_img)
-#         if not contours:
-#             detected_shapes[filename] = []
-#             continue
-
-#         # Compute centroids for each detected contour
-#         centroids = []
-#         widths = []
-#         heights = []
-#         for c in contours:
-#             x, y, w, h = cv2.boundingRect(c)
-#             centroids.append((x + w/2, y + h/2))
-#             widths.append(w)
-#             heights.append(h)
-#         centroids = np.array(centroids)
-
-#         # Use centroids' coordinates for clustering
-#         xs = centroids[:, 0]
-#         ys = centroids[:, 1]
-        
-#         # Dynamic threshold based on median block size
-#         median_size = np.median(np.concatenate((widths, heights)))
-#         thresh_val = median_size / 2.0
-
-#         # Cluster coordinates
-#         x_clusters = cluster_coords(xs, thresh_val)
-#         y_clusters = cluster_coords(ys, thresh_val)
-        
-#         # Initialize grid
-#         num_cols = len(x_clusters)
-#         num_rows = len(y_clusters)
-#         grid = np.zeros((num_rows, num_cols), dtype=int)
-        
-#         # Populate grid
-#         for cx, cy in centroids:
-#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
-#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
-#             grid[row, col] = 1
-
-
-#         detected_shapes[filename] = grid.tolist()
-
-#     return detected_shapes
-
-
-
-# ------------------exp---------------------
-
-
-
-
-
-# def cluster_coords(coords, threshold):
-#     """
-#     Group sorted coordinate values into clusters where successive values
-#     differ by no more than the threshold. Returns the cluster centers.
-#     """
-#     coords = np.array(coords, dtype=float)
-#     if coords.size == 0:
-#         return []
-#     coords_sorted = np.sort(coords)
-#     clusters = []
-#     current = [coords_sorted[0]]
-#     for x in coords_sorted[1:]:
-#         if abs(x - current[-1]) <= threshold:
-#             current.append(x)
-#         else:
-#             clusters.append(np.mean(current))
-#             current = [x]
-#     clusters.append(np.mean(current))
-#     return clusters
-
-# def remove_gems(img_bgr, debug_dir=None, fname=""):
-#     """
-#     Detect small bright, low-saturation 'gem' highlights and inpaint them.
-#     If debug_dir is provided, save out the raw and filtered masks.
-#     """
-#     # 1) convert to HSV and threshold to get raw gem candidates
-#     hsv      = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
-#     gem_mask = cv2.inRange(
-#         hsv,
-#         np.array([0,   0, 200], dtype=np.uint8),
-#         np.array([180, 60, 255], dtype=np.uint8)
-#     )
-
-#     # optionally save the raw mask
-#     if debug_dir:
-#         os.makedirs(debug_dir, exist_ok=True)
-#         cv2.imwrite(os.path.join(debug_dir, f"{fname}_gem_raw.png"), gem_mask)
-
-#     # 2) open to remove noise
-#     kernel    = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
-#     gem_mask  = cv2.morphologyEx(gem_mask, cv2.MORPH_OPEN, kernel, iterations=2)
-
-#     # 3) keep only small connected components
-#     contours, _ = cv2.findContours(gem_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#     small_mask  = np.zeros_like(gem_mask)
-#     for c in contours:
-#         if cv2.contourArea(c) < 2000:
-#             cv2.drawContours(small_mask, [c], -1, 255, -1)
-
-#     # save the filtered “small” mask
-#     if debug_dir:
-#         cv2.imwrite(os.path.join(debug_dir, f"{fname}_gem_small.png"), small_mask)
-
-#     # 4) inpaint and return
-#     inpainted = cv2.inpaint(img_bgr, small_mask, inpaintRadius=1, flags=cv2.INPAINT_TELEA)
-#     return inpainted
-
-
-
-
-
-
-
-
 
 def cluster_coords(coords, threshold):
     coords_sorted = np.sort(coords)
@@ -857,15 +567,6 @@ def cluster_coords(coords, threshold):
             current_cluster = [coord]
     clusters.append(np.mean(current_cluster))
     return clusters
-
-
-
-
-
-
-
-
-
 
 def detect_blocks_final_v2(directory):
     detected_shapes = {}
@@ -906,15 +607,6 @@ def detect_blocks_final_v2(directory):
         has_blue   = cv2.countNonZero(mask_blue)   > 0
         has_red    = cv2.countNonZero(mask_red)    > 0
 
-        # DEBUG PRINT: which threshold strategy?
-        if has_blue or has_red:
-            colors = []
-            if has_blue: colors.append("blue")
-            if has_red:  colors.append("red")
-            print(f"{filename}: Detected {', '.join(colors)} → low=150 for colored, high=174 elsewhere")
-        else:
-            print(f"{filename}: No blue/red detected → using high=174 only")
-
         # choose morphological kernel size based on purple
         kernel_size = (3, 3) if has_purple else (2, 2)
         kernel = np.ones(kernel_size, np.uint8)
@@ -950,9 +642,9 @@ def detect_blocks_final_v2(directory):
                                        cv2.CHAIN_APPROX_SIMPLE)
 
         # optional contour visualization
-        contour_img = img.copy()
-        cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 5)
-        cv2.imwrite(f"4_contours_{filename}", contour_img)
+        # contour_img = img.copy()
+        # cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 5)
+        # cv2.imwrite(f"4_contours_{filename}", contour_img)
 
         if not contours:
             detected_shapes[filename] = []
@@ -1010,479 +702,6 @@ def detect_blocks_final_v2(directory):
 
     return detected_shapes
 
-
-
-
-
-
-
-
-
-
-
-
-# works for some classic
-
-# def detect_blocks_final_v2(directory):
-#     """
-#     For each .jpg in `directory`:
-#       1) remove gem-like highlights by inpainting,
-#       2) apply strong blur to erase seams,
-#       3) run your HSV/color-based dual threshold + morphology,
-#          with dynamic thresholds based on red/blue presence,
-#       4) find contours, cluster their centroids into the shape's grid,
-#       5) return a dict filename → 2D list of 0/1 occupancy, and save debug images.
-#     """
-#     detected_shapes = {}
-#     debug_dir = os.path.join(directory, "debug")
-#     os.makedirs(debug_dir, exist_ok=True)
-
-#     # HSV color ranges
-#     lower_purple = np.array([110, 100,  80], dtype=np.uint8)
-#     upper_purple = np.array([160, 255, 255], dtype=np.uint8)
-#     lower_blue   = np.array([ 90, 50, 50], dtype=np.uint8)
-#     upper_blue   = np.array([130,255,255], dtype=np.uint8)
-#     lower_red1   = np.array([  0, 70, 50], dtype=np.uint8)
-#     upper_red1   = np.array([ 10,255,255], dtype=np.uint8)
-#     lower_red2   = np.array([170, 70, 50], dtype=np.uint8)
-#     upper_red2   = np.array([180,255,255], dtype=np.uint8)
-
-#     for fname in sorted(os.listdir(directory)):
-#         if not fname.lower().endswith('.jpg'):
-#             continue
-#         path = os.path.join(directory, fname)
-#         img = cv2.imread(path)
-#         if img is None:
-#             detected_shapes[fname] = []
-#             continue
-
-#         base, _ = os.path.splitext(fname)
-
-#         # 1) Inpaint gems
-#         img_clean = remove_gems(img, debug_dir=debug_dir, fname=base)
-#         cv2.imwrite(os.path.join(debug_dir, f"{base}_nocontours.jpg"), img_clean)
-
-#         # 2) Strong blur
-#         img_blur = cv2.GaussianBlur(img_clean, (3, 3), 0)
-#         cv2.imwrite(os.path.join(debug_dir, f"{base}_blur.jpg"), img_blur)
-
-#         # 3) Build color masks on blurred image
-#         hsv         = cv2.cvtColor(img_blur, cv2.COLOR_BGR2HSV)
-#         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
-#         mask_blue   = cv2.inRange(hsv, lower_blue,   upper_blue)
-#         mask_r1     = cv2.inRange(hsv, lower_red1,   upper_red1)
-#         mask_r2     = cv2.inRange(hsv, lower_red2,   upper_red2)
-#         mask_red    = cv2.bitwise_or(mask_r1, mask_r2)
-#         color_mask  = cv2.bitwise_or(mask_blue, mask_red)
-#         inv_mask    = cv2.bitwise_not(color_mask)
-
-#         has_purple = cv2.countNonZero(mask_purple) > 0
-#         has_blue   = cv2.countNonZero(mask_blue)   > 0
-#         has_red    = cv2.countNonZero(mask_red)    > 0
-
-#         # DEBUG: threshold strategy
-#         if has_blue or has_red:
-#             cols = []
-#             if has_blue: cols.append('blue')
-#             if has_red:  cols.append('red')
-#             print(f"{fname}: Detected {', '.join(cols)} → low=150 on colored, high=174 elsewhere")
-#         else:
-#             print(f"{fname}: No blue/red → using high=174 only")
-
-#         # 4) Grayscale + dual threshold
-#         gray         = cv2.cvtColor(img_blur, cv2.COLOR_BGR2GRAY)
-#         _, thr_high  = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
-#         _, thr_low   = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-#         if has_blue or has_red:
-#             low_part  = cv2.bitwise_and(thr_low,  color_mask)
-#             high_part = cv2.bitwise_and(thr_high, inv_mask)
-#             thresh    = cv2.bitwise_or(low_part, high_part)
-#         else:
-#             thresh = thr_high
-#         cv2.imwrite(os.path.join(debug_dir, f"{base}_thresh.jpg"), thresh)
-
-#         # 5) Morphology based on purple presence
-#         ksize  = (5,5) if has_purple else (5,5)
-#         kernel = np.ones(ksize, np.uint8)
-#         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-#         eroded = cv2.erode(closed, kernel, iterations=1)
-#         # mask   = cv2.dilate(eroded, np.ones((3,3), np.uint8), iterations=1)
-
-#         # 6) Contours
-#         mask = cv2.dilate(eroded, np.ones((3,3),np.uint8), iterations=1)
-#         mask = cv2.erode(mask,  np.ones((3,3),np.uint8), iterations=1)
-
-#         contours, _   = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#         contour_vis   = img_blur.copy()
-#         cv2.drawContours(contour_vis, contours, -1, (0,255,0), 3)
-#         cv2.imwrite(os.path.join(debug_dir, f"{base}_contours.jpg"), contour_vis)
-
-#         if not contours:
-#             detected_shapes[fname] = []
-#             continue
-
-#         # 7) Centroids & grid clustering
-#         cents, ws, hs = [], [], []
-#         for c in contours:
-#             x,y,w,h = cv2.boundingRect(c)
-#             cents.append((x + w/2, y + h/2))
-#             ws.append(w); hs.append(h)
-#         cents = np.array(cents)
-#         xs, ys = cents[:,0], cents[:,1]
-#         median_size = np.median(np.concatenate((ws, hs)))
-#         thresh_val  = median_size / 2.0
-#         x_clust     = cluster_coords(xs, thresh_val)
-#         y_clust     = cluster_coords(ys, thresh_val)
-
-#         # 8) Build occupancy matrix
-#         n_cols = len(x_clust); n_rows = len(y_clust)
-#         grid   = [[0]*n_cols for _ in range(n_rows)]
-#         for cx, cy in cents:
-#             col = np.argmin(np.abs(np.array(x_clust) - cx))
-#             row = np.argmin(np.abs(np.array(y_clust) - cy))
-#             grid[row][col] = 1
-
-#         detected_shapes[fname] = grid
-
-#     return detected_shapes
-
-
-
-
-
-
-
-# works for basic
-
-# def detect_blocks_final_v2(directory):
-#     detected_shapes = {}
-#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
-
-#     # HSV ranges for purple
-#     lower_purple = np.array([125, 140, 190], dtype=np.uint8)
-#     upper_purple = np.array([140, 200, 220], dtype=np.uint8)
-#     # HSV ranges for light‑blue
-#     lower_blue = np.array([ 90,  50,  50], dtype=np.uint8)
-#     upper_blue = np.array([130, 255, 255], dtype=np.uint8)
-#     # HSV ranges for red (split around 0° hue)
-#     lower_red1 = np.array([  0,  70,  50], dtype=np.uint8)
-#     upper_red1 = np.array([ 10, 255, 255], dtype=np.uint8)
-#     lower_red2 = np.array([170,  70,  50], dtype=np.uint8)
-#     upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
-
-#     for filename in filenames:
-#         img_path = os.path.join(directory, filename)
-#         img = cv2.imread(img_path)
-#         if img is None:
-#             print(f"Failed to load {filename}. Skipping.")
-#             continue
-
-#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-#         # build color masks
-#         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
-#         mask_blue   = cv2.inRange(hsv, lower_blue,   upper_blue)
-#         mask_r1     = cv2.inRange(hsv, lower_red1,   upper_red1)
-#         mask_r2     = cv2.inRange(hsv, lower_red2,   upper_red2)
-#         mask_red    = cv2.bitwise_or(mask_r1, mask_r2)
-
-#         has_purple = cv2.countNonZero(mask_purple) > 0
-#         has_blue   = cv2.countNonZero(mask_blue)   > 0
-#         has_red    = cv2.countNonZero(mask_red)    > 0
-
-#         # DEBUG PRINT: which threshold strategy?
-#         if has_blue or has_red:
-#             colors = []
-#             if has_blue: colors.append("blue")
-#             if has_red:  colors.append("red")
-#             print(f"{filename}: Detected {', '.join(colors)} → low=150 for colored, high=174 elsewhere")
-#         else:
-#             print(f"{filename}: No blue/red detected → using high=174 only")
-
-#         # choose morphological kernel size based on purple
-#         kernel_size = (3, 3) if has_purple else (2, 2)
-#         kernel = np.ones(kernel_size, np.uint8)
-
-#         # grayscale + two thresholds
-#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#         _, thresh_high = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
-#         _, thresh_low  = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-
-#         # combine low/high based on color mask
-#         color_mask = cv2.bitwise_or(mask_blue, mask_red)
-#         inv_mask   = cv2.bitwise_not(color_mask)
-#         low_part   = cv2.bitwise_and(thresh_low,  color_mask)
-#         high_part  = cv2.bitwise_and(thresh_high, inv_mask)
-#         thresh     = cv2.bitwise_or(low_part, high_part)
-
-#         # morphology & contours
-#         closed       = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-#         eroded       = cv2.erode(closed, kernel, iterations=1)
-#         dilate_kernel= np.ones((3, 3), np.uint8)
-#         thick_mask   = cv2.dilate(eroded, dilate_kernel, iterations=1)
-#         contours, _  = cv2.findContours(thick_mask,
-#                                         cv2.RETR_EXTERNAL,
-#                                         cv2.CHAIN_APPROX_SIMPLE)
-
-#         # optional contour visualization
-#         contour_img = img.copy()
-#         cv2.drawContours(contour_img, contours, -1, (0, 255, 0), 5)
-#         cv2.imwrite(f"4_contours_{filename}", contour_img)
-
-#         if not contours:
-#             detected_shapes[filename] = []
-#             continue
-
-#         # compute centroids & grid
-#         centroids = []
-#         widths = []
-#         heights = []
-#         for c in contours:
-#             x, y, w, h = cv2.boundingRect(c)
-#             centroids.append((x + w/2, y + h/2))
-#             widths.append(w)
-#             heights.append(h)
-#         centroids = np.array(centroids)
-
-#         xs = centroids[:, 0]
-#         ys = centroids[:, 1]
-#         median_size = np.median(np.concatenate((widths, heights)))
-#         thresh_val  = median_size / 2.0
-#         x_clusters  = cluster_coords(xs, thresh_val)
-#         y_clusters  = cluster_coords(ys, thresh_val)
-
-#         num_cols = len(x_clusters)
-#         num_rows = len(y_clusters)
-#         grid = np.zeros((num_rows, num_cols), dtype=int)
-#         for cx, cy in centroids:
-#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
-#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
-#             grid[row, col] = 1
-
-#         detected_shapes[filename] = grid.tolist()
-
-#     return detected_shapes
-
-
-
-
-
-# works for some
-
-# def detect_blocks_final_v2(directory):
-#     detected_shapes = {}
-#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
-
-#     # HSV ranges for purple
-#     lower_purple = np.array([125, 140, 190], dtype=np.uint8)
-#     upper_purple = np.array([140, 200, 220], dtype=np.uint8)
-#     # HSV ranges for light-blue
-#     lower_blue = np.array([90,  50,  50], dtype=np.uint8)   # tweak H,S,V to match your light-blue
-#     upper_blue = np.array([130, 255, 255], dtype=np.uint8)
-
-#     for filename in filenames:
-#         img_path = os.path.join(directory, filename)
-#         img = cv2.imread(img_path)
-#         if img is None:
-#             print(f"Failed to load {filename}. Skipping.")
-#             continue
-
-#         # Convert to HSV for color detection
-#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-#         # Purple detection
-#         mask_purple = cv2.inRange(hsv, lower_purple, upper_purple)
-#         has_purple = cv2.countNonZero(mask_purple) > 0
-
-#         # Light-blue detection
-#         mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
-#         has_blue = cv2.countNonZero(mask_blue) > 0
-
-#         # Choose morphological kernel based on purple presence
-#         kernel_size = (3, 3) if has_purple else (2, 2)
-#         kernel = np.ones(kernel_size, np.uint8)
-
-#         # Grayscale conversion
-#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#         # Two thresholds: high for general blocks, low for light-blue
-#         _, thresh_high = cv2.threshold(gray, 174, 255, cv2.THRESH_BINARY)
-#         _, thresh_low  = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-
-#         if has_blue:
-#             # combine masks: use low threshold on light-blue, high threshold elsewhere
-#             inv_blue = cv2.bitwise_not(mask_blue)
-#             blue_part    = cv2.bitwise_and(thresh_low,  mask_blue)
-#             nonblue_part = cv2.bitwise_and(thresh_high, inv_blue)
-#             thresh = cv2.bitwise_or(blue_part, nonblue_part)
-#         else:
-#             # no light-blue -> use standard high threshold
-#             thresh = thresh_high
-
-#         # Morphological operations
-#         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-#         eroded = cv2.erode(closed, kernel, iterations=1)
-
-#         # Find contours
-#         # contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#         # --- add this ---
-#         # make the white regions a bit thicker so contours bridge small gaps
-#         dilate_kernel = np.ones((5,5), np.uint8)       # or (5,5) to go bigger
-#         thick_mask    = cv2.dilate(eroded, dilate_kernel, iterations=1)
-
-#         # then find contours on `thick_mask`
-#         contours, _ = cv2.findContours(thick_mask,
-#                                         cv2.RETR_EXTERNAL,
-#                                         cv2.CHAIN_APPROX_SIMPLE)
-#         contour_img = img.copy()
-#         cv2.drawContours(contour_img, contours, -1, (0,255,0), 5)
-#         cv2.imwrite(f"4_contours_{filename}", contour_img)
-#         if not contours:
-#             detected_shapes[filename] = []
-#             continue
-
-#         # Compute centroids and bounding sizes
-#         centroids = []
-#         widths = []
-#         heights = []
-#         for c in contours:
-#             x, y, w, h = cv2.boundingRect(c)
-#             centroids.append((x + w/2, y + h/2))
-#             widths.append(w)
-#             heights.append(h)
-#         centroids = np.array(centroids)
-
-#         # Cluster centroids into grid
-#         xs = centroids[:, 0]
-#         ys = centroids[:, 1]
-#         median_size = np.median(np.concatenate((widths, heights)))
-#         thresh_val = median_size / 2.0
-#         x_clusters = cluster_coords(xs, thresh_val)
-#         y_clusters = cluster_coords(ys, thresh_val)
-
-#         # Build grid
-#         num_cols = len(x_clusters)
-#         num_rows = len(y_clusters)
-#         grid = np.zeros((num_rows, num_cols), dtype=int)
-#         for cx, cy in centroids:
-#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
-#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
-#             grid[row, col] = 1
-
-#         detected_shapes[filename] = grid.tolist()
-
-#     return detected_shapes
-
-
-
-
-
-
-# working
-
-
-# def detect_blocks_final_v2(directory):
-#     detected_shapes = {}
-#     # debug_dir = os.path.join(directory, "debug")
-#     # os.makedirs(debug_dir, exist_ok=True)
-
-#     filenames = sorted([f for f in os.listdir(directory) if f.endswith(".jpg")])
-#     for filename in filenames:
-#         img_path = os.path.join(directory, filename)
-#         img = cv2.imread(img_path)
-#         if img is None:
-#             print(f"Failed to load {filename}. Skipping.")
-#             continue
-
-#         # Check for purple color using HSV color space
-#         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-#         # Convert your original values to OpenCV's HSV ranges:
-#         h = 263.8 / 2  # → ~131.9
-#         s = 58 * 2.55  # → ~148
-#         v = 82 * 2.55  # → ~209
-
-#         # With tolerance ranges:
-#         lower_purple = np.array([h-5, s-20, v-30])  # [127, 128, 179]
-#         upper_purple = np.array([h+5, s+20, v+30])  # [137, 168, 239]
-
-#         # Round to integers:
-#         lower_purple = np.array([125, 140, 190], dtype=np.uint8)
-#         upper_purple = np.array([140, 200, 220], dtype=np.uint8)
-#         mask = cv2.inRange(hsv, lower_purple, upper_purple)
-#         has_purple = cv2.countNonZero(mask) > 0
-
-#                 # After creating the mask:
-#         # purple_debug = cv2.bitwise_and(img, img, mask=mask)
-#         # cv2.imwrite(os.path.join(debug_dir, f"purple_{filename}"), purple_debug)
-
-#         # Set kernel size based on purple presence
-#         kernel_size = (3, 3) if has_purple else (2, 2)
-#         kernel = np.ones(kernel_size, np.uint8)
-
-#         # Preprocess image: grayscale and threshold
-#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#         cv2.imwrite(f"gray_{filename}", gray)
-#         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-#         # _, thresh = cv2.threshold(gray, 0, 255,
-#         #                   cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-      
-
-
-
-
-#         # Apply morphological operations
-#         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-#         eroded = cv2.erode(closed, kernel, iterations=1)
-
-#         # Find contours of the blocks
-#         contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#         contour_img = img.copy()
-#         cv2.drawContours(contour_img, contours, -1, (0,255,0), 2)
-#         cv2.imwrite(f"4_contours_{filename}", contour_img)
-#         if not contours:
-#             detected_shapes[filename] = []
-#             continue
-
-#         # Compute centroids for each detected contour
-#         centroids = []
-#         widths = []
-#         heights = []
-#         for c in contours:
-#             x, y, w, h = cv2.boundingRect(c)
-#             centroids.append((x + w/2, y + h/2))
-#             widths.append(w)
-#             heights.append(h)
-#         centroids = np.array(centroids)
-
-#         # Use centroids' coordinates for clustering
-#         xs = centroids[:, 0]
-#         ys = centroids[:, 1]
-        
-#         # Dynamic threshold based on median block size
-#         median_size = np.median(np.concatenate((widths, heights)))
-#         thresh_val = median_size / 2.0
-
-#         # Cluster coordinates
-#         x_clusters = cluster_coords(xs, thresh_val)
-#         y_clusters = cluster_coords(ys, thresh_val)
-        
-#         # Initialize grid
-#         num_cols = len(x_clusters)
-#         num_rows = len(y_clusters)
-#         grid = np.zeros((num_rows, num_cols), dtype=int)
-        
-#         # Populate grid
-#         for cx, cy in centroids:
-#             col = np.argmin(np.abs(np.array(x_clusters) - cx))
-#             row = np.argmin(np.abs(np.array(y_clusters) - cy))
-#             grid[row, col] = 1
-
-
-#         detected_shapes[filename] = grid.tolist()
-
-#     return detected_shapes
-
-
-
-
 def clear_completed_lines(board):
     """
     Repeatedly clears any fully filled row or column (i.e., those with no zeros)
@@ -1526,10 +745,6 @@ def clear_completed_lines(board):
 
     return board
 
-
-
-
-
 def count_completed_lines(board):
     """
     Returns the total number of complete rows plus complete columns in board.
@@ -1561,9 +776,6 @@ def shape_key_to_block_value(shape_key: str) -> int:
 
 
     return hash(shape_key) % 4 + 2 
-
-
-
 
 def get_all_valid_placements(board, shape, block_value):
     """
@@ -1601,8 +813,6 @@ def get_all_valid_placements(board, shape, block_value):
 
     return valid_placements
 
-
-
 def find_shape_placement_stepwise(original_board, shapes_dict):
     """
     Backtracking approach that tries all orders and placements of the given shapes
@@ -1619,9 +829,6 @@ def find_shape_placement_stepwise(original_board, shapes_dict):
         "max_lines": -1,
         "boards_sequence": []  # will hold a list of board states, one per step
     }
-
-
-
 
     def backtrack(current_board, remaining_shapes, current_sequence, lines_so_far):
         """
@@ -1663,11 +870,6 @@ def find_shape_placement_stepwise(original_board, shapes_dict):
     # If no placements were found, return an empty list rather than None.
     return best_result["boards_sequence"] if best_result["boards_sequence"] is not None else []
 
-
-# ---------------------------
-
-
-
 def detect_shape_block_color(image_path: str) -> str:
     """
     Detects the representative color of a shape image by averaging
@@ -1689,7 +891,6 @@ def detect_shape_block_color(image_path: str) -> str:
     hex_color = "#{:02x}{:02x}{:02x}".format(r, g, b)
     return hex_color
 
-
 def get_shapes_colors(directory: str = SHAPES_BASE_DIR) -> dict:
     """
     Iterates through all JPG shape images in the given directory,
@@ -1704,9 +905,6 @@ def get_shapes_colors(directory: str = SHAPES_BASE_DIR) -> dict:
         color = detect_shape_block_color(image_path)
         shape_colors[f"shape {i}"] = color
     return shape_colors
-
-
-
 
 
 
@@ -1731,8 +929,6 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
             "Access-Control-Allow-Credentials": "true"
         }
     )
-
-
 
 
 def process_and_resize_image(contents: bytes) -> bytes:
@@ -1790,13 +986,6 @@ async def upload_file(
     api_key: str = Depends(verify_api_key)
 ):
 
-
-    # Add validation
-    # allowed_types = ["image/jpeg", "image/png", "image/jpg"]
-    # if file.content_type not in allowed_types:
-    #     raise HTTPException(400, "Only JPG/PNG/JPEG images allowed")
-
-
     safe_name, contents = validated_data
     request_id = str(uuid.uuid4())
     dirs = get_user_dirs(request_id)
@@ -1805,20 +994,7 @@ async def upload_file(
         # Create all user directories
         for d in dirs.values():
             os.makedirs(d, exist_ok=True)
-
-
-        # contents = await file.read()
-
-
-
-
-
-        # Decode just for dimension check
-        # image = cv2.imdecode(np.frombuffer(contents, np.uint8), cv2.IMREAD_COLOR)
-        # if image is None:
-        #     raise ValueError("Invalid image file")
-
-
+      
         processed = contents
         
         # # Save resized image
@@ -1826,25 +1002,19 @@ async def upload_file(
         async with aiofiles.open(file_path, "wb") as buffer:
             await buffer.write(processed)
         
-
-
         # Process board
         cropped_board_path, board_coords = await run_in_threadpool(
             crop_board, 
             file_path,
-            dirs["cropped"],  
-           
-
+            dirs["cropped"]      
         )
 
         if not board_coords:
             raise ValueError("Failed to detect game board")
 
-
         cropped = cv2.imread(cropped_board_path)
         cropped_std = cv2.resize(cropped, (800, 800), interpolation=cv2.INTER_AREA)
         cv2.imwrite(cropped_board_path, cropped_std)    
-
 
         # Get board matrix
         board_matrix = await run_in_threadpool(
@@ -1868,16 +1038,11 @@ async def upload_file(
             dirs["shapes"]
         )
 
-        # Process detected shapes (FIXED SECTION)
-        # First process all shapes in the directory
         all_shapes_data = await run_in_threadpool(
             detect_blocks_final_v2,
             dirs["shapes"]
-  
         )
         
-
-
         # Then create processed_shapes with ordered numbering
         processed_shapes = {
             f"shape_{i}": all_shapes_data[filename]
@@ -1898,9 +1063,9 @@ async def upload_file(
         )
 
         # Cleanup
-        # background_tasks.add_task(cleanup_directory, dirs["upload"])
-        # background_tasks.add_task(cleanup_directory, dirs["cropped"])
-        # background_tasks.add_task(cleanup_directory, dirs["shapes"])
+        background_tasks.add_task(cleanup_directory, dirs["upload"])
+        background_tasks.add_task(cleanup_directory, dirs["cropped"])
+        background_tasks.add_task(cleanup_directory, dirs["shapes"])
         
 
         # for name, arr in processed_cropped_shapes.items():
@@ -1909,19 +1074,20 @@ async def upload_file(
         #         print(row)
         #     print()
 
-        for row in board_matrix:
-            print(' '.join(map(str, row)))
+        # shapes and board print
+        # for row in board_matrix:
+        #     print(' '.join(map(str, row)))
 
-        for idx, board in enumerate(stepwise_boards):
-            print(f"Step {idx+1}:")
-            for row in board:
-                print(row)
-            print("--------------------")
+        # for idx, board in enumerate(stepwise_boards):
+        #     print(f"Step {idx+1}:")
+        #     for row in board:
+        #         print(row)
+        #     print("--------------------")
 
-        for shape_name, matrix in processed_shapes.items():
-            print(f"\n{shape_name}:")
-            for row in matrix:
-                print(' '.join(str(val) for val in row))
+        # for shape_name, matrix in processed_shapes.items():
+        #     print(f"\n{shape_name}:")
+        #     for row in matrix:
+        #         print(' '.join(str(val) for val in row))
 
 
         return {
@@ -1931,8 +1097,8 @@ async def upload_file(
 
     except Exception as e:
         # Cleanup on error
-        # for d in dirs.values():
-        #     cleanup_directory(d)
+        for d in dirs.values():
+            cleanup_directory(d)
         traceback.print_exc()
         return JSONResponse(
         content={"error": f"Processing failed: {str(e)}"},
@@ -1944,10 +1110,6 @@ async def upload_file(
         }
         )
 
-
-
-
-
 def trim_shape(shape_array):
     """Trim all-zero rows and columns from a 2D array"""
     arr = np.array(shape_array)
@@ -1958,7 +1120,6 @@ def trim_shape(shape_array):
     arr = arr[:, ~np.all(arr == 0, axis=0)]
     
     return arr.tolist()
-
 
 
 @app.post("/fm")
@@ -2001,19 +1162,13 @@ async def get_stepwise_boards(
             status_code=500
         )
 
-
-
-
-
-
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
-        workers=1,
+        workers=4,
         loop="asyncio",
         timeout_keep_alive=300
     )

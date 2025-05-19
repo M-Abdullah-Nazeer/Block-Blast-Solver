@@ -1,92 +1,110 @@
+import Link from 'next/link'
 import { FC } from 'react'
 // import Link from 'next/link'
+
+
+
+// app/privacy-policy/page.tsx
+export const metadata = {
+  title: 'Privacy Policy - Block Blast Solver',
+  description: 'We collect zero user data. All image processing happens in your browser with immediate deletion. No tracking, no cookies, no data storage.',
+  openGraph: {
+    title: 'Privacy Policy - Block Blast Solver',
+    description: '100% private Block Blast puzzle solver - Your gameplay screenshots never leave your device and are deleted instantly',
+    url: 'https://blockblastsolverai.com/privacy-policy',
+    siteName: 'Block Blast Solver',
+    locale: 'en_US',
+    type: 'website',
+  },
+  keywords: [
+    'Block Blast privacy',
+    'no data collection',
+    'client-side processing',
+    'game solver security',
+    'browser-only processing'
+  ],
+}
+
+
+
+
+
+
 
 const page: FC = () => {
   return (
     <div className="text-slate-300">
-      {/* <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold mb-4 text-slate-100">
-          ImageToAlt Privacy Policy
-        </h1>
-        <p className="mb-4">
-          ImageToAlt is a free online service that provides a simple way to
-          generate an alt tag (a description of what is visible on an image,
-          determined by a machine learning algorithm) from an image. In order to
-          provide this service, we need to collect and store images on our
-          servers.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Information We Collect</h2>
-        <p className="mb-4">
-          When you use the App, we automatically collect certain information
-          about your device, including information about your web browser, IP
-          address, time zone, and some of the cookies that are installed on your
-          device. We refer to this automatically-collected information as
-          &quot;Device Information&quot;.
-        </p>
-        <p className="mb-4">
-          We collect Device Information using the following technologies:
-        </p>
-        <ul className="list-disc ml-8 mb-4">
-          <li>
-            Cookies: Cookies are data files that are placed on your device or
-            computer and often include an anonymous unique identifier.
-          </li>
-          <li>
-            Log files: Log files track actions occurring on the App, and collect
-            data including your IP address, browser type, Internet service
-            provider, referring/exit pages, and date/time stamps.
-          </li>
-        </ul>
-        <p className="mb-4">
-          When you upload an image to the App, we collect the image itself. We
-          use the image to generate an alt tag and store the alt tag. The image
-          is then automatically deleted after 24 hours.
-        </p>
-        <h2 className="text-xl font-bold mb-2">How We Use Your Information</h2>
-        <p className="mb-4">
-          We use the images you upload to our servers solely for the purpose of
-          generating an alt tag and serving it back to you. We do not use your
-          images for any other purpose. To provide this service, we use a
-          machine learning algorithm provided by Replicate, Inc. You can read
-          more about how Replicate, Inc. uses your data{' '}
-          <Link
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+
+      <h1 className="text-2xl font-bold mb-4 text-slate-100">Privacy Policy</h1>
+<p className="mb-4">Last updated: May 17, 2025</p>
+
+<h2 className="text-xl font-bold mb-2">Introduction</h2>
+<p className="mb-4">Block Blast Solver ("we", "our", or "us") operates the web-based tool available at https://blockblastsolverai.com (the "Service"). This Privacy Policy explains our strict no-data-collection practices and your rights regarding our service.</p>
+
+<h2 className="text-xl font-bold mb-2">No Data Collection</h2>
+<p className="mb-4">We explicitly state that:</p>
+<ul className="list-disc ml-8 mb-4">
+<li>We do <strong>not</strong> collect, store, or process any personal information</li>
+<li>We do <strong>not</strong> use tracking cookies, analytics tools, or third-party scripts</li>
+<li>We do <strong>not</strong> require user accounts or registration</li>
+</ul>
+
+<h3 className="text-lg font-bold mb-2">Image Processing</h3>
+<p className="mb-4">When you upload gameplay screenshots:</p>
+<ul className="list-disc ml-8 mb-4">
+<li>All processing occurs <strong>directly in your browser</strong></li>
+<li>Images are <strong>permanently deleted</strong> immediately after analysis</li>
+<li>No images or analysis data ever reach our servers</li>
+</ul>
+
+<h2 className="text-xl font-bold mb-2">Technical Information</h2>
+<p className="mb-4">Our server may temporarily log basic connection data for security purposes:</p>
+<ul className="list-disc ml-8 mb-4">
+<li>IP address (anonymized after 24 hours)</li>
+<li>Timestamp of access</li>
+<li>Browser type/version</li>
+</ul>
+<p className="mb-4">This data cannot identify individual users and is never combined with other information.</p>
+
+<h2 className="text-xl font-bold mb-2">Third-Party Services</h2>
+<p className="mb-4">We use <strong>zero</strong> third-party services that collect user data. Our service is completely self-contained with no external trackers or integrations.</p>
+
+<h2 className="text-xl font-bold mb-2">Your Rights</h2>
+<p className="mb-4">Since we collect no personal data:</p>
+<ul className="list-disc ml-8 mb-4">
+<li>There is no data to access, rectify, or delete</li>
+<li>No opt-out mechanisms are required</li>
+<li>No data retention policies apply</li>
+</ul>
+
+<h2 className="text-xl font-bold mb-2">Children's Privacy</h2>
+<p className="mb-4">Our service contains no age restrictions because we collect no personal data. However, we recommend parental supervision for minors using any online services.</p>
+
+<h2 className="text-xl font-bold mb-2">Policy Changes</h2>
+<p className="mb-4">We will notify users of any substantial policy changes through:</p>
+<ul className="list-disc ml-8 mb-4">
+<li>A prominent notice on our website</li>
+<li>The updated "Last updated" date at the top of this policy</li>
+</ul>
+
+<h2 className="text-xl font-bold mb-2">Contact Information</h2>
+<p className="mb-4">For privacy-related inquiries:</p>
+<ul className="list-disc ml-8 mb-4">
+<li>Email: admin@blockblastsolverai.com</li>
+<li>Contact Page: <Link
             className="underline text-blue-400"
-            href="https://replicate.com/terms"
+            href="https://blockblastsolverai.com/contact"
           >
-            here
+            https://blockblastsolverai.com/contact
           </Link>
-          . We require all third-party providers to have adequate technical and
-          organizational measures in place to ensure the security of user data.
-          We do not share user data with any other third parties.
-        </p>
-        <h2 className="text-xl font-bold mb-2">
-          How We Protect Your Information
-        </h2>
-        <p className="mb-4">
-          We take the security of your information very seriously. All images
-          uploaded to our servers are stored in a secure location in Germany. We
-          do not share your images with any third parties. We also automatically
-          delete all images from our servers after 24 hours.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Use of Cookies</h2>
-        <p className="mb-4">
-          We do not use any cookies to track user behavior. We only use session
-          cookies to manage your session on our website.
-        </p>
-        <h2 className="text-xl font-bold mb-2">
-          Changes to Our Privacy Policy
-        </h2>
-        <p className="mb-4">
-          We reserve the right to make changes to this Privacy Policy at any
-          time. Any changes will be posted on this page, so please check back
-          periodically for updates.
-        </p>
-        <h2 className="text-xl font-bold mb-2">Contact Us</h2>
-        <p className="mb-4">
-          If you have any questions about this Privacy Policy, please contact us
-          at admin@wordful.ai.
-        </p>
-      </div> */}
+</li>
+</ul>
+<p className="mb-4">We respond to all requests within 72 hours.</p>
+
+
+      </div>
     </div>
   )
 }
