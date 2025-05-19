@@ -38,11 +38,11 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
     const { setActiveTab } = useTab();
 
 
-    // const API_URL = "http://localhost:8000";
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const API_URL = "http://localhost:8000";
+    // const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
-    
+
 
 
     // handle drag events
@@ -118,10 +118,10 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
         }
 
         const response = await axios.post(`${API_URL}/upload`, formData, {
-          headers: { 
+          headers: {
             'Content-Type': 'multipart/form-data',
             'X-API-Key': API_KEY
-          
+
           },
         })
         // console.log('Response2:', response.data.final_output);
