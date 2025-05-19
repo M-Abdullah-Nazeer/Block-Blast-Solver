@@ -24,6 +24,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             <Button href="disclaimer" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Disclaimer
             </Button>
+            <Button href="contact" className={buttonVariants({ variant: 'link', size: 'sm' })}>
+              Contact
+            </Button>
           </div>
           <p className='text-xs leading-7 text-gray-300'>© 2025 Block Blast Solver. All rights reserved.</p>
         </footer>

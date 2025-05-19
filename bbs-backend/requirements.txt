@@ -1,30 +1,16 @@
-# Web framework
-fastapi
-uvicorn[standard]
-
-# Asynchronous file handling
-aiofiles
-
-# Redis client
-redis
-
-# CORS support
-python-multipart
-starlette
-
-# Data validation
-pydantic
-
-# Math and stats
-numpy
-scipy
-opencv-python-headless
-
-# Environment variable loader
-python-dotenv
-
-# Rate limiting (requires Redis)
-slowapi
-
-# Monitoring with Prometheus
-prometheus-fastapi-instrumentator
+fastapi==0.115.8
+uvicorn==0.34.0
+aiofiles==24.1.0
+opencv-python-headless==4.11.0.86
+numpy==2.2.3
+scipy==1.15.2
+pydantic==2.10.6
+slowapi==0.1.9
+prometheus-fastapi-instrumentator==7.1.0
+python-magic==0.4.27
+pathvalidate==3.2.3
+limits==5.0.0
+scikit-learn==1.6.1
+redis==5.2.1
+python-dotenv==1.0.1
+python-multipart==0.0.20
