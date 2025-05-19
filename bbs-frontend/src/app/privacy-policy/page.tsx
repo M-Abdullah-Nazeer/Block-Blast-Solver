@@ -41,7 +41,7 @@ const page: FC = () => {
 <p className="mb-4">Last updated: May 17, 2025</p>
 
 <h2 className="text-xl font-bold mb-2">Introduction</h2>
-<p className="mb-4">Block Blast Solver ("we", "our", or "us") operates the web-based tool available at https://blockblastsolverai.com (the "Service"). This Privacy Policy explains our strict no-data-collection practices and your rights regarding our service.</p>
+<p className="mb-4">Block Blast Solver (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the web-based tool available at https://blockblastsolverai.com (the &quot;Service&quot;). This Privacy Policy explains our strict no-data-collection practices and your rights regarding our service.</p>
 
 <h2 className="text-xl font-bold mb-2">No Data Collection</h2>
 <p className="mb-4">We explicitly state that:</p>
@@ -79,14 +79,14 @@ const page: FC = () => {
 <li>No data retention policies apply</li>
 </ul>
 
-<h2 className="text-xl font-bold mb-2">Children's Privacy</h2>
+<h2 className="text-xl font-bold mb-2">Children&apos;s Privacy</h2>
 <p className="mb-4">Our service contains no age restrictions because we collect no personal data. However, we recommend parental supervision for minors using any online services.</p>
 
 <h2 className="text-xl font-bold mb-2">Policy Changes</h2>
 <p className="mb-4">We will notify users of any substantial policy changes through:</p>
 <ul className="list-disc ml-8 mb-4">
 <li>A prominent notice on our website</li>
-<li>The updated "Last updated" date at the top of this policy</li>
+<li>The updated &quot;Last updated&quot; date at the top of this policy</li>
 </ul>
 
 <h2 className="text-xl font-bold mb-2">Contact Information</h2>

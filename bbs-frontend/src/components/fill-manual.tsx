@@ -36,8 +36,9 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
   const [isLoading, setIsLoading] = useState(false);
 
   // const API_URL = "http://localhost:8000";
-  const API_URL = "http://192.168.0.108:8000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+
 
 
   const handleClick = (rowIdx: number, colIdx: number): void => {
@@ -103,7 +104,8 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
       setIsDisabled(true);
       setIsLoading(true);
       if (!API_KEY) {
-        console.error("API key is missing!");
+        // console.error("API key is missing!");
+        throw new Error("API key is missing!");
         return;
       }
 
@@ -128,7 +130,8 @@ const FillManual: React.FC<FillManualProps> = ({ handleUploadSuccess, setFmSolve
 
     } catch (error) {
       // alert(`Backend URL: ${API_URL}`); 
-      console.error("Error solving puzzle:", error);
+      // console.error("Error solving puzzle:", error);
+      throw new Error("Error solving puzzle:");
       // Handle error state
     } finally {
       setIsLoading(false);

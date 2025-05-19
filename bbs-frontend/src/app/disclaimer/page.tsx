@@ -50,7 +50,7 @@ const page: FC = () => {
 
   <h2 className="text-xl font-bold mb-2">Service Overview</h2>
   <p className="mb-4">
-    Block Blast Solver AI ("we", "our", or "us") operates the web-based tool available at<a href="https://blockblastsolverai.com" className="text-blue-400 hover:underline"> https://blockblastsolverai.com</a> (the "Service"). This AI-powered tool analyzes gameplay screenshots to suggest optimal moves.
+    Block Blast Solver AI (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the web-based tool available at<a href="https://blockblastsolverai.com" className="text-blue-400 hover:underline"> https://blockblastsolverai.com</a> (the &quot;Service&quot;). This AI-powered tool analyzes gameplay screenshots to suggest optimal moves.
   </p>
 
   <h2 className="text-xl font-bold mb-2">Key Disclosures</h2>
@@ -83,10 +83,10 @@ const page: FC = () => {
 
   <h2 className="text-xl font-bold mb-2">Technical Disclaimer</h2>
   <p className="mb-4">
-    The Service is provided "as is" without warranties of any kind. While we strive for 24/7 availability:
+    The Service is provided &quot;as is&quot; without warranties of any kind. While we strive for 24/7 availability:
   </p>
   <ul className="list-disc ml-8 mb-4">
-    <li>We don't guarantee error-free operation</li>
+    <li>We don&apos;t guarantee error-free operation</li>
     <li>Service may be interrupted for maintenance</li>
     <li>Browser compatibility not guaranteed for all devices</li>
   </ul>
