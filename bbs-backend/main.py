@@ -130,7 +130,7 @@ app.add_middleware(
         # "http://localhost:3000",
         # "http://frontend:3000"
         # "http://192.168.200.123:3000"
-        "*"
+        "https://blockblastsolverai.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
