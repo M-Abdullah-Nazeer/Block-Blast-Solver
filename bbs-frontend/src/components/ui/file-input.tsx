@@ -38,12 +38,10 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
     const { setActiveTab } = useTab();
 
 
-    // const API_URL = "http://localhost:8000";
-    // const API_URL = "http://backend:8000";
-    const API_URL = "/api/";
-    // const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    // const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
-    const API_KEY = "d5Kf9ul2jH7sRmPqlahVYBzXeABDM13LKg2aTd4uFJ8NcOWqElU59x785AYBt";
+
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+
 
 
 
@@ -119,8 +117,8 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
           throw new Error("API key is missing!");
           return;
         }
-        console.log(`API_URL: ${API_URL}upload`);
-        console.log(`API_KEY: ${API_KEY}`);
+        // console.log(`API_URL: ${API_URL}upload`);
+        // console.log(`API_KEY: ${API_KEY}`);
 
         const response = await axios.post(`${API_URL}upload`, formData, {
           headers: {
@@ -130,8 +128,8 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
           },
         })
         // console.log('Response2:', response.data.final_output);
-        console.log(`API_URL: ${API_URL}upload`);
-        console.log(`API_KEY: ${API_KEY}`);
+        // console.log(`API_URL: ${API_URL}upload`);
+        // console.log(`API_KEY: ${API_KEY}`);
         toast({
           title: 'Upload successful',
           description: 'Your image has been uploaded.',

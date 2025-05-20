@@ -58,7 +58,7 @@ services:
   backend:
     build: ./bbs-backend
     environment:
-      - API_KEY=d5Kf9ul2jH7sRmPqlahVYBzXeABDM13LKg2aTd4uFJ8NcOWqElU59x785AYBt
+      - API_KEY=${API_KEY}
     networks:
       - bbs-network
 
