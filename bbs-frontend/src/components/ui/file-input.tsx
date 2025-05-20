@@ -122,7 +122,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
 
         const response = await axios.post(`${API_URL}upload`, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            // 'Content-Type': 'multipart/form-data',
             'X-API-Key': API_KEY
 
           },
