@@ -52,11 +52,15 @@ services:
 
   frontend:
     build: ./bbs-frontend
+    environment:
+      - NEXT_PUBLIC_API_KEY=d5Kf9ul2jH7sRmPqlahVYBzXeABDM13LKg2aTd4uFJ8NcOWqElU59x785AYBt
     networks:
       - bbs-network
 
   backend:
     build: ./bbs-backend
+    environment:
+      - API_KEY=d5Kf9ul2jH7sRmPqlahVYBzXeABDM13LKg2aTd4uFJ8NcOWqElU59x785AYBt
     networks:
       - bbs-network
 

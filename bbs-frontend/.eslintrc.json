@@ -17,7 +17,7 @@
     "tailwindcss/no-custom-classname": "off",
     "react-hooks/exhaustive-deps": "off",
     "@next/next/no-img-element": "off",
-    "no-console": "error"
+    "no-console": "off"
   },
   "settings": {
     "next": {
