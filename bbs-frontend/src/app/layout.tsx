@@ -29,6 +29,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <head>
 
+
+      <link rel="canonical" href="https://blockblastsolverai.com" />
+
         <link rel="preconnect" href="https://www.googletagmanager.com" />
 
 
@@ -36,7 +39,22 @@ export default function RootLayout({ children }: RootLayoutProps) {
         {/* GA */}
 
 
-
+        <Script
+        strategy="afterInteractive"
+        src="https://www.googletagmanager.com/gtag/js?id=G-Q65E3ED3L4"
+      />
+      <Script
+        id="google-analytics-config"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-Q65E3ED3L4');
+            `,
+        }}
+      />
 
 
 
@@ -173,22 +191,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
 
 
-      <Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=G-Q65E3ED3L4"
-      />
-      <Script
-        id="google-analytics-config"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-Q65E3ED3L4');
-            `,
-        }}
-      />
+
 
       <body className="min-h-screen bg-white font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50">
         <ClientLayout>{children}</ClientLayout>
