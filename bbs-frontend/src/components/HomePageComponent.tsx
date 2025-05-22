@@ -230,13 +230,13 @@ const HomePageComponent= () => {
                     <div className="flex flex-col justify-center items-center gap-4 w-full lg:w-1/2 md:w-1/2 bg-[#0f172d] rounded-lg py-8 px-2 lg:p-10 border-4 border-[#9ac8f6] border-solid">
   
                       <Image
-                        className="rounded-lg  h-auto w-[150px]"
                         src={gameScreenshot}
                         alt="gameplay screenshot"
-                        priority
                         width={150}
-  height={331}        
-  sizes="150px"
+                        height={331}    
+                        className="rounded-lg w-[150px] h-auto"
+                        sizes="150px"      
+                        priority        
   
                       />
   
@@ -701,6 +701,7 @@ const HomePageComponent= () => {
                     alt="puzzle game accurate screenshot"
                     width={580}
                     height={1280}
+                    sizes="(max-width: 640px) 150px, 580px"
                     loading="lazy"
                   />
                   <figcaption>Accurate screenshot</figcaption>
@@ -724,6 +725,7 @@ const HomePageComponent= () => {
                       alt="screenshot with incomplete aimation"
                       width={580}
                       height={1280}
+                      sizes="(max-width: 640px) 150px, 580px"
                       loading="lazy"
                     />
                     <figcaption>Incomplete animation</figcaption>
@@ -754,6 +756,7 @@ const HomePageComponent= () => {
                       alt="modified screenshot"
                       width={580}
                       height={1280}
+                      sizes="(max-width: 640px) 150px, 580px"
                       loading="lazy"
                     />
                     <figcaption>Cropped screenshot</figcaption>
@@ -815,12 +818,13 @@ const HomePageComponent= () => {
               {/* <div className='max-w-md rounded-xl border border-red-500  flex  items-center justify-center justify-self-start lg:px-8 md:px-6 p-4 md:py-8 lg:py-16'> */}
   
               <Image
-                className="rounded-xl max-w-md w-full object-cover border border-white/10 h-[400px] justify-self-center lg:justify-self-start"
+                className="rounded-xl max-w-md w-full object-cover border border-white/10  justify-self-center lg:justify-self-start"
                 src={uploadDraw}
                 alt="Block Blast Solver Features"
                 loading="lazy"
-                width={1000}
-                height={1000}
+                width={448}
+                height={448}
+                sizes="(max-width: 448px) 100vw, 448px"
               />
   
               {/* </div> */}
