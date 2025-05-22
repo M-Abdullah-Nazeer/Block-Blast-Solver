@@ -243,8 +243,8 @@ const HomePageComponent= () => {
   
                       <span>OR</span>
   
-                      <button className="flex items-center justify-center gap-3 bg-[#0088cc] text-white p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-[#00bfff] transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px] cursor-pointer" onClick={() => setActiveTab(2)}>
-                        <Image priority alt="fill manually icon" className="w-[32px] h-[32px] aspect-square" src={manualIcon} width={86} height={86} />
+                      <button className="flex items-center justify-center gap-3 bg-slate-50  text-slate-900 p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-slate-100 transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px] cursor-pointer" onClick={() => setActiveTab(2)}>
+                        <Image priority alt="fill manually icon" className="w-[32px] h-[32px] aspect-square" src={manualIcon} width={32} height={32}   sizes="32px"/>
                         <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
                       </button>
                     </div>
