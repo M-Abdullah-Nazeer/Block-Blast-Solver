@@ -234,8 +234,9 @@ const HomePageComponent= () => {
                         src={gameScreenshot}
                         alt="gameplay screenshot"
                         priority
-                        width={580}
-                        height={1280}
+                        width={150}
+  height={331}        
+  sizes="150px"
   
                       />
   
@@ -738,6 +739,7 @@ const HomePageComponent= () => {
                       alt="screenshot with animation covering shapes"
                       width={580}
                       height={1280}
+                      sizes="(max-width: 640px) 150px, 580px"
                       loading="lazy"
                     />
                     <figcaption>Animation on shapes</figcaption>
@@ -834,12 +836,13 @@ const HomePageComponent= () => {
   
   
               <Image
-                className="rounded-xl max-w-md w-full object-cover border border-white/10 h-[400px] justify-self-center lg:justify-self-end  mt-0 lg:mt-[50px]"
+                className="rounded-xl max-w-md w-full object-cover border border-white/10 justify-self-center lg:justify-self-end  mt-0 lg:mt-[50px]"
                 src={solvePlay}
                 alt="screenshot solver"
                 loading="lazy"
-                width={1000}
-                height={1000}
+                width={448}
+  height={448}
+  sizes="(max-width: 448px) 100vw, 448px"
               />
   
               <div className="group relative max-w-md fixed-style rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  justify-self-center lg:justify-self-start lg:mt-[-25px] mt-8"

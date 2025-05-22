@@ -93,8 +93,9 @@ export function MainNav({ items }: MainNavProps) {
               src={MenuIcon}
               alt="Menu Icon"
               priority
-              width={500}
-              height={500}
+              width={24}
+              height={24}
+              sizes="24px"
 
             />
 
