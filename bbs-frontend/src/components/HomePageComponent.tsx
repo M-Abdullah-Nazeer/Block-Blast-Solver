@@ -9,7 +9,7 @@ import incompleteAnimation from "public/incomplete-animation.webp"
 import croppedScreenshot from "public/cropped-screenshot.webp"
 import accurateScreenshot from "public/accurate-screenshot.webp"
 import animationOnShapes from "public/animation-on-shapes.webp"
-import gameScreenshot from "public/game-screenshot.webp"
+import gameScreenshot from "public/game-screenshot.png"
 import AndroidLogo from "public/android-logo.webp"
 import AppleLogo from "public/apple-logo.webp"
 
@@ -20,11 +20,10 @@ import manualIcon from "public/manual-icon.png"
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import Image from 'next/image'
 
-import { motion, useMotionValue } from "framer-motion";
-import { useMotionTemplate } from "framer-motion";
+// import { motion, useMotionValue } from "framer-motion";
+// import { useMotionTemplate } from "framer-motion";
+// import { MouseEvent as ReactMouseEvent } from "react";
 
-
-import { MouseEvent as ReactMouseEvent } from "react";
 import { useTab } from '../context/TabContext';
 import { ArticleSchema } from '../components/ArticleSchema'
 import FinalOutput from '../components/FinalOutput'
@@ -139,20 +138,21 @@ const HomePageComponent= () => {
   
   
   
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
+    // const mouseX = useMotionValue(0);
+    // const mouseY = useMotionValue(0);
   
-    function handleMouseMove({
-      currentTarget,
-      clientX,
-      clientY,
-    }: React.MouseEvent<HTMLDivElement>) {
-      const { left, top } = currentTarget.getBoundingClientRect();
-      mouseX.set(clientX - left);
-      mouseY.set(clientY - top);
-    }
+    // function handleMouseMove({
+    //   currentTarget,
+    //   clientX,
+    //   clientY,
+    // }: React.MouseEvent<HTMLDivElement>) {
+    //   const { left, top } = currentTarget.getBoundingClientRect();
+    //   mouseX.set(clientX - left);
+    //   mouseY.set(clientY - top);
+    // }
   
-    const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
+    // const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
+    const background = `radial-gradient(650px circle at 250px 250}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
   
 
     return(
@@ -407,9 +407,10 @@ const HomePageComponent= () => {
   
   
               <div className="group relative max-w-md rounded-xl border border-white/10 lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl"
-                onMouseMove={handleMouseMove}
+                // onMouseMove={handleMouseMove}
               >
-                <motion.div
+                {/* <motion.div */}
+                <div
                   className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
                   style={{ background }}
                 />
@@ -791,8 +792,8 @@ const HomePageComponent= () => {
   
   
   
-              <div className="group fixed-style2 relative max-w-md rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  mt-0 lg:mt-[50px] justify-self-center lg:justify-self-end"
-                onMouseMove={handleMouseMove}
+              <div className="group fixed-style2 relative max-w-md rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  mt-0 lg:mt-[75px] justify-self-center lg:justify-self-end"
+                // onMouseMove={handleMouseMove}
               >
   
                 <div>
@@ -840,7 +841,7 @@ const HomePageComponent= () => {
   
   
               <Image
-                className="rounded-xl max-w-md w-full object-cover border border-white/10 justify-self-center lg:justify-self-end  mt-0 lg:mt-[50px]"
+                className="rounded-xl max-w-md w-full object-cover border border-white/10 justify-self-center lg:justify-self-end  mt-0 lg:mt-[75px]"
                 src={solvePlay}
                 alt="screenshot solver"
                 loading="lazy"
@@ -849,8 +850,8 @@ const HomePageComponent= () => {
   sizes="(max-width: 448px) 100vw, 448px"
               />
   
-              <div className="group relative max-w-md fixed-style rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  justify-self-center lg:justify-self-start lg:mt-[-25px] mt-8"
-                onMouseMove={handleMouseMove}
+              <div className="group relative max-w-md fixed-style rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  justify-self-center lg:justify-self-start lg:mt-[0px] mt-8"
+                // onMouseMove={handleMouseMove}
               >
   
                 <div>

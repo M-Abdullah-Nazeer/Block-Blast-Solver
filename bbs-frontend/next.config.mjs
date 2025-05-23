@@ -29,26 +29,34 @@
 
 
 
+// next.config.mjs
 
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 
+// load CJS bundle-analyzer via require-shim
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'false',
+  openAnalyzer: false, 
+})
 
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    domains: ["image-to-alt.s3.eu-central-1.amazonaws.com"],
-  },
-  transpilePackages: ['framer-motion'],
+  // images: {
+  //   domains: ['image-to-alt.s3.eu-central-1.amazonaws.com'],
+  // },
+  // transpilePackages: ['framer-motion'],
   experimental: {
-    // Only include if you actually need these
     appDir: true,
     fontLoaders: [
-      { loader: "@next/font/google", options: { subsets: ["latin"] } }
+      { loader: '@next/font/google', options: { subsets: ['latin'] } }
     ],
-  }
+  },
 }
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig)
+
 
 
 
