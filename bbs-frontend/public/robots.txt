@@ -1,6 +1,7 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /_next/static/media/a34f9d1faa5f3315.p.woff2
 
 # Host
 Host: https://blockblastsolverai.com
