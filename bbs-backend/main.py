@@ -75,7 +75,10 @@ limiter = Limiter(
 # app = FastAPI()
 
 # prod
-app = FastAPI(limits=["10000 items"])
+app = FastAPI(
+    limits=["10000 items"],
+    max_request_size=5 * 1024 * 1024 
+)
 
 app.state.limiter = limiter
 app.state.limiter.storage = MemoryStorage()
@@ -97,7 +100,18 @@ def verify_api_key(api_key: str = Header(None, alias="X-API-Key")):
 
 async def validate_file(file: UploadFile = File(...)):
     """Validate file size, type, and sanitize filename"""
-    # Read entire file contents for validation
+    # FIRST: Check file size before reading content
+    file_size = 0
+    CHUNK_SIZE = 4096
+    while chunk := await file.read(CHUNK_SIZE):
+        file_size += len(chunk)
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"File size exceeds {MAX_FILE_SIZE} bytes"
+            )
+    await file.seek(0)  # Reset file pointer after reading
+    
     contents = await file.read()
     await file.seek(0)  # Reset file pointer
     
