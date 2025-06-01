@@ -100,9 +100,11 @@ def verify_api_key(api_key: str = Header(None, alias="X-API-Key")):
 
 async def validate_file(file: UploadFile = File(...)):
     """Validate file size, type, and sanitize filename"""
-    # FIRST: Check file size before reading content
+    # Read file content once (streaming for efficiency)
+    contents = b''
     file_size = 0
-    CHUNK_SIZE = 4096
+    CHUNK_SIZE = 64 * 1024  # 64KB chunks (better for larger files)
+    
     while chunk := await file.read(CHUNK_SIZE):
         file_size += len(chunk)
         if file_size > MAX_FILE_SIZE:
@@ -110,14 +112,14 @@ async def validate_file(file: UploadFile = File(...)):
                 status_code=400,
                 detail=f"File size exceeds {MAX_FILE_SIZE} bytes"
             )
-    await file.seek(0)  # Reset file pointer after reading
+        contents += chunk  # Accumulate chunks
     
-    contents = await file.read()
-    await file.seek(0)  # Reset file pointer
+    # Reset file pointer for potential reuse
+    await file.seek(0)
     
     # Verify file type using magic numbers
     try:
-        mime_type = magic.from_buffer(contents, mime=True)  # Add mime=True
+        mime_type = magic.from_buffer(contents, mime=True)
     except Exception:
         raise HTTPException(400, "Invalid file format")
     
