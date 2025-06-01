@@ -232,7 +232,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
                   and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Only 1 image, max 5MB
+                  Only 1 image, max 20MB
                 </p>
 
                 <input

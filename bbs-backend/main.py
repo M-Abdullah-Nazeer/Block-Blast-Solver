@@ -57,7 +57,7 @@ PROCESSING_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png"}
-MAX_FILE_SIZE = 5 * 1024 * 1024
+MAX_FILE_SIZE = 20 * 1024 * 1024
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
@@ -77,7 +77,7 @@ limiter = Limiter(
 # prod
 app = FastAPI(
     limits=["10000 items"],
-    max_request_size=5 * 1024 * 1024 
+    max_request_size=20 * 1024 * 1024 
 )
 
 app.state.limiter = limiter
