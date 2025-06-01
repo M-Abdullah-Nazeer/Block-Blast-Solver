@@ -40,6 +40,7 @@ const FileInput = forwardRef<HTMLInputElement, InputProps>(
 
 
     const API_URL = "/api/";
+    // const API_URL = "http://localhost:8000/";
     const API_KEY = "d5Kf9ul2jH7sRmADPqlahVYBzXeABDM13LKg2aTd4GFu21FJ8NcOWqElU59x785AYFEBt";
 
 
