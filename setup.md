@@ -6,3 +6,6 @@ docker rmi -f $(docker images -aq) 2>/dev/null || true
 docker volume rm -f $(docker volume ls -q) 2>/dev/null || true
 # Prune build cache (from Docker BuildKit)
 docker builder prune --all --force
+
+chmod +x reset-docker.sh
+./reset-docker.sh
