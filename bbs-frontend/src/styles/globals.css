@@ -191,6 +191,22 @@ figcaption {
 
 
 }
+.cust-li-tr {
+  background: linear-gradient(to right, #0d8abc3e, #0d8abc16);
+  border: 1px solid #88c9f966 !important;
+  padding: 12px;
+  color: rgb(209 213 219);
+  font-size: 0.9rem;
+  margin: 15px 0;
+  transition: background-color 0.3s ease-in-out;
+
+  background-color: rgba(13, 138, 188, 0.023);
+
+}
+
+.cust-li-tr:hover {
+  background-color: rgba(13, 138, 188, 0.109);
+}
 
 
 

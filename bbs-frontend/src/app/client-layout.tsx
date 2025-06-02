@@ -15,6 +15,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         <main>{children}</main>
         <footer className="flex flex-col items-center justify-center gap-0 mt-12 border-t border-t-slate-200 dark:border-t-slate-700">
           <div className="flex items-center justify-end gap-2">
+            <Button href="cheat" className={buttonVariants({ variant: 'link', size: 'sm' })}>
+              Cheat
+            </Button>
             <Button href="terms" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Terms
             </Button>
