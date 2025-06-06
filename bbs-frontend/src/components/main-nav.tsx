@@ -74,6 +74,15 @@ export function MainNav({ items }: MainNavProps) {
                 >
                    {items[1].title}
                 </Link>
+                <a
+  href="https://play.google.com/store/apps/details?id=com.block.juggle&hl=en"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+  Play Game
+</a>
+
          
         
 
@@ -124,6 +133,17 @@ export function MainNav({ items }: MainNavProps) {
                 <Link className='cursor-pointer' href={items[1].href!} onClick={() => setActiveTab(2)}>
                   {items[1].title}
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+              <a
+  href="https://play.google.com/store/apps/details?id=com.block.juggle&hl=en"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+  Play Game
+</a>
+
               </DropdownMenuItem>
             </>
           ) : null}

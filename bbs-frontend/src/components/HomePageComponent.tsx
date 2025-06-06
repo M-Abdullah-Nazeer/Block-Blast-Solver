@@ -372,7 +372,7 @@ const HomePageComponent= () => {
   
   
   
-            <div className=' py-4 z-10'>
+            <div className='pt-24 z-10'>
               <div className="container flex w-full flex-col items-start gap-2 ">
   
   
@@ -394,14 +394,14 @@ const HomePageComponent= () => {
   
   
   
-          <section className='my-8 md:my-8 lg:my-16'>
+          <section className='pt-24'>
   
   
             <h2 className='text-4xl text-sky-500 font-bold tracking-tight text-center'>How to Use <strong className='mark'>Block Blast Solver?</strong></h2>
             <p className='mt-6 text-base leading-7 text-gray-300 text-center'>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
   
   
-            <div className=" p-0 my-8 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
+            <div className=" p-0 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
   
   
   
@@ -458,7 +458,7 @@ const HomePageComponent= () => {
   
           </section>
   
-          <section className='step2'>
+          <section className='step2 pt-24 my-0 pb-0'>
   
   
   
@@ -469,7 +469,7 @@ const HomePageComponent= () => {
               Take the Screenshot</h3>
   
   
-            <div className="p-0 md:p-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8 my-8 md:my-8 lg:my-16">
+            <div className="px-0 py-0 md:px-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8 my-0">
   
               <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
               >
@@ -567,7 +567,7 @@ const HomePageComponent= () => {
           </section>
   
   
-          <section className='my-8 md:my-8 lg:my-16'>
+          <section className='pt-24'>
   
             <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
               <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
@@ -675,7 +675,7 @@ const HomePageComponent= () => {
   
   
   
-          <section className='my-8 md:my-8 lg:my-16'>
+          <section className='py-24'>
   
   
             <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
@@ -874,7 +874,7 @@ const HomePageComponent= () => {
               </div>
   
   
-              {/* <div className='max-w-md rounded-xl border border-red-500  flex  items-center justify-center justify-self-start lg:px-8 md:px-6 p-4 md:py-8 lg:py-16'> */}
+            
   
   
   
@@ -882,55 +882,112 @@ const HomePageComponent= () => {
   
             </div>
   
-            {/* <h3>Upload Or Draw: </h3>
-          <p>Click the upload button and select a screenshot from your device, or you can manually draw your shapes and board. Once the upload is completed, then an algorithm that is specifically designed for this game will find solutions automatically, just wait a few seconds for a response.</p> */}
-  
-            {/* <h3>Solve and play:</h3>
-  
-          <p>The final output of the combo solver will contain all 3 steps with solutions. Each shape will be placed in a position that maximizes your score or sets up the next move for a high-scoring play. Completed rows or columns will be highlighted using a green border. Each shape in the output will retain the same color and form as it has in the uploaded screenshot.</p> */}
-  
+          
   
   
           </section>
   
   
-  
-          {/* <section>
-  
-  
-          <h2>Frequently Asked Questions</h2>
-  
-          <p>Discover tips, tricks and hacks for the Block Blast game. Whether you&apos;re a newbie or a pro player, quickly get clear information with our frequently asked question&apos;s answers.</p>
-  
-  
-  
-          <h2>How does the Block Blast game work?</h2>
-  
-  
-          <p>It&apos;s a puzzle game that challenges the player&apos;s ability to find suitable positions on the grid for given shapes. A grid has an 8x8 structure consisting of 8 rows and 8 columns, while shapes can be simple or complex, e.g., L, T, square, rectangle shapes. As the game continues, the difficulty increases with more difficult puzzle levels and complex shapes. If by placing the shape on a grid any row or column gets completed, the user earns a score for that.</p>
-  
-          <h2>How to get a really high score in Block Blast?</h2>
-  
-          <p>Achieving a high score requires implementing effective strategies. Try to create chain reactions that open up opportunities for future moves. Consistently planning your shape placements in advance can trigger cascading effects, helping you maintain high scores. Remember, your high score is based on clearing the maximum number of rows or columns using the given shapes.</p>
-  
-          <h2>What is a Block Blast Solver?</h2>
-          <p>It&apos;s a free online tool that provides unlimited help to decide on shape placement order after pattern recognition of blocks on the grid for the players. It requires simply a single image from the current gameplay of the player. There are no restrictions on the attempts, so upload as many images as you want for assistance, but one for each streak.</p>
-  
-          <h2>How to get a Block Blast Solver?</h2>
-          <p>If you prefer using a laptop or computer for picture solver you can find our website-based tool using any search engine like Google. Or you can download free and install our app from the Play Store for Android and the App Store for iOS.</p>
-  
-  
-        </section> */}
-  
-  
-  
+          <section className="py-24" aria-label="Why Choose Block Blast Solver Section">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="mb-16">
+      <h2 className="text-4xl md:text-4xl font-bold tracking-tight text-white text-center" role="heading">
+        Why Choose Block Blast Solver?
+      </h2>
+
+      <p className="mt-6 text-base leading-7 text-gray-300 text-center">
+        We know you are good at block blast, but do you want to be best? Choose our solver to save time and avoid mental exercise.
+      </p>
+
+      <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 items-stretch justify-center gap-12 mt-12">
+        
+        {/* Text Content */}
+        <div className="h-full flex flex-col justify-between col-span-2">
+          
+          {/* Feature 1 */}
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center">
+            <div className="mb-5 flex  items-start justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
+                <path fill='currentColor' d="M12.0003 3C17.3924 3 21.8784 6.87976 22.8189 12C21.8784 17.1202 17.3924 21 12.0003 21C6.60812 21 2.12215 17.1202 1.18164 12C2.12215 6.87976 6.60812 3 12.0003 3ZM12.0003 19C16.2359 19 19.8603 16.052 20.7777 12C19.8603 7.94803 16.2359 5 12.0003 5C7.7646 5 4.14022 7.94803 3.22278 12C4.14022 16.052 7.7646 19 12.0003 19ZM12.0003 16.5C9.51498 16.5 7.50026 14.4853 7.50026 12C7.50026 9.51472 9.51498 7.5 12.0003 7.5C14.4855 7.5 16.5003 9.51472 16.5003 12C16.5003 14.4853 14.4855 16.5 12.0003 16.5ZM12.0003 14.5C13.381 14.5 14.5003 13.3807 14.5003 12C14.5003 10.6193 13.381 9.5 12.0003 9.5C10.6196 9.5 9.50026 10.6193 9.50026 12C9.50026 13.3807 10.6196 14.5 12.0003 14.5Z"></path>
+              </svg>
+            </div>
+            <div className="ml-0 lg:ml-6 flex flex-col items-center lg:items-start justify-center">
+              <h3 className="mb-2 text-white font-extrabold ">3D Color Visualization</h3>
+              <p className="text-base leading-7 text-gray-300 text-center lg:text-start">
+                The final output of the solver will contain all 3 steps with 3D visualization of solutions. This better design gives us an edge above all other tools, making user experience better.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 2 */}
+          <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start justify-center">
+            <div className="mb-5 flex items-start justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
+                <path fill='currentColor' d="M5.46257 4.43262C7.21556 2.91688 9.5007 2 12 2C17.5228 2 22 6.47715 22 12C22 14.1361 21.3302 16.1158 20.1892 17.7406L17 12H20C20 7.58172 16.4183 4 12 4C9.84982 4 7.89777 4.84827 6.46023 6.22842L5.46257 4.43262ZM18.5374 19.5674C16.7844 21.0831 14.4993 22 12 22C6.47715 22 2 17.5228 2 12C2 9.86386 2.66979 7.88416 3.8108 6.25944L7 12H4C4 16.4183 7.58172 20 12 20C14.1502 20 16.1022 19.1517 17.5398 17.7716L18.5374 19.5674Z"></path>
+              </svg>
+            </div>
+            <div className="ml-0 lg:ml-6 flex flex-col items-center lg:items-start justify-center">
+              <h3 className="mb-2 text-white font-extrabold">Updates & Feedback</h3>
+              <p className="text-base leading-7 text-gray-300 text-center lg:text-start">
+                It is independent from game updates; no matter how much the game changes, it will work. We also improve our AI based on user feedback.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 3 */}
+          <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start justify-center">
+            <div className="mb-5 flex items-start justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
+                <path fill='currentColor' d="M9 4C10.1046 4 11 4.89543 11 6V12.8271C10.1058 12.1373 8.96602 11.7305 7.6644 11.5136L7.3356 13.4864C8.71622 13.7165 9.59743 14.1528 10.1402 14.7408C10.67 15.3147 11 16.167 11 17.5C11 18.8807 9.88071 20 8.5 20C7.11929 20 6 18.8807 6 17.5V17.1493C6.43007 17.2926 6.87634 17.4099 7.3356 17.4864L7.6644 15.5136C6.92149 15.3898 6.1752 15.1144 5.42909 14.7599C4.58157 14.3573 4 13.499 4 12.5C4 11.6653 4.20761 11.0085 4.55874 10.5257C4.90441 10.0504 5.4419 9.6703 6.24254 9.47014L7 9.28078V6C7 4.89543 7.89543 4 9 4ZM12 3.35418C11.2671 2.52376 10.1947 2 9 2C6.79086 2 5 3.79086 5 6V7.77422C4.14895 8.11644 3.45143 8.64785 2.94126 9.34933C2.29239 10.2415 2 11.3347 2 12.5C2 14.0652 2.79565 15.4367 4 16.2422V17.5C4 19.9853 6.01472 22 8.5 22C9.91363 22 11.175 21.3482 12 20.3287C12.825 21.3482 14.0864 22 15.5 22C17.9853 22 20 19.9853 20 17.5V16.2422C21.2044 15.4367 22 14.0652 22 12.5C22 11.3347 21.7076 10.2415 21.0587 9.34933C20.5486 8.64785 19.8511 8.11644 19 7.77422V6C19 3.79086 17.2091 2 15 2C13.8053 2 12.7329 2.52376 12 3.35418ZM18 17.1493V17.5C18 18.8807 16.8807 20 15.5 20C14.1193 20 13 18.8807 13 17.5C13 16.167 13.33 15.3147 13.8598 14.7408C14.4026 14.1528 15.2838 13.7165 16.6644 13.4864L16.3356 11.5136C15.034 11.7305 13.8942 12.1373 13 12.8271V6C13 4.89543 13.8954 4 15 4C16.1046 4 17 4.89543 17 6V9.28078L17.7575 9.47014C18.5581 9.6703 19.0956 10.0504 19.4413 10.5257C19.7924 11.0085 20 11.6653 20 12.5C20 13.499 19.4184 14.3573 18.5709 14.7599C17.8248 15.1144 17.0785 15.3898 16.3356 15.5136L16.6644 17.4864C17.1237 17.4099 17.5699 17.2926 18 17.1493Z"></path>
+              </svg>
+            </div>
+            <div className="ml-0 lg:ml-6 flex flex-col items-center lg:items-start justify-center">
+              <h3 className="mb-2 text-white font-extrabold">Optimal Strategical Solutions</h3>
+              <p className="text-base leading-7 text-gray-300 text-center lg:text-start">
+                Assume it like an experienced senior player, calculating the best perfect possible moves in a given round — just to maximize block clearance.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start justify-center">
+            <div className="mb-5 flex items-start justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
+              <path fill='currentColor' d="M20.7134 8.12811L20.4668 8.69379C20.2864 9.10792 19.7136 9.10792 19.5331 8.69379L19.2866 8.12811C18.8471 7.11947 18.0555 6.31641 17.0677 5.87708L16.308 5.53922C15.8973 5.35653 15.8973 4.75881 16.308 4.57612L17.0252 4.25714C18.0384 3.80651 18.8442 2.97373 19.2761 1.93083L19.5293 1.31953C19.7058 0.893489 20.2942 0.893489 20.4706 1.31953L20.7238 1.93083C21.1558 2.97373 21.9616 3.80651 22.9748 4.25714L23.6919 4.57612C24.1027 4.75881 24.1027 5.35653 23.6919 5.53922L22.9323 5.87708C21.9445 6.31641 21.1529 7.11947 20.7134 8.12811ZM2.9918 3H14V5H4V19L14 9L20 15V11H22V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934C2 3.44476 2.45531 3 2.9918 3ZM20 17.8284L14 11.8284L6.82843 19H20V17.8284ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z"></path>
+              </svg>
+            </div>
+            <div className="ml-0 lg:ml-6 flex flex-col items-center lg:items-start justify-center">
+              <h3 className="mb-2 text-white font-extrabold">Faultless Block Recognition</h3>
+              <p className="text-base leading-7 text-gray-300 text-center lg:text-start">
+               Our solver has been through many rigorous testing phases. Because of that it detects blocks perfectly under any kind of conditions.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* YouTube Embed */}
+        <div className="h-full w-full col-span-1">
+          <iframe
+            src="https://www.youtube.com/embed/NUGkDWUnAN4"
+            title="Block Blast Demo"
+            className="w-full h-full rounded-lg shadow-lg"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
   
   
   
   
           {/* faq */}
   
-          <section className="py-24" aria-label="FAQ Section">
+          <section className="pb-24" aria-label="FAQ Section">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mb-16">
   
