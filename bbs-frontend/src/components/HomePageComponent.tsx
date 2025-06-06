@@ -9,7 +9,7 @@ import incompleteAnimation from "public/incomplete-animation.webp"
 import croppedScreenshot from "public/cropped-screenshot.webp"
 import accurateScreenshot from "public/accurate-screenshot.webp"
 import animationOnShapes from "public/animation-on-shapes.webp"
-import gameScreenshot from "public/game-screenshot.png"
+import gameScreenshot from "public/block-blast-game-screenshot.webp"
 import AndroidLogo from "public/android-logo.webp"
 import AppleLogo from "public/apple-logo.webp"
 
@@ -227,6 +227,8 @@ const HomePageComponent= () => {
                   <>
                     <FileInput uploadedFile={uploadedFile} setIsLoading={setIsLoading} setUploadedFile={setUploadedFile} onUploadSuccess={handleUploadSuccess} />
   
+
+  
                     <div className="flex flex-col justify-center items-center gap-4 w-full lg:w-1/2 md:w-1/2 bg-[#0f172d] rounded-lg py-8 px-2 lg:p-10 border-4 border-[#9ac8f6] border-solid">
   
                       <Image
@@ -234,7 +236,7 @@ const HomePageComponent= () => {
                         alt="gameplay screenshot"
                         width={150}
                         height={331}    
-                        className="rounded-lg w-[150px] h-auto"
+                        className="rounded-lg w-[150px] h-[331px]"
                         sizes="150px"      
                         priority        
   
@@ -967,14 +969,20 @@ const HomePageComponent= () => {
 
         {/* YouTube Embed */}
         <div className="h-full w-full col-span-1">
-          <iframe
+        <iframe
             src="https://www.youtube.com/embed/NUGkDWUnAN4"
-            title="Block Blast Demo"
+            title="Block Blast Solver Demo"
+            loading='lazy'
             className="w-full h-full rounded-lg shadow-lg"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
+
+
+
+
         </div>
+        
       </div>
     </div>
   </div>

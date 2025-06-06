@@ -43,9 +43,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // images: {
-  //   domains: ['image-to-alt.s3.eu-central-1.amazonaws.com'],
-  // },
+  images: {
+    domains: ['i.ytimg.com'],
+  },
   // transpilePackages: ['framer-motion'],
   experimental: {
     appDir: true,
