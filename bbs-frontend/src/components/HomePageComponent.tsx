@@ -896,7 +896,7 @@ const HomePageComponent= () => {
       </h2>
 
       <p className="mt-6 text-base leading-7 text-gray-300 text-center">
-        We know you are good at block blast, but do you want to be best? Choose our solver to save time and avoid mental exercise.
+        We know you are good at block blast, but do you want to be best?. Choose our solver to save time and avoid mental exercise.
       </p>
 
       <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 items-stretch justify-center gap-12 mt-12">
