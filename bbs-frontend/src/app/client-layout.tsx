@@ -13,10 +13,14 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       <SiteHeader />
       <TooltipProvider>
         <main>{children}</main>
-        <footer className="flex flex-col items-center justify-center gap-0 mt-12 border-t border-t-slate-200 dark:border-t-slate-700">
-          <div className="flex items-center justify-end gap-2">
+        <footer className="py-16 flex flex-col items-center justify-center gap-0 mt-12 border-t border-t-slate-200 dark:border-t-slate-700">
+          {/* <div className="flex items-center justify-end gap-2"> */}
+          <div className="grid lg:grid-cols-6 md:grid-cols-2 sm:grid-cols-1 gap-0 items-center justify-center">
             <Button href="cheat" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Cheat
+            </Button>
+            <Button href="tips" className={buttonVariants({ variant: 'link', size: 'sm' })}>
+              Tips
             </Button>
             <Button href="terms" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Terms
@@ -31,7 +35,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
               Contact
             </Button>
           </div>
-          <p className='text-xs leading-7 text-gray-300'>© 2025 Block Blast Solver. All rights reserved.</p>
+          <p className='text-xs leading-7 text-gray-300 mt-2'>© 2025 Block Blast Solver. All rights reserved.</p>
         </footer>
       </TooltipProvider>
     </TabProvider>
