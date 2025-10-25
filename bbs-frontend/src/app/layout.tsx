@@ -1,22 +1,17 @@
-
 import { Inter as FontSans } from '@next/font/google'
 import { ClientLayout } from './client-layout'
 import '@/styles/globals.css'
 import { cn } from '@/lib/utils'
 import Script from 'next/script'
-// import Head from 'next/head'
 
 const fontSans = FontSans({
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
 })
-
 interface RootLayoutProps {
   children: React.ReactNode
 }
-
-
-
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -28,17 +23,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       )}
     >
       <head>
-
-
         <link rel="canonical" href="https://blockblastsolverai.com" />
-
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-
-
-
+        <link rel="preload" as="image" href="block-blast-game-screenshot.webp" type="image/webp" 
+        {...({ fetchPriority: 'high' } as any)}
+        />
         {/* GA */}
-
-
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-Q65E3ED3L4"
@@ -56,15 +46,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
 
-
-
-
-
-        {/* Canonical URL - Good! */}
-        {/* <link rel="canonical" href="https://blockblastsolverai.com" /> */}
-
         {/* SoftwareApplication Schema (Main Focus) */}
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -102,15 +84,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 "name": "Block Blast Solver AI",
                 "url": "https://blockblastsolverai.com"
               },
-              "datePublished": "2025-05-18" // Use actual launch date
+              "datePublished": "2025-05-18" 
             })
           }}
         />
 
         {/*  HowTo Schema (For User Process) */}
-
-
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -119,7 +98,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
               "@type": "HowTo",
               "name": "How to Use Block Blast Solver",
               "description": "3-step process to optimize your Block Blast gameplay",
-              // "image": "https://blockblastsolverai.com/process-visual.jpg",
               "totalTime": "PT1M",
               "step": [
                 {
@@ -144,8 +122,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
 
-
-
         {/*  Organization Schema (Brand Trust) */}
         <script
           type="application/ld+json"
@@ -156,10 +132,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
               "name": "Block Blast Solver",
               "url": "https://blockblastsolverai.com",
               "logo": "https://blockblastsolverai.com/block-blast-solver-logo.webp",
-              "foundingDate": "2025", // Replace with actual
+              "foundingDate": "2025", 
               "founder": {
                 "@type": "Person",
-                "name": "Abdullah" // Add if applicable
+                "name": "Abdullah" 
               },
               "sameAs": [
                 "https://www.youtube.com/channel/UCedt5ABWMaOOFqTzjl6jBnw",
@@ -171,10 +147,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
 
-
         {/* WebSite Schema (Simplified) */}
-
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -187,12 +160,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             })
           }}
         />
-
       </head>
-
-
-
-
       <body className="min-h-screen bg-white font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50">
         <ClientLayout>{children}</ClientLayout>
       </body>

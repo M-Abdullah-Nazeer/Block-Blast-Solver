@@ -65,7 +65,7 @@ export default function CheatsPage() {
             </h1> */}
 
 
-            <h1 className='text-4xl md:text-5xl  mb-4 font-bold tracking-tight text-white text-center' role="heading" > Block Blast<span className='text-sky-500'> Hacks & Cheats</span></h1>
+            <h1 className='text-4xl md:text-5xl  mb-4 font-bold tracking-tight text-white text-center'> Block Blast<span className='text-sky-500'> Hacks & Cheats</span></h1>
 
             <p className="text-xl text-gray-300">Effortlessly achieve any level instantly</p>
           </section>
@@ -223,7 +223,7 @@ export default function CheatsPage() {
   
   
   
-                <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center' role="heading" > Frequently Asked<span className='text-sky-500'> Questions</span></h2>
+                <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center'> Frequently Asked<span className='text-sky-500'> Questions</span></h2>
   
              
               </div>

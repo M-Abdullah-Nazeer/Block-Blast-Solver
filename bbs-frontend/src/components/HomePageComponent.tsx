@@ -1,6 +1,5 @@
 
 'use client'
-
 import { FC, useEffect, useState } from 'react'
 import { Button, buttonVariants } from '@/ui/button'
 import { FileInput } from '@/ui/file-input'
@@ -12,89 +11,50 @@ import animationOnShapes from "public/animation-on-shapes.webp"
 import gameScreenshot from "public/block-blast-game-screenshot.webp"
 import AndroidLogo from "public/android-logo.webp"
 import AppleLogo from "public/apple-logo.webp"
-
-
+import LiteYouTubeEmbed from "react-lite-youtube-embed";
+import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
 import solvePlay from "public/solve-play.webp"
 import uploadDraw from "public/upload-draw.webp"
 import manualIcon from "public/manual-icon.png"
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import Image from 'next/image'
-
-// import { motion, useMotionValue } from "framer-motion";
-// import { useMotionTemplate } from "framer-motion";
-// import { MouseEvent as ReactMouseEvent } from "react";
-
 import { useTab } from '../context/TabContext';
 import { ArticleSchema } from '../components/ArticleSchema'
 import FinalOutput from '../components/FinalOutput'
-
 import { Step } from "../types/steps"
 
-
 const HomePageComponent = () => {
-
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { activeTab, setActiveTab } = useTab();
-
   const [fmSolved, setFmSolved] = useState(false);
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-
     if (activeTab === 1) {
       setFmSolved(false);
     } else if (activeTab === 2) {
       setUploadedFile(null);
-
     }
-
-    // console.log("active Tab", activeTab);
-    // console.log("fmsolved", fmSolved);
-    // console.log("uploadedfile", uploadedFile);
-
-
     setHideComp(activeTab === 3);
   }, [activeTab]);
 
-
-
-  // Function to clear the uploaded file
   const clearFile = () => {
-
-
-
     if (activeTab > 1 && uploadedFile) {
       setActiveTab((activeTab - 2) as 1 | 2 | 3);
       setFmSolved(false);
-
     }
     if (activeTab > 1 && fmSolved) {
       setActiveTab((activeTab - 1) as 1 | 2 | 3);
       setFmSolved(true);
     }
-
     setUploadedFile(null);
-
-
-    // setFmSolved((prev) => !prev);
-
-
-
-
     setHideComp((prev) => !prev);
-
-
   }
-
-
 
   const [hideComp, setHideComp] = useState(false);
   const [steps, setSteps] = useState<Step[]>([]);
   const [shapeColors, setShapeColors] = useState<Record<string, string>>({});
 
-  // This will receive the steps from FileInput
   const handleUploadSuccess = (
     receivedSteps: Step[],
     receivedShapeColors: Record<string, string>
@@ -102,14 +62,8 @@ const HomePageComponent = () => {
     setSteps(receivedSteps);
     setShapeColors(receivedShapeColors);
     setHideComp((prev) => !prev);
-    // setFmSolved((prev) => !prev);
-    // setFmSolved(true);
   };
-
-
-
   const [activeIndex, setActiveIndex] = useState(-1);
-
   const faqs = [
     {
       question: 'How does the Block Blast game work?',
@@ -127,56 +81,22 @@ const HomePageComponent = () => {
       question: 'How to get a Block Blast Solver?',
       answer: 'If you prefer using a laptop or computer for picture solver you can find our website-based tool using any search engine like Google. Or you can download free and install our app from the Play Store for Android and the App Store for iOS.'
     },
-    // Add all FAQ items here
   ];
 
   const toggleAccordion = (index: number) => {
     setActiveIndex(prev => prev === index ? -1 : index);
   };
-
-
-
-
-
-  // const mouseX = useMotionValue(0);
-  // const mouseY = useMotionValue(0);
-
-  // function handleMouseMove({
-  //   currentTarget,
-  //   clientX,
-  //   clientY,
-  // }: React.MouseEvent<HTMLDivElement>) {
-  //   const { left, top } = currentTarget.getBoundingClientRect();
-  //   mouseX.set(clientX - left);
-  //   mouseY.set(clientY - top);
-  // }
-
-  // const background = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
-  const background = `radial-gradient(650px circle at 250px 250}px, rgba(14, 165, 233, 0.15), transparent 80%)`;
-
-
+  const background = `radial-gradient(650px circle at 250px 250px, rgba(14, 165, 233, 0.15), transparent 80%)`;
   return (
     <>
-
-
       <ArticleSchema />
-
       <div className='relative container'>
-
         <section className="w-full grid items-center lg:gap-8 gap-6 pt-6 pb-0 md:pt-10">
           <div className="container flex w-full  flex-col items-center gap-2">
             <h1 className="text-[40px] font-extrabold leading-tight tracking-tighter sm:text-3xl md:text-5xl lg:text-6xl text-center">
               Block Blast Solver
             </h1>
-
           </div>
-
-
-
-
-
-
-
           {/* Try Another Button */}
           {(uploadedFile || fmSolved) && (
             <Tooltip>
@@ -191,11 +111,7 @@ const HomePageComponent = () => {
                     onClick={clearFile}
                   >
                     Try Another
-
-
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rotate-cw ml-1"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>
-
-
                   </Button>
                 </div>
               </TooltipTrigger>
@@ -205,32 +121,17 @@ const HomePageComponent = () => {
             </Tooltip>
           )}
 
-
-
-
           {/* Upload Section */}
-
-
           {(activeTab === 1 && !fmSolved) &&
             <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row md:flex-row gap-4 lg:gap-20 justify-center items-stretch bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
-
-
-
-
-
               {isLoading ? (
                 <div className="flex justify-center items-center h-32">
-                  {/* Loading spinner */}
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
                 </div>
               ) : (
                 <>
                   <FileInput uploadedFile={uploadedFile} setIsLoading={setIsLoading} setUploadedFile={setUploadedFile} onUploadSuccess={handleUploadSuccess} />
-
-
-
                   <div className="flex flex-col justify-center items-center gap-4 w-full lg:w-1/2 md:w-1/2 bg-[#0f172d] rounded-lg py-8 px-2 lg:p-10 border-4 border-[#9ac8f6] border-solid">
-
                     <Image
                       src={gameScreenshot}
                       alt="gameplay screenshot"
@@ -241,119 +142,27 @@ const HomePageComponent = () => {
                       priority
 
                     />
-
-
                     <span>OR</span>
-
                     <button className="flex items-center justify-center gap-3 bg-slate-50  text-slate-900 p-[16px] lg:px-[24px] lg:py-[16px] rounded-lg hover:bg-slate-100 transition-all duration-300 ease-in-out w-[200px] lg:w-[252px] h-[56px] cursor-pointer" onClick={() => setActiveTab(2)}>
                       <Image priority alt="fill manually icon" className="w-[32px] h-[32px] aspect-square" src={manualIcon} width={32} height={32} sizes="32px" />
                       <span className="text-18px font-semibold leading-24px text-center">Fill Manually</span>
                     </button>
                   </div>
-
                 </>
               )}
-
-
             </div>
-
           }
-
-
-
           {(activeTab === 2 && !uploadedFile) &&
-
-
             <div className={`${hideComp ? "hidden" : "flex"} flex-col lg:flex-row  gap-4 lg:gap-20 justify-center items-center lg:items-start bg-[#0088cc17] border border-white/10 py-8 px-2 lg:p-10 rounded-lg z-10 container`}>
-
-
-
-
               <FillManual handleUploadSuccess={handleUploadSuccess} setFmSolved={setFmSolved} />
-
-
             </div>
-
           }
-
-
           {(uploadedFile || fmSolved) && (activeTab === 3) && (
-
-
             <FinalOutput steps={steps} shapeColors={shapeColors} />
-
-            // <div className="steps-container-wrapper">
-            //   {steps.map((step, stepIndex) => {
-            //     // Compute completed rows and columns from the board in this step.
-            //     const completedRows = step.board.map((row) => row.every((cell) => cell !== 0));
-            //     const completedColumns = step.board[0].map((_, colIndex) =>
-            //       step.board.every((row) => row[colIndex] !== 0)
-            //     );
-
-            //     return (
-            //       <div key={stepIndex} className="step-container">
-            //         <p>Step {stepIndex + 1}</p>
-            //         <p>Completed Lines: {step.completedLines}</p>
-            //         <div className="board">
-            //           {step.board.map((row, rowIndex) => (
-            //             <div key={rowIndex} className="row">
-            //               {row.map((cell, cellIndex) => {
-            //                 // Determine the base classn for each cell.
-            //                 const cellClass =
-            //                   cell === 0 ? 'empty' : cell === 1 ? 'block' : 'placed';
-
-            //                 // Default style.
-            //                 let style = {};
-
-            //                 // Mapping: 2 -> shape 0, 3 -> shape 1, 4 -> shape 2.
-            //                 if (cell === 2) {
-            //                   style = shapeColors?.["shape 0"]
-            //                     ? getDynamicStyles(shapeColors["shape 0"])
-            //                     : { backgroundColor: shapeColors?.["shape 0"] };
-            //                 } else if (cell === 3) {
-            //                   style = shapeColors?.["shape 1"]
-            //                     ? getDynamicStyles(shapeColors["shape 1"])
-            //                     : { backgroundColor: shapeColors?.["shape 1"] };
-            //                 } else if (cell === 4) {
-            //                   style = shapeColors?.["shape 2"]
-            //                     ? getDynamicStyles(shapeColors["shape 2"])
-            //                     : { backgroundColor: shapeColors?.["shape 2"] };
-            //                 }
-
-            //                 // If the row or the column is complete, add a white border.
-            //                 if (completedRows[rowIndex] || completedColumns[cellIndex]) {
-            //                   style = { ...style, border: "2px solid #4dff00" };
-            //                 }
-
-            //                 return (
-            //                   <div
-            //                     key={cellIndex}
-            //                     className={`cell ${cellClass}`}
-            //                     style={style}
-            //                   >
-            //                     {/* Optionally render cell content */}
-            //                   </div>
-            //                 );
-            //               })}
-            //             </div>
-            //           ))}
-            //         </div>
-            //       </div>
-            //     );
-            //   })}
-            // </div>
           )}
-
-
-
-
-
           {(uploadedFile) && (
-
-
             <div className="flex flex-col justify-center items-center">
               <p className='text-white text-lg font-bold my-5'>Uploaded Screenshot</p>
-
               <Image
                 src={URL.createObjectURL(uploadedFile)}
                 alt="Uploaded Image Preview"
@@ -363,23 +172,9 @@ const HomePageComponent = () => {
                 className="object-cover rounded-lg mx-auto mb-2 lg:w-1/6 lg:h-[auto] md:w-1/4 sm:w-full md:h-[auto]"
               />
             </div>
-
           )}
-
-
-
-          {/* <div className="absolute top-[700px] left-0 w-full z-0">
-            <svg className='w-full h-[600]px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#fff" fill-opacity="1" d="M0,256L1440,64L1440,0L0,0Z"></path></svg>
-          </div> */}
-
-
-
           <div className='pt-24 z-10'>
             <div className="container flex w-full flex-col items-start gap-2 ">
-
-
-
-
               <p className="text-base leading-7 text-gray-300 ">
                 <strong>It&apos;s an AI-based problem solver</strong> that finds the best possible moves for a Block Blast game using just a screenshot of your gameplay. You can achieve a high score in the game with a single click using our free online tool.
               </p>
@@ -391,38 +186,20 @@ const HomePageComponent = () => {
               </p>
             </div>
           </div>
-
         </section>
-
-
-
         <section className='pt-24'>
-
-
           <h2 className='text-4xl text-sky-500 font-bold tracking-tight text-center'>How to Use <strong className='mark'>Block Blast Solver?</strong></h2>
           <p className='mt-6 text-base leading-7 text-gray-300 text-center'>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
-
-
           <div className=" p-0 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
-
-
-
-
             <div className="group relative max-w-md rounded-xl border border-white/10 lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl"
-            // onMouseMove={handleMouseMove}
             >
-              {/* <motion.div */}
               <div
                 className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
                 style={{ background }}
               />
               <div>
-
                 <div className="mt-2 flex items-center gap-x-2">
-
-
                   <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
-
                     <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
                       Step 1:
                     </span>
@@ -434,52 +211,27 @@ const HomePageComponent = () => {
                 </p>
               </div>
             </div>
-
-
-
             <div className="flex flex-col">
-
-
               <ul className='cust-li'>
-
                 <li>The game board should be clearly visible.</li>
                 <li>There should be a complete screenshot in raw form, any cropped or edited picture will result in false outputs.</li>
                 <li>All the given shapes should be visible.</li>
                 <li>At least one out of the three given shapes must be visible for the Block Blast Solver to work properly.</li>
                 <li>There should be no ad popup, loading screen, or game animation.</li>
-
               </ul>
-
             </div>
-
-
-
-
-
           </div>
-
         </section>
-
         <section className='step2 pt-24 my-0 pb-0'>
-
-
-
           <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
             <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
               Step 2:
             </span>
             Take the Screenshot</h3>
-
-
           <div className="px-0 py-0 md:px-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8 my-0">
-
             <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
             >
-
-
-
               <summary><h4>For Android</h4>
-
                 <Image
                   src={AndroidLogo}
                   alt="Android logo"
@@ -488,7 +240,6 @@ const HomePageComponent = () => {
                   height={500}
                   className="w-6 h-6 ml-1"
                 />
-
               </summary>
               <table>
                 <thead>
@@ -517,10 +268,8 @@ const HomePageComponent = () => {
                 </tbody>
               </table>
             </details>
-
             <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl">
               <summary><h4>For iPhone</h4>
-
                 <Image
                   src={AppleLogo}
                   alt="Iphone logo"
@@ -561,145 +310,74 @@ const HomePageComponent = () => {
                 </tbody>
               </table>
             </details>
-
           </div>
-
-
-
         </section>
-
-
         <section className='pt-24'>
-
           <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
             <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
               Step 3:
             </span>
             Common Mistakes to Avoid</h3>
-
           <div className="flex flex-col lg:flex-row justify-center items-stretch my-8 md:my-8 lg:my-16">
-
             <div className='cmtd  mb-8 mx-0 lg:mb-0 lg:mr-8 flex items-center justify-center'>
               <h4 className=' text-[#0F172A] text-2xl md:text-3xl font-bold tracking-tight'>What to Do</h4>
             </div>
-
             <ul className=" p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
-
               <li>
-
                 <span className='flex flex-col px-4 g-style bg-[#274481]'>
                   <span className="cmtd-icon text-center text-white">1</span>
                   Take a clean full-screen screenshot by waiting for the game and text animations to complete.
                 </span>
               </li>
-
               <li>
                 <span className='flex flex-col px-4 g-style bg-[#2a4fa3]'>
                   <span className="cmtd-icon text-center text-white">2</span>
                   Set phone brightness to the maximum level.
                 </span>
-
-
               </li>
-
               <li>
-
                 <span className='flex flex-col px-4 g-style bg-[#2d60c8]'>
                   <span className="cmtd-icon text-center text-white">3</span>
                   Upload raw screenshots.
                 </span>
-
               </li>
-
             </ul>
-
           </div>
-
-
           <div className="flex flex-col lg:flex-row justify-center items-stretch mb-8 md:mb-8 lg:mb-16 ">
-
-
             <div className='cmtd  mb-8 mx-0 lg:mb-0 lg:mr-8 flex items-center justify-center'>
               <h4 className=' text-[#0F172A] text-2xl md:text-3xl font-bold tracking-tight'>What to Avoid</h4>
             </div>
-
-
             <ul className=" p-0  grid  grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] items-end justify-center gap-8">
-
-
-
               <li>
-
                 <span className='flex flex-col px-4 g-style bg-[#274481]'>
                   <span className="cmtd-icon2 text-center text-white">1</span>
                   The screenshot includes any overlays or effects of ad pop-ups, and game/loading animations visible.
                 </span>
               </li>
-
-
-
               <li>
-
                 <span className='flex flex-col px-4 g-style bg-[#274481]'>
                   <span className="cmtd-icon2 text-center text-white">2</span>
                   Keep phone brightness to the minimum level.
                 </span>
               </li>
-
-
               <li>
-
                 <span className='flex flex-col px-4 g-style bg-[#274481]'>
                   <span className="cmtd-icon2 text-center text-white">3</span>
                   Crop or edit the screenshot.
                 </span>
-              </li>
-
-
-
-
-
-
-
-
-
-            </ul>
-
-
-
-
-
-
-          </div>
-
-
+              </li></ul></div>
         </section>
-
-
-
         <section className='py-24'>
-
-
           <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-white text-center h3-cust'>
             <span className="text-base font-semibold leading-7 text-sky-500 text-center mb-2">
               Step 4:
             </span>
             Screenshot Examples</h3>
-
-
           <div className="flex flex-col md:flex-row justify-center items-center py-4 gap-8 mt-6">
-
-
-
             <div>
-
               <h4 className='mb-2 text-center'>✔️ Valid Capture</h4>
-
               <figure>
-
-
                 <Image className='mx-auto md:w-full w-[150px] h-auto'
-
                   src={accurateScreenshot}
                   alt="puzzle game accurate screenshot"
                   width={580}
@@ -708,20 +386,12 @@ const HomePageComponent = () => {
                   loading="lazy"
                 />
                 <figcaption>Accurate screenshot</figcaption>
-
               </figure>
-
             </div>
-
             <div>
-
               <h4 className='mb-2'>❌ Invalid Captures</h4>
-
               <div className="grid  grid-cols-1 md:grid-cols-[1fr_1fr_1fr] items-center lg:items-start justify-center gap-8">
-
                 <figure>
-
-
                   <Image
                     className='md:w-full w-[150px] h-auto'
                     src={incompleteAnimation}
@@ -732,12 +402,8 @@ const HomePageComponent = () => {
                     loading="lazy"
                   />
                   <figcaption>Incomplete animation</figcaption>
-
                 </figure>
-
                 <figure>
-
-
                   <Image
                     className='md:w-full w-[150px] h-auto'
                     src={animationOnShapes}
@@ -748,11 +414,8 @@ const HomePageComponent = () => {
                     loading="lazy"
                   />
                   <figcaption>Animation on shapes</figcaption>
-
                 </figure>
                 <figure>
-
-
                   <Image
                     className='md:w-full w-[150px] h-auto'
                     src={croppedScreenshot}
@@ -763,48 +426,18 @@ const HomePageComponent = () => {
                     loading="lazy"
                   />
                   <figcaption>Cropped screenshot</figcaption>
-
                 </figure>
-
               </div>
-
             </div>
-
-
-
-
-
-
           </div>
-
-
-
-
-
-
-
         </section>
-
-
-
         <section>
-
-
           <div className="grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-center lg:items-start justify-center gap-8">
-
-
-
             <div className="group fixed-style2 relative max-w-md rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  mt-0 lg:mt-[75px] justify-self-center lg:justify-self-end"
-            // onMouseMove={handleMouseMove}
             >
-
               <div>
-
                 <div className="mt-2 flex items-center gap-x-2">
-
-
                   <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
-
                     <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
                       Step 1:
                     </span>
@@ -816,10 +449,6 @@ const HomePageComponent = () => {
                 </p>
               </div>
             </div>
-
-
-            {/* <div className='max-w-md rounded-xl border border-red-500  flex  items-center justify-center justify-self-start lg:px-8 md:px-6 p-4 md:py-8 lg:py-16'> */}
-
             <Image
               className="rounded-xl max-w-md w-full object-cover border border-white/10  justify-self-center lg:justify-self-start"
               src={uploadDraw}
@@ -829,19 +458,8 @@ const HomePageComponent = () => {
               height={448}
               sizes="(max-width: 448px) 100vw, 448px"
             />
-
-            {/* </div> */}
-
           </div>
-
-
-
-
-
           <div className="flex flex-col-reverse lg:grid lg:grid-cols-[1fr_1fr] items-center lg:items-start justify-center gap-8">
-
-
-
             <Image
               className="rounded-xl max-w-md w-full object-cover border border-white/10 justify-self-center lg:justify-self-end  mt-0 lg:mt-[75px]"
               src={solvePlay}
@@ -851,18 +469,11 @@ const HomePageComponent = () => {
               height={448}
               sizes="(max-width: 448px) 100vw, 448px"
             />
-
             <div className="group relative max-w-md fixed-style rounded-xl border border-white/10  lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl  justify-self-center lg:justify-self-start lg:mt-[0px] mt-8"
-            // onMouseMove={handleMouseMove}
             >
-
               <div>
-
                 <div className="mt-2 flex items-center gap-x-2">
-
-
                   <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
-
                     <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
                       Step 1:
                     </span>
@@ -874,39 +485,19 @@ const HomePageComponent = () => {
                 </p>
               </div>
             </div>
-
-
-
-
-
-
-            {/* </div> */}
-
           </div>
-
-
-
-
         </section>
-
-
         <section className="py-24" aria-label="Why Choose Block Blast Solver Section">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-16">
-              <h2 className="text-4xl md:text-4xl font-bold tracking-tight text-white text-center" role="heading">
+              <h2 className="text-4xl md:text-4xl font-bold tracking-tight text-white text-center">
                 Why Choose Block Blast Solver?
               </h2>
-
               <p className="mt-6 text-base leading-7 text-gray-300 text-center">
                 We know you are good at block blast, but do you want to be best?. Choose our solver to save time and avoid mental exercise.
               </p>
-
               <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 items-stretch justify-center gap-12 mt-12">
-
-                {/* Text Content */}
                 <div className="h-full flex flex-col justify-between col-span-2">
-
-                  {/* Feature 1 */}
                   <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center">
                     <div className="mb-5 flex  items-start justify-center">
                       <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
@@ -920,8 +511,6 @@ const HomePageComponent = () => {
                       </p>
                     </div>
                   </div>
-
-                  {/* Feature 2 */}
                   <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start justify-center">
                     <div className="mb-5 flex items-start justify-center">
                       <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
@@ -935,8 +524,6 @@ const HomePageComponent = () => {
                       </p>
                     </div>
                   </div>
-
-                  {/* Feature 3 */}
                   <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start justify-center">
                     <div className="mb-5 flex items-start justify-center">
                       <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
@@ -950,7 +537,6 @@ const HomePageComponent = () => {
                       </p>
                     </div>
                   </div>
-
                   <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-start justify-center">
                     <div className="mb-5 flex items-start justify-center">
                       <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#0ea5e9]" xmlns="http://www.w3.org/2000/svg">
@@ -964,56 +550,36 @@ const HomePageComponent = () => {
                       </p>
                     </div>
                   </div>
-
                 </div>
-
-                {/* YouTube Embed */}
-                <div className="h-full w-full col-span-1">
-                  <iframe
-                    src="https://www.youtube.com/embed/NUGkDWUnAN4"
+              <div className="h-full w-full col-span-1">
+                <div className="w-full h-full rounded-lg shadow-lg overflow-hidden ytb-article">
+                  <LiteYouTubeEmbed
+                    id="NUGkDWUnAN4"
                     title="Block Blast Solver Demo"
-                    loading='lazy'
-                    className="w-full h-full rounded-lg shadow-lg"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-
-
-
-
+                    poster="maxresdefault"
+                  />
                 </div>
-
+              </div>
               </div>
             </div>
           </div>
         </section>
-
-
-
-
-
-
-        {/* faq */}
-
         <section className="pb-24" aria-label="FAQ Section">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-16">
-
-
-
-              <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center' role="heading" > Frequently Asked<span className='text-sky-500'> Questions</span></h2>
-
+              <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center'> Frequently Asked<span className='text-sky-500'> Questions</span></h2>
               <p className='mt-6 text-base leading-7 text-gray-300 text-center'>Discover tips, tricks and hacks for the Block Blast game. Whether you&apos;re a newbie or a pro player, quickly get clear information with our frequently asked question&apos;s answers.</p>
             </div>
             <div className="accordion-group">
               {faqs.map((faq, index) => (
                 <div
                   key={index}
-                  className={`accordion border border-solid  border-white/10 p-4 rounded-xl transition duration-500 mb-8 lg:p-4 ${activeIndex === index ? 'active' : ''
+                  className={`accordion border border-solid cursor-pointer border-white/10 p-4 rounded-xl transition duration-500 mb-8 lg:p-4 ${activeIndex === index ? 'active' : ''
                     }`}
                 >
-                  <button
-                    className="group inline-flex items-center justify-between text-left text-lg font-normal leading-8 w-full transition duration-500 "
+                  <div
+                    role="button"
+                    className="group inline-flex items-center justify-between text-left text-lg font-normal leading-8 w-full transition duration-500 ease-in-out"
                     onClick={() => toggleAccordion(index)}
                     aria-expanded={activeIndex === index}
                   >
@@ -1034,7 +600,7 @@ const HomePageComponent = () => {
                         <path d="M6 12H18" stroke="currentColor" strokeWidth="1.6" />
                       </svg>
                     </div>
-                  </button>
+                  </div>
                   <div
                     className={`overflow-hidden transition-all duration-300 ${activeIndex === index ? 'max-h-[500px]' : 'max-h-0'
                       }`}
@@ -1048,28 +614,8 @@ const HomePageComponent = () => {
             </div>
           </div>
         </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
       </div>
-
-
-
-
-
     </>
   )
-
 }
-
 export default HomePageComponent;

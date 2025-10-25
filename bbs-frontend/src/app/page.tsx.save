@@ -972,7 +972,7 @@ const Page: FC = () => {
 
 
 
-              <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center' role="heading" > Frequently Asked<span className='text-sky-500'> Questions</span></h2>
+              <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center'> Frequently Asked<span className='text-sky-500'> Questions</span></h2>
 
               <p className='mt-6 text-base leading-7 text-gray-300 text-center'>Discover tips, tricks and hacks for the Block Blast game. Whether you&apos;re a newbie or a pro player, quickly get clear information with our frequently asked question&apos;s answers.</p>
             </div>
