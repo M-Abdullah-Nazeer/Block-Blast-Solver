@@ -32,7 +32,7 @@ const HomePageComponent = () => {
   useEffect(() => {
 
     if (typeof window !== "undefined") {
-      // console.error = () => {};
+      console.error = () => {};
       console.warn = () => {};
       console.log = () => {};
       console.info = () => {};
