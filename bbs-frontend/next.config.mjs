@@ -36,7 +36,7 @@ const require = createRequire(import.meta.url)
 
 // load CJS bundle-analyzer via require-shim
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'false',
+  enabled: process.env.ANALYZE === 'true',
   openAnalyzer: false, 
 })
 
