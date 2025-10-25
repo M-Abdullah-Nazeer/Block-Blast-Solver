@@ -13,6 +13,7 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
@@ -31,7 +32,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
 {/* Adsense */}
 
-<Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4054159837151787"
+<Script 
+ id="adsbygoogle-init"
+ strategy="afterInteractive"
+async 
+src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4054159837151787"
      crossOrigin="anonymous"/>
 
 
