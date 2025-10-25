@@ -32,12 +32,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
 {/* Adsense */}
 
-<Script 
- id="adsbygoogle-init"
- strategy="afterInteractive"
-async 
-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4054159837151787"
-     crossOrigin="anonymous"/>
+<meta name="google-adsense-account" content="ca-pub-4054159837151787"></meta>
 
 
         {/* GA */}
