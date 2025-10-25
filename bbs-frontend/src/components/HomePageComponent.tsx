@@ -30,6 +30,15 @@ const HomePageComponent = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+
+    if (typeof window !== "undefined") {
+      // console.error = () => {};
+      console.warn = () => {};
+      console.log = () => {};
+      console.info = () => {};
+    }
+    
+
     if (activeTab === 1) {
       setFmSolved(false);
     } else if (activeTab === 2) {
