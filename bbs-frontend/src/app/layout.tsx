@@ -28,6 +28,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="preload" as="image" href="block-blast-game-screenshot.webp" type="image/webp" 
         {...({ fetchPriority: 'high' } as any)}
         />
+
+{/* Adsense */}
+
+<Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4054159837151787"
+     crossOrigin="anonymous"/>
+
+
         {/* GA */}
         <Script
           strategy="afterInteractive"
