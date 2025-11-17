@@ -46,7 +46,7 @@ const page: FC = () => {
 
   
   <h1 className="text-2xl font-bold mb-4 text-slate-100">Disclaimer</h1>
-  <p className="mb-4">Last updated: May 18, 2025</p>
+  <p className="mb-4">Last updated: Nov 17, 2025</p>
 
   <h2 className="text-xl font-bold mb-2">Service Overview</h2>
   <p className="mb-4">
@@ -66,6 +66,17 @@ const page: FC = () => {
     We display third-party advertisements to support service maintenance. These ads may use cookies 
     through their own tracking systems. We have no access to or control over these external tracking 
     technologies.
+  </p>
+  <p className="mb-4">
+  We use Google AdSense to serve these advertisements. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the Internet.
+  </p>
+  <p className="mb-4">
+  You may opt out of personalized advertising by visiting <a href="https://adssettings.google.com/">Google's Ads Settings</a>. Alternatively, you can opt out of a third-party vendor's use of cookies by visiting the Network Advertising Initiative opt-out page.
+  </p>
+
+  <h3 className="text-lg font-bold mb-2">Ad Content Disclaimer</h3>
+  <p className="mb-4">
+  The advertisements displayed on our Service are provided by Google AdSense and other third-party ad networks. We are not responsible for the content of these advertisements, the products or services offered, or the actions of the advertisers. Any interactions with advertisers, including any purchases, legal issues, or other engagements, are solely between you and the advertiser.
   </p>
 
   <h3 className="text-lg font-bold mb-2">Game Disclaimer</h3>
@@ -90,6 +101,11 @@ const page: FC = () => {
     <li>Service may be interrupted for maintenance</li>
     <li>Browser compatibility not guaranteed for all devices</li>
   </ul>
+
+  <h2 className="text-xl font-bold mb-2">No Guarantee of Results</h2>
+  <p className="mb-4">
+  This tool is provided for informational, educational, and entertainment purposes only. We do not guarantee that using this solver will lead to any specific outcome, including improved scores, higher rankings, or success within the game.
+  </p>
 
   <h2 className="text-xl font-bold mb-2">Contact Information</h2>
   <p className="mb-4">

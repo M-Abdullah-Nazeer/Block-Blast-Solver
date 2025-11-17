@@ -39,7 +39,7 @@ const page: FC = () => {
 
                 <p className='mb-4'>If any screenshot is not proccessed by our AI system accurately or you get any kind of error while using this tool. Feel free to contact us through email. Our team will respond you within 72 hours. Make sure to attach screenshot of error or gameplay. Your feedback will help us to improve, Thanks!. </p>
 
-                <ul className="list-disc ml-8 mb-4">
+                <ul className="list-disc ml-8 sm:ml-1 mb-4">
                     <li>Email: admin@blockblastsolverai.com</li>
                 </ul>
 

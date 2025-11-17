@@ -84,6 +84,28 @@ export function MainNav({ items }: MainNavProps) {
 </a>
 
          
+              <a
+  href="privacy-policy"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+Privacy Policy
+</a>
+             
+              <a
+                href="terms"
+                className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+              >
+              Terms
+              </a>
+             
+
+              <a
+  href="disclaimer"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+Disclaimer
+</a>
+              
         
 
         </nav>
@@ -143,8 +165,37 @@ export function MainNav({ items }: MainNavProps) {
 >
   Play Game
 </a>
-
               </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+              <a
+  href="privacy-policy"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+Privacy Policy
+</a>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+              <a
+  href="terms"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+Terms
+</a>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+              <a
+  href="disclaimer"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+Disclaimer
+</a>
+              </DropdownMenuItem>
+
+
+
             </>
           ) : null}
 

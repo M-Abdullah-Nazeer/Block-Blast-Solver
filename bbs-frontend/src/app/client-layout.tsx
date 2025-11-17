@@ -13,16 +13,16 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       <SiteHeader />
       <TooltipProvider>
         <main>{children}</main>
-        <footer className="py-16 flex flex-col items-center justify-center gap-0 mt-12 border-t border-t-slate-200 dark:border-t-slate-700">
+        <footer className="py-8 flex flex-col items-center justify-center gap-0 mt-12 border-t border-t-slate-200 dark:border-t-slate-700">
           {/* <div className="flex items-center justify-end gap-2"> */}
-          <div className="grid lg:grid-cols-6 md:grid-cols-2 sm:grid-cols-1 gap-0 items-center justify-center">
+          <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-3 gap-0 items-center justify-center">
             <Button href="cheat" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Cheat
             </Button>
             <Button href="tips" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Tips
             </Button>
-            <Button href="terms" className={buttonVariants({ variant: 'link', size: 'sm' })}>
+            {/* <Button href="terms" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Terms
             </Button>
             <Button href="privacy-policy" className={buttonVariants({ variant: 'link', size: 'sm' })}>
@@ -30,7 +30,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             </Button>
             <Button href="disclaimer" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Disclaimer
-            </Button>
+            </Button> */}
             <Button href="contact" className={buttonVariants({ variant: 'link', size: 'sm' })}>
               Contact
             </Button>
