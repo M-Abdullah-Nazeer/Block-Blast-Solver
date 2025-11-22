@@ -68,10 +68,10 @@ const page: FC = () => {
     technologies.
   </p>
   <p className="mb-4">
-  We use Google AdSense to serve these advertisements. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the Internet.
+  We use Google AdSense to serve these advertisements. Google&apos;s use of advertising cookies enables it and its partners to serve ads based on your visit to our site and/or other sites on the Internet.
   </p>
   <p className="mb-4">
-  You may opt out of personalized advertising by visiting <a href="https://adssettings.google.com/">Google's Ads Settings</a>. Alternatively, you can opt out of a third-party vendor's use of cookies by visiting the Network Advertising Initiative opt-out page.
+  You may opt out of personalized advertising by visiting <a href="https://adssettings.google.com/">Google&apos;s Ads Settings</a>. Alternatively, you can opt out of a third-party vendor&apos;s use of cookies by visiting the Network Advertising Initiative opt-out page.
   </p>
 
   <h3 className="text-lg font-bold mb-2">Ad Content Disclaimer</h3>
