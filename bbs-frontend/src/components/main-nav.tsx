@@ -47,8 +47,7 @@ export function MainNav({ items }: MainNavProps) {
       </Link>
       {items?.length ? (
         <nav className="hidden gap-6 md:flex">
-          {/* {items?.map(
-            (item, index) => */}
+        
              
                 <Link
                
