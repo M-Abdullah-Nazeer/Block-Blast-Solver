@@ -36,9 +36,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
 {/* Adsense */}
 
-<meta name="google-adsense-account" content="ca-pub-4054159837151787"></meta>
 
 
+<meta name="google-adsense-account" content="ca-pub-4859181350567140"></meta>
         {/* GA */}
         <Script
           strategy="afterInteractive"
