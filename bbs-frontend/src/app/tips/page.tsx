@@ -1,6 +1,6 @@
-'use client'
+// 'use client'
 import Link from 'next/link';
-import { useState } from 'react'
+// import { useState } from 'react'
 
 
 
@@ -30,7 +30,7 @@ export default function CheatsPage() {
 
 
 
-  const [activeIndex, setActiveIndex] = useState(-1);
+  // const [activeIndex, setActiveIndex] = useState(-1);
 
   const faqs = [
     {
@@ -53,9 +53,9 @@ export default function CheatsPage() {
     // Add all FAQ items here
   ];
 
-  const toggleAccordion = (index: number) => {
-    setActiveIndex(prev => prev === index ? -1 : index);
-  };
+  // const toggleAccordion = (index: number) => {
+  //   setActiveIndex(prev => prev === index ? -1 : index);
+  // };
 
   return (
     <>
@@ -284,7 +284,7 @@ export default function CheatsPage() {
 
 
 
-          <section className="py-6" aria-label="FAQ Section">
+          {/* <section className="py-6" aria-label="FAQ Section">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mb-16">
 
@@ -336,7 +336,7 @@ export default function CheatsPage() {
                 ))}
               </div>
             </div>
-          </section>
+          </section> */}
 
 
 

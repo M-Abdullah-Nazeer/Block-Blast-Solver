@@ -3,7 +3,7 @@ import path from "path";
 import matter from "gray-matter";
 import Link from "next/link";
 import Image from "next/image";
-import FAQAccordion from "@/components/FAQAccordion";
+
 
 const BLOG_PATH = path.join(process.cwd(), "content/blog");
 

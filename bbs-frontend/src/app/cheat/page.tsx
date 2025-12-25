@@ -5,22 +5,22 @@ import { useState } from 'react'
 
 
 
-export const metadata = {
-    title: 'Block Blast Hacks & Cheats 2025',
-    description: 'Get free Block Blast cheats and hacks. Work on all devices, 100% ban-proof.',
-    openGraph: {
-      title: 'Block Blast Hacks & Cheats 2025 - Block Blast Solver',
-      description: 'Get ban-proof working Block Blast cheats and hacks for all types of devices.',
-      url: 'https://blockblastsolverai.com/cheat',
-      siteName: 'Block Blast Solver',
-      locale: 'en_US',
-      type: 'website',
-    },
-    keywords: [
-      'Block Blast cheats',
-      'Block Blast hacks',
-    ],
-  }
+// export const metadata = {
+//     title: 'Block Blast Hacks & Cheats 2025',
+//     description: 'Get free Block Blast cheats and hacks. Work on all devices, 100% ban-proof.',
+//     openGraph: {
+//       title: 'Block Blast Hacks & Cheats 2025 - Block Blast Solver',
+//       description: 'Get ban-proof working Block Blast cheats and hacks for all types of devices.',
+//       url: 'https://blockblastsolverai.com/cheat',
+//       siteName: 'Block Blast Solver',
+//       locale: 'en_US',
+//       type: 'website',
+//     },
+//     keywords: [
+//       'Block Blast cheats',
+//       'Block Blast hacks',
+//     ],
+//   }
 
 
 export default function CheatsPage() {
