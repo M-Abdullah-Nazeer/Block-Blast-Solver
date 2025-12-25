@@ -1,36 +1,29 @@
-'use client'
 import Link from 'next/link';
-import { useState } from 'react'
+import FAQSection from '@/src/components/FAQSection';
 
 
 
-
-// export const metadata = {
-//     title: 'Block Blast Hacks & Cheats 2025',
-//     description: 'Get free Block Blast cheats and hacks. Work on all devices, 100% ban-proof.',
-//     openGraph: {
-//       title: 'Block Blast Hacks & Cheats 2025 - Block Blast Solver',
-//       description: 'Get ban-proof working Block Blast cheats and hacks for all types of devices.',
-//       url: 'https://blockblastsolverai.com/cheat',
-//       siteName: 'Block Blast Solver',
-//       locale: 'en_US',
-//       type: 'website',
-//     },
-//     keywords: [
-//       'Block Blast cheats',
-//       'Block Blast hacks',
-//     ],
-//   }
+export const metadata = {
+    title: 'Block Blast Hacks & Cheats 2025',
+    description: 'Get free Block Blast cheats and hacks. Work on all devices, 100% ban-proof.',
+    openGraph: {
+      title: 'Block Blast Hacks & Cheats 2025 - Block Blast Solver',
+      description: 'Get ban-proof working Block Blast cheats and hacks for all types of devices.',
+      url: 'https://blockblastsolverai.com/cheat',
+      siteName: 'Block Blast Solver',
+      locale: 'en_US',
+      type: 'website',
+    },
+    keywords: [
+      'Block Blast cheats',
+      'Block Blast hacks',
+    ],
+  }
 
 
 export default function CheatsPage() {
 
 
-
-
-
-
-    const [activeIndex, setActiveIndex] = useState(-1);
   
     const faqs = [
       {
@@ -49,10 +42,6 @@ export default function CheatsPage() {
       // Add all FAQ items here
     ];
   
-    const toggleAccordion = (index: number) => {
-      setActiveIndex(prev => prev === index ? -1 : index);
-    };
-
   return (
     <>
 
@@ -215,65 +204,9 @@ export default function CheatsPage() {
 
  
      
+<FAQSection faq={faqs}/>
 
-
-        <section className="py-6" aria-label="FAQ Section">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="mb-16">
-  
-  
-  
-                <h2 className='text-4xl md:text-4xl font-bold tracking-tight text-white text-center'> Frequently Asked<span className='text-sky-500'> Questions</span></h2>
-  
-             
-              </div>
-              <div className="accordion-group">
-                {faqs.map((faq, index) => (
-                  <div
-                    key={index}
-                    className={`accordion border border-solid  border-white/10 p-4 rounded-xl transition duration-500 mb-8 lg:p-4 ${activeIndex === index ? 'active' : ''
-                      }`}
-                  >
-                    <button
-                      className="group inline-flex items-center justify-between text-left text-lg font-normal leading-8 w-full transition duration-500 "
-                      onClick={() => toggleAccordion(index)}
-                      aria-expanded={activeIndex === index}
-                    >
-                      <h3 className='text-white font-extrabold'>{faq.question}</h3>
-                      <div className="flex items-center">
-                        <svg
-                          className={`w-6 h-6 transition duration-500 ${activeIndex === index ? 'hidden' : 'block'
-                            }`}
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M6 12H18M12 18V6" stroke="currentColor" strokeWidth="1.6" />
-                        </svg>
-                        <svg
-                          className={`w-6 h-6 transition duration-500 ${activeIndex === index ? 'block' : 'hidden'
-                            }`}
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M6 12H18" stroke="currentColor" strokeWidth="1.6" />
-                        </svg>
-                      </div>
-                    </button>
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ${activeIndex === index ? 'max-h-[500px]' : 'max-h-0'
-                        }`}
-                    >
-                      <p className="text-base text-gray-300 font-normal leading-6 pt-4">
-                        {faq.answer}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-
-
-
+   
 
    
       </div>
