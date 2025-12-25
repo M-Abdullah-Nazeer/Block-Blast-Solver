@@ -73,6 +73,15 @@ export function MainNav({ items }: MainNavProps) {
                 >
                    {items[1].title}
                 </Link>
+
+                <a
+  href="/blog"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+Blog
+</a>
+
+
                 <a
   href="https://play.google.com/store/apps/details?id=com.block.juggle&hl=en"
   target="_blank"
@@ -84,14 +93,14 @@ export function MainNav({ items }: MainNavProps) {
 
          
               <a
-  href="privacy-policy"
+  href="/privacy-policy"
   className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
 >
 Privacy Policy
 </a>
              
               <a
-                href="terms"
+                href="/terms"
                 className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
               >
               Terms
@@ -99,7 +108,7 @@ Privacy Policy
              
 
               <a
-  href="disclaimer"
+  href="/disclaimer"
   className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
 >
 Disclaimer
@@ -155,6 +164,18 @@ Disclaimer
                   {items[1].title}
                 </Link>
               </DropdownMenuItem>
+
+
+ <DropdownMenuItem asChild>
+              <a
+  href="blog"
+  className="flex items-center text-lg font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-100 sm:text-sm cursor-pointer opacity-80"
+>
+  Blog
+</a>
+              </DropdownMenuItem>
+
+
               <DropdownMenuItem asChild>
               <a
   href="https://play.google.com/store/apps/details?id=com.block.juggle&hl=en"

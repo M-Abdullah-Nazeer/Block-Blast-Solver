@@ -15,6 +15,49 @@
 body {
   color: #ffffff;
 }
+
+.post-faq{
+  h2,h3,h4, h5, h6{
+    margin: 0 !important;
+    font-size: 1.2rem !important;
+  }
+}
+
+.max-w-screen-4xl{
+  max-width: 1920px;
+}
+
+.post-style h2 {
+  @apply text-4xl md:text-4xl font-bold tracking-tight text-white mt-6 mb-6;
+}
+
+.post-style h3 {
+  @apply text-2xl md:text-3xl font-bold tracking-tight text-white mt-6 mb-1;
+}
+.post-style h4 {
+  @apply text-white text-2xl md:text-3xl font-bold tracking-tight mt-6 mb-1;
+}
+
+.post-style p {
+  @apply text-base leading-7 text-gray-300 my-1;
+}
+
+.post-style ul {
+  @apply list-disc pl-6 my-4;
+}
+
+.post-style li {
+  @apply mb-2;
+}
+
+.post-style img {
+  @apply rounded-lg my-6;
+}
+.post-style a {
+  @apply text-sky-500 underline;
+}
+
+
 .gradient-background {
   position: absolute;
   top: 0;

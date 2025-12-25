@@ -10,7 +10,7 @@ export const metadata = {
     url: "https://blockblastsolverai.com",
     type: "website",
     images: [{
-      url: OGImage,
+      url: OGImage.src,
       width: 1076,
       height: 428,
       alt: "AI Block Blast cheat",
@@ -21,7 +21,7 @@ export const metadata = {
     title: "Block Blast Solver AI",
     description: "Free AI-powered solution generator for Block Blast puzzles",
     images: [{  
-      url: OGImage,
+      url: OGImage.src,
       width: 1076,
       height: 428,
       alt: "AI Block Blast cheat",

@@ -202,7 +202,7 @@ const HomePageComponent = () => {
               <div>
                 <div className="mt-2 flex items-center gap-x-2">
                   <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white h3-cust">
-                    <span className="text-base font-semibold leading-7 text-sky-500 mb-2">
+                    <span className="text-base font-semibold leading-7 text-sky-500 mb-2 ">
                       Step 1:
                     </span>
                     Set up the game
@@ -230,7 +230,7 @@ const HomePageComponent = () => {
               Step 2:
             </span>
             Take the Screenshot</h3>
-          <div className="px-0 py-0 md:px-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8 my-0">
+          <div className="p-0 md:px-8 grid  grid-cols-1 lg:grid-cols-[1fr_1fr] items-start justify-center gap-8 my-0">
             <details className="group relative rounded-xl border border-white/10  lg:px-8 md:px-6 p-0 md:py-8 lg:py-16 shadow-2xl"
             >
               <summary><h4>For Android</h4>
