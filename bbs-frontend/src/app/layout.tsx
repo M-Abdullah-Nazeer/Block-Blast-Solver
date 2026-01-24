@@ -66,13 +66,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
               "@type": "SoftwareApplication",
               "name": "Block Blast Solver",
               "url": "https://blockblastsolverai.com",
-              "description": "Free AI-powered tool that analyzes Block Blast gameplay screenshots to generate optimal moves with 3D visualization. No downloads required - works directly in your browser.",
+              "description": "Free Block Blast Solver tool that analyzes Block Blast gameplay screenshots to generate optimal moves with 3D visualization. No downloads required - works directly in your browser.",
               "applicationCategory": ["GameTool", "PuzzleSolver"],
               "operatingSystem": "Web",
               "browserRequirements": "Modern web browser with JavaScript enabled",
               "featureList": [
                 "Browser-based (no installations)",
-                "AI-powered move suggestions",
+                "Stepwise move suggestions",
                 "3D color-coded visualization",
                 "Instant screenshot analysis",
                 "Free unlimited attempts"
@@ -92,7 +92,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               },
               "author": {
                 "@type": "Organization",
-                "name": "Block Blast Solver AI",
+                "name": "Block Blast Solver",
                 "url": "https://blockblastsolverai.com"
               },
               "datePublished": "2025-05-18" 
@@ -119,7 +119,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 },
                 {
                   "@type": "HowToStep",
-                  "name": "Wait for AI Analysis",
+                  "name": "Wait for Screenshot Analysis",
                   "text": "Wait until our algorithms process the board state and possible moves",
                 },
                 {
@@ -167,7 +167,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               "@type": "WebSite",
               "name": "Block Blast Solver",
               "url": "https://blockblastsolverai.com",
-              "description": "Achieve Block Blast high score just by uploading image. Our AI solver gives detailed solution."
+              "description": "Achieve Block Blast high score just by uploading image. Block Blast Solver gives detailed solution."
             })
           }}
         />

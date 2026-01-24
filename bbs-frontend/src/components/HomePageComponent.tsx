@@ -178,7 +178,7 @@ const HomePageComponent = () => {
           <div className='pt-24 z-10'>
             <div className="container flex w-full flex-col items-start gap-2 ">
               <p className="text-base leading-7 text-gray-300 ">
-                <strong>It&apos;s an AI-based problem solver</strong> that finds the best possible moves for a Block Blast game using just a screenshot of your gameplay. You can achieve a high score in the game with a single click using our free online tool.
+                <strong>It&apos;s a problem solver</strong> that finds the best possible moves for a Block Blast game using just a screenshot of your gameplay. You can achieve a high score in the game with a single click using our free online tool.
               </p>
               <p className="text-base leading-7 text-gray-300 ">
                 What makes it better than other helpers is its advanced solver algorithms. Block Blast Solver finds the best possible steps to take to maximize your score in a given situation.
@@ -191,7 +191,7 @@ const HomePageComponent = () => {
         </section>
         <section className='pt-24'>
           <h2 className='text-4xl text-sky-500 font-bold tracking-tight text-center'>How to Use <strong className='mark'>Block Blast Solver?</strong></h2>
-          <p className='mt-6 text-base leading-7 text-gray-300 text-center'>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast AI solver will not be able to help you with cheat moves.</p>
+          <p className='mt-6 text-base leading-7 text-gray-300 text-center'>You only need to upload 1 picture for each step, however, be sure to follow these steps to get accurate results. Otherwise, the Block Blast Solver will not be able to help you with step-by-step moves.</p>
           <div className=" p-0 md:p-8 grid  grid-cols-1 md:grid-cols-[1fr_2fr] items-center justify-center gap-8 md:gap-[20px] lg:gap-[50px] xl:gap-[100px]">
             <div className="group relative max-w-md rounded-xl border border-white/10 lg:px-8 md:px-6 p-4 md:py-8 lg:py-16 shadow-2xl"
             >
@@ -522,7 +522,7 @@ const HomePageComponent = () => {
                     <div className="ml-0 lg:ml-6 flex flex-col items-center lg:items-start justify-center">
                       <h3 className="mb-2 text-white font-extrabold">Updates & Feedback</h3>
                       <p className="text-base leading-7 text-gray-300 text-center lg:text-start">
-                        It is independent from game updates; no matter how much the game changes, it will work. We also improve our AI based on user feedback.
+                        It is independent from game updates; no matter how much the game changes, it will work. We also improve our tool based on user feedback.
                       </p>
                     </div>
                   </div>

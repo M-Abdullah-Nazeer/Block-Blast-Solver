@@ -8,10 +8,10 @@ import { FC } from 'react'
 // app/disclaimer/page.tsx
 export const metadata = {
     title: 'Disclaimer - Block Blast Solver',
-    description: 'Important limitations and terms of use for our AI-powered Block Blast puzzle solver - no data collection, client-side processing, and immediate image deletion',
+    description: 'Important limitations and terms of use for Block Blast Solver - no data collection, client-side processing, and immediate image deletion',
     openGraph: {
       title: 'Service Disclaimer - Block Blast Solver',
-      description: 'Understand the terms of using our browser-based Block Blast solution tool with AI-generated suggestions',
+      description: 'Understand the terms of using our browser-based Block Blast Solver tool ',
       url: 'https://blockblastsolverai.com/disclaimer',
       siteName: 'Block Blast Solver',
       locale: 'en_US',
@@ -50,7 +50,7 @@ const page: FC = () => {
 
   <h2 className="text-xl font-bold mb-2">Service Overview</h2>
   <p className="mb-4">
-    Block Blast Solver AI (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the web-based tool available at<a href="https://blockblastsolverai.com" className="text-blue-400 hover:underline"> https://blockblastsolverai.com</a> (the &quot;Service&quot;). This AI-powered tool analyzes gameplay screenshots to suggest optimal moves.
+    Block Blast Solver (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the web-based tool available at<a href="https://blockblastsolverai.com" className="text-blue-400 hover:underline"> https://blockblastsolverai.com</a> (the &quot;Service&quot;). This tool analyzes gameplay screenshots to suggest optimal moves.
   </p>
 
   <h2 className="text-xl font-bold mb-2">Key Disclosures</h2>
@@ -87,7 +87,7 @@ const page: FC = () => {
 
   <h2 className="text-xl font-bold mb-2">Service Limitations</h2>
   <ul className="list-disc ml-8 mb-4">
-    <li>Results are AI-generated suggestions, not guaranteed solutions</li>
+    <li>Results are stepwise suggestions, not guaranteed solutions</li>
     <li>Game outcomes may vary based on actual gameplay conditions</li>
     <li>We assume no responsibility for game scores or rankings</li>
   </ul>

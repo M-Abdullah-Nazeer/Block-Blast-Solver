@@ -3,7 +3,7 @@ import { FC } from 'react'
 
 export const metadata = {
   title: 'Terms & Conditions - Block Blast Solver',
-  description: 'Legal terms for using Block Blast Solver - your AI-powered puzzle optimization tool',
+  description: 'Legal terms for using Block Blast Solver - your puzzle optimization tool',
   openGraph: {
     title: 'Terms & Conditions - Block Blast Solver',
     description: 'Web-based tool for solving Block Blast puzzles via screenshot analysis',

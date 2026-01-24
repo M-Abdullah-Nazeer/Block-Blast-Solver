@@ -28,7 +28,7 @@ export default function CheatsPage() {
     const faqs = [
       {
         question: 'Does it work on all levels?',
-        answer: "Yes! Our AI solver has been tested on all current Block Blast levels and adapts to new levels automatically through machine learning."
+        answer: "Yes! block blast solver has been tested on all current Block Blast levels and adapts to new levels automatically through machine learning."
       },
       {
         question: 'Will I get banned?',
@@ -80,7 +80,7 @@ export default function CheatsPage() {
 
               <div className="!p-6 g-style  rounded-xl  shadow-2xl">
                 <h2 className="text-2xl font-bold mb-4 text-white">The unsurpassed Block Blast Solver for 2025</h2>
-                <p className="mb-4">Our AI backed solver is best in the market due to following reasons:</p>
+                <p className="mb-4">This block blast solver is the best in the market due to following reasons:</p>
                 
                 <ul className="space-y-2">
                   <li className="flex items-start">
@@ -132,7 +132,7 @@ export default function CheatsPage() {
               </div>
               <div className="bg-[#0D5679]  p-4 rounded-lg">
                 <div className="text-2xl font-bold text-gray-300 mb-2">4</div>
-                <p>Act in accordance with AI response to reach high levels</p>
+                <p>Act in accordance with advanced algorithm response to reach high levels</p>
               </div>
             </div>
           </section>

@@ -166,7 +166,7 @@ export default function CheatsPage() {
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <span className="text-[#30e00d] mr-2">✓</span>
-                      <span>Provide screenshot to our <Link className='underline' href="/"> solver</Link>, it uses AI to achieve results</span>
+                      <span>Provide screenshot to our <Link className='underline' href="/"> solver</Link>, it uses advanced algorithms to achieve results</span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-[#30e00d] mr-2">✓</span>
